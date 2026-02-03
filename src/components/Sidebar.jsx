@@ -57,6 +57,20 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 </div>
             </div>
 
+            {/* Workspace Switcher */}
+            {!isCollapsed && (
+                <div className="workspace-switcher">
+                    <div className="workspace-selector">
+                        <div className="workspace-icon">P</div>
+                        <div className="workspace-details">
+                            <span className="workspace-name">Product Launch</span>
+                            <span className="org-name">Agent Maple Inc.</span>
+                        </div>
+                        <ChevronRight size={14} className="switcher-arrow" />
+                    </div>
+                </div>
+            )}
+
             {/* Navigation */}
             <nav className="sidebar-nav">
                 {menuGroups.map((group, index) => (

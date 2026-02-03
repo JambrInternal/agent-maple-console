@@ -1,7 +1,7 @@
 # Planning History & Decisions
 
 ## Phase 1: Inception & Setup
-- **Objective**: Build a premium agent management console ("Donna" -> "Agent Maple").
+- **Objective**: Build a premium agent management console (**Agent Maple**).
 - **Decision**: Use **React + Vite** for speed and modern tooling.
 - **Environment**: Implemented `mise` for reproducible Node.js version management.
 
@@ -14,7 +14,7 @@
   - **Data Sources**: File list with metadata.
 
 ## Phase 3: Branding & Polish
-- **Rebrand**: Shifted from "Donna" placeholder to **Agent Maple**.
+- **Branding**: Implemented official **Agent Maple** assets.
   - Fetched official assets from `agentmaple.ca`.
   - Updated color scheme to Navy/Orange.
 - **Sidebar**: Implemented a **Collapsible Sidebar**.

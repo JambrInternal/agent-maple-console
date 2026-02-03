@@ -7,37 +7,16 @@ The current backend (Certly API) provides robust support for multi-tenancy, file
 
 ## 2. High-Level Architecture
 
-The system follows a microservices-oriented architecture (or modular monolith) secured by **AWS Cognito**.
+The system follows an **Enterprise Hierarchy** model, designed for multi-workspace management within corporate entities.
 
-```mermaid
-graph TD
-    Client[Agent Maple Console\n(React SPA)]
-    
-    subgraph "Infrastructure"
-        Auth[AWS Cognito\n(Identity & Access)]
-        Gateway[API Gateway / Load Balancer]
-        S3[AWS S3\n(File Storage)]
-        SQS[AWS SQS\n(Async Processing)]
-    end
-    
-    subgraph "Backend Services"
-        CoreAPI[**Core Agent Service**\n(FastAPI / Python)\n- Tenants & Users\n- Datasources (RAG)\n- Audio Sessions]
-        
-        Realtime[**Realtime Service**\n(WebSocket / SSE)\n- Live Call Status\n- Processing Updates]
-        
-        CommService[**Communication Service**\n(Twilio Wrapper)\n- SMS History\n- Call Logs]
-    end
-    
-    Client -->|HTTPS / Bearer Token| Gateway
-    Client -->|WSS| Realtime
-    
-    Gateway --> CoreAPI
-    Gateway --> CommService
-    
-    CoreAPI --> Auth
-    CoreAPI --> S3
-    CoreAPI --> SQS
-```
+### 2.1. Hierarchy Model (Selected: #1)
+1.  **Organization**: Global root for billing, policy, and user management.
+2.  **Workspace**: Project/Team containers (isolated data, agents, and phone numbers).
+3.  **Resources**: Assets unique to a Workspace (Knowledge base, SMS history, etc).
+4.  **Users**: Belong to an Org; partitioned into Workspaces via role-based access.
+
+### 2.2. Architectural Diagram
+![Backend Architecture Diagram](/home/jeremy/.gemini/antigravity/brain/2d288d3d-bbc0-4352-8719-6255a5d411ec/backend_architecture_visual_1770156706245.png)
 
 ## 3. Core Services Analysis
 
