@@ -1,0 +1,741 @@
+:root {
+    /* Brand Colors from agentmaple.ca */
+    --color-primary: #C26A2E;
+    /* Burnt Orange */
+    --color-secondary: #001F3F;
+    /* Deep Navy Blue */
+    --color-text-main: #001F3F;
+    /* Navy Blue/Black */
+    --color-text-body: #111827;
+    /* Dark Slate aka Gray-900 */
+    --color-text-muted: #6B7280;
+    /* Gray-500 */
+    --color-bg: #F9FAFB;
+    /* Off-white */
+    --color-border: #E5E7EB;
+    /* Gray-200 */
+
+    /* Aesthetic */
+    --radius: 0.25rem;
+    /* 4px */
+    --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+    /* Layout */
+    --sidebar-width: 250px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    /* Grid pattern overlay */
+    background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: var(--color-text-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: white;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+/* When sidebar is collapsed, adjust main layout padding */
+.layout-container.collapsed .app-layout {
+    padding-left: 80px;
+}
+
+/* Add transition to main layout padding */
+.app-layout {
+    padding-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: padding-left 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-secondary);
+    /* Navy Blue for White Logo */
+    height: 80px;
+    /* Fixed height for consistency */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.logo-image {
+    max-width: 180px;
+    height: auto;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    /* Make it white */
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+}
+
+.nav-group {
+    margin-bottom: 1.5rem;
+}
+
+.group-title {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+    padding-left: 0.75rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius);
+    color: var(--color-text-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.nav-item:hover {
+    background-color: #F3F4F6;
+    color: var(--color-secondary);
+}
+
+.nav-item.active {
+    background-color: #001F3F;
+    /* Navy Blue Background */
+    color: #FFFFFF;
+    /* White Text */
+    border-left: none;
+    border-radius: var(--radius);
+    /* Fully rounded */
+    box-shadow: 0 4px 6px -1px rgba(0, 31, 63, 0.2);
+}
+
+/* Remove dot indicator if present */
+.nav-item.active::after {
+    display: none;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #E0E7FF;
+    color: var(--color-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-body);
+}
+
+.user-org {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    border-radius: var(--radius);
+}
+
+.logout-btn:hover {
+    background-color: #FEF2F2;
+    color: #DC2626;
+}
+
+/* Main Content Layout */
+.app-layout {
+    padding-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+.page-content {
+    padding: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Headers */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    /* 24px */
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+/* Buttons */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-text-main);
+    /* Using Dark Navy/Black as per mockup "Invite User" button */
+    color: white;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+/* Tables */
+.table-container {
+    background-color: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th {
+    padding: 1rem 1.5rem;
+    background-color: transparent;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.data-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-body);
+    font-size: 0.875rem;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background-color: #F9FAFB;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-initials {
+    width: 24px;
+    height: 24px;
+    background-color: #F3F4F6;
+    color: var(--color-text-muted);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.action-cell {
+    text-align: right;
+}
+
+.icon-btn {
+    color: var(--color-text-muted);
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+    color: var(--color-text-body);
+}
+
+/* Info Cards Layout */
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 800px;
+}
+
+.info-card {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.info-card.bg-gray {
+    background-color: #F9FAFB;
+}
+
+.info-card.bg-blue {
+    background-color: #EFF6FF;
+    border-color: #BFDBFE;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+}
+
+.card-title.text-blue {
+    color: #1E40AF;
+    /* Darker blue */
+    margin-bottom: 1rem;
+}
+
+.card-description {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+}
+
+.card-icon {
+    color: var(--color-text-muted);
+}
+
+/* Steps List */
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-body);
+}
+
+.step-number {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    /* Rounded square as per mock? Or circle? Mock looks like small rounded square/circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* Number Display */
+.number-display {
+    background-color: #F3F4F6;
+    border-radius: var(--radius);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.display-icon {
+    color: var(--color-text-muted);
+}
+
+.hashtag-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #E5E7EB;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+    color: var(--color-text-body);
+}
+
+.number-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.large-number {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.sub-text {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    color: var(--color-text-body);
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background-color: #F9FAFB;
+    border-color: #D1D5DB;
+}
+
+/* Tips List */
+.tips-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tips-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: 0.875rem;
+    color: #1E3A8A;
+    /* Dark Blue Text for tips */
+}
+
+.tips-list li::before {
+    content: "•";
+    color: #3B82F6;
+    /* Blue bullet */
+    position: absolute;
+    left: 0.5rem;
+    font-weight: bold;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: white;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-body);
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #F9FAFB;
+    border-color: #D1D5DB;
+}
+
+/* File List Specifics */
+.file-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.file-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #F3F4F6;
+    color: var(--color-text-muted);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-name {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--color-text-body);
+}
+
+.file-hash {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.source-pill {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background-color: #EFF6FF;
+    color: #2563EB;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Page Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-content {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Nav Item Adjustments */
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.sidebar.collapsed .nav-group {
+    margin-bottom: 1rem;
+}
+
+/* Hide elements when collapsed */
+.sidebar.collapsed .group-title,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .user-info {
+    display: none;
+}
+
+/* Footer Adjustments */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    /* Center items when collapsed */
+}
+
+.sidebar:not(.collapsed) .sidebar-footer {
+    align-items: stretch;
+}
+
+.toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #F3F4F6;
+    border-radius: 50%;
+    color: var(--color-text-muted);
+    align-self: flex-end;
+    /* Align right normally */
+    cursor: pointer;
+}
+
+.sidebar.collapsed .toggle-btn {
+    align-self: center;
+    /* Center when collapsed */
+}
+
+.toggle-btn:hover {
+    background-color: #E5E7EB;
+    color: var(--color-text-body);
+}
+
+.sidebar.collapsed .logout-btn {
+    justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+
+    /* On very small screens, the collapsed sidebar might overwrite content 
+       or we might want to hide it completely and show a hamburger. 
+       For now, let's keep the icon-bar (80px) but ensure content padding is safe. 
+    */
+    .sidebar.collapsed {
+        width: 60px;
+        /* Slimmer on mobile */
+    }
+
+    .sidebar-header {
+        height: 60px;
+        padding: 0.5rem;
+    }
+
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .layout-container.collapsed .app-layout {
+        padding-left: 60px;
+    }
+
+    .page-content {
+        padding: 1.5rem;
+        /* Reduce padding on mobile */
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}
