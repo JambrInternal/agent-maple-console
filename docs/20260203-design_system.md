@@ -13,8 +13,7 @@
 - **White (`#FFFFFF`)**: Used for card backgrounds and high-contrast text on Navy.
 
 ### Neutral
-- **Background (`#F9FAFB`)**: Off-white for the main app canvas.
-- **Grid Pattern**: A generic graph-paper overlay provides a technical, "blueprint" feel.
+- **Background (`#F9FAFB`)**: Flat light grey/off-white for the main app canvas.
 
 ## 2. Typography
 - **Font Family**: `Inter` (System UI fallback).

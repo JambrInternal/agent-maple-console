@@ -25,18 +25,18 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 { icon: Users, label: 'Contacts', path: '/contacts' },
                 { icon: Phone, label: 'Phone', path: '/phone' },
                 { icon: MessageSquare, label: 'SMS', path: '/sms' },
-                { icon: Mail, label: 'Email', path: '/email' },
-                { icon: Calendar, label: 'Calendar', path: '/calendar' },
-                { icon: MessageCircle, label: 'Threads', path: '/threads' },
-                { icon: AlertCircle, label: 'Issues', path: '/issues' },
-                { icon: Database, label: 'Data Sources', path: '/data-sources' },
+                { icon: Mail, label: 'Email', path: '/email', disabled: true },
+                { icon: Calendar, label: 'Calendar', path: '/calendar', disabled: true },
+                { icon: MessageCircle, label: 'Threads', path: '/threads', disabled: true },
+                { icon: AlertCircle, label: 'Issues', path: '/issues', disabled: true },
             ]
         },
         {
-            title: 'Analytics',
+            title: 'Data & Analytics',
             items: [
-                { icon: Brain, label: 'Knowledge', path: '/knowledge' },
-                { icon: Lightbulb, label: 'Insights', path: '/insights' },
+                { icon: Database, label: 'Data Sources', path: '/data-sources' },
+                { icon: Brain, label: 'Knowledge', path: '/knowledge', disabled: true },
+                { icon: Lightbulb, label: 'Insights', path: '/insights', disabled: true },
             ]
         }
     ]
@@ -49,7 +49,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     {isCollapsed ? (
                         <img src="/src/assets/logo-icon.png" alt="AM" className="logo-icon" />
                     ) : (
-                        <img src="/src/assets/logo.png" alt="Agent Maple" className="logo-image" />
+                        <div className="logo-container">
+                            <img src="/src/assets/logo.png" alt="Agent Maple" className="logo-image" />
+                            <span className="beta-badge">BETA</span>
+                        </div>
                     )}
                 </div>
             </div>
@@ -60,17 +63,28 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     <div key={index} className="nav-group">
                         {!isCollapsed && <h3 className="group-title">{group.title}</h3>}
                         {group.items.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) =>
-                                    `nav-item ${isActive ? 'active' : ''}`
-                                }
-                                title={isCollapsed ? item.label : ''}
-                            >
-                                <item.icon size={20} className="nav-icon" />
-                                {!isCollapsed && <span className="nav-label">{item.label}</span>}
-                            </NavLink>
+                            item.disabled ? (
+                                <div
+                                    key={item.label}
+                                    className="nav-item disabled"
+                                    title="Coming Soon"
+                                >
+                                    <item.icon size={20} className="nav-icon" />
+                                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                                </div>
+                            ) : (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) =>
+                                        `nav-item ${isActive ? 'active' : ''}`
+                                    }
+                                    title={isCollapsed ? item.label : ''}
+                                >
+                                    <item.icon size={20} className="nav-icon" />
+                                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                                </NavLink>
+                            )
                         ))}
                     </div>
                 ))}
