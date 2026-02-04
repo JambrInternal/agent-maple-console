@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Contacts Actions Menu
+## Current Task: Motion System
 
-**Goal**: Add row actions for Contacts with View/Edit options.
+**Goal**: Add standard animations and apply them to key UI actions (menus, modals).
 
 **Todo**
-- [x] Add per-row actions menu with View/Edit
-- [x] Style action menu to match Industrial Navy theme
+- [x] Add reusable animation keyframes
+- [x] Apply menu and modal animations
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

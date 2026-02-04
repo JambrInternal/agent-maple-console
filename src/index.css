@@ -429,6 +429,8 @@ button {
     padding: 0.35rem;
     min-width: 140px;
     z-index: 20;
+    transform-origin: top right;
+    animation: am-fade-scale-in var(--am-dur-2) var(--am-ease-out);
 }
 
 .am-row-menu-item {
@@ -442,6 +444,74 @@ button {
 
 .am-row-menu-item:hover {
     background-color: rgba(148, 163, 184, 0.1);
+}
+
+.am-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 80;
+    animation: am-fade-in var(--am-dur-2) var(--am-ease-out);
+}
+
+.am-modal {
+    width: min(640px, 100%);
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+    transform-origin: center;
+    animation: am-pop-in var(--am-dur-3) var(--am-ease-out);
+}
+
+.am-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.am-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--am-text-1);
+}
+
+.am-form {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.am-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.am-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.am-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--am-text-2);
+    font-weight: 600;
+}
+
+.am-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
 }
 
 .am-filter-row {
@@ -731,6 +801,37 @@ button {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes am-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes am-fade-scale-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes am-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
