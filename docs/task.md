@@ -1,11 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Remove Top Banner Logo
+## Current Task: Simplify Org Breadcrumbs
 
-**Goal**: Remove the Agent Maple logo and text from the top banner.
+**Goal**: When no Project is selected, show only Organization and Projects in breadcrumbs.
 
 **Todo**
-- [x] Remove logo mark and text from the top banner
+- [x] Remove the current page label from org-level breadcrumbs
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

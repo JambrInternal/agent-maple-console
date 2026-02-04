@@ -51,15 +51,6 @@ const Breadcrumbs = () => {
                 </>
             )}
 
-            {viewLabel && !projId && pathSegments.length > 1 && (
-                <>
-                    <ChevronRight size={14} className="am-text-2" style={{ opacity: 0.5 }} />
-                    <span className="am-text-1" style={{ fontWeight: 600 }}>
-                        {viewLabel}
-                    </span>
-                </>
-            )}
-
             {viewLabel && projId && pathSegments.length > 2 && (
                 <>
                     <ChevronRight size={14} className="am-text-2" style={{ opacity: 0.5 }} />

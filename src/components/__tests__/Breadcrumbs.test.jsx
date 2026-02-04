@@ -16,10 +16,10 @@ const renderWithRoute = (initialEntry) => {
 };
 
 describe('Breadcrumbs', () => {
-    it('shows organization and view label for org-level routes', () => {
+    it('shows organization only for org-level routes', () => {
         renderWithRoute('/iron_maple/projects');
         expect(screen.getByText('Iron Maple')).toBeInTheDocument();
-        expect(screen.getByText('Projects')).toBeInTheDocument();
+        expect(screen.queryByText('Projects')).not.toBeInTheDocument();
     });
 
     it('shows project context and Threads for triage', () => {
