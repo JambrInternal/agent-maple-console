@@ -6,15 +6,11 @@ import { getProjects } from '../services/projects'
 const STATUS_OPTIONS = [
     { key: 'all', label: 'All' },
     { key: 'online', label: 'Online' },
-    { key: 'warning', label: 'Warning' },
-    { key: 'problems', label: 'Problems' },
     { key: 'offline', label: 'Offline' },
 ]
 
 const STATUS_LABELS = {
     online: 'Online',
-    warning: 'Warning',
-    problems: 'Problems',
     offline: 'Offline',
 }
 

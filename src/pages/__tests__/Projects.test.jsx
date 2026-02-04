@@ -26,7 +26,7 @@ const mockProjects = [
         id: 'proj_2',
         organizationId: 'org_1',
         name: 'Site B',
-        agentStatus: 'warning',
+        agentStatus: 'offline',
         threadCount: 0,
         issueCount: 0,
         lastActivityAt: '2026-02-01T08:00:00Z',
@@ -57,7 +57,7 @@ describe('Projects page', () => {
         await renderWithRoute()
         await screen.findByText('Site A')
 
-        await user.click(screen.getByRole('button', { name: 'Warning' }))
+        await user.click(screen.getByRole('button', { name: 'Offline' }))
 
         expect(screen.queryByText('Site A')).not.toBeInTheDocument()
         expect(screen.getByText('Site B')).toBeInTheDocument()

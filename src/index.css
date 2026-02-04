@@ -96,8 +96,8 @@ button {
 }
 
 .am-brand-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     display: block;
 }
 
@@ -371,18 +371,6 @@ button {
     color: #22c55e;
     background-color: rgba(34, 197, 94, 0.12);
     border-color: rgba(34, 197, 94, 0.3);
-}
-
-.am-status-badge.is-warning {
-    color: #f59e0b;
-    background-color: rgba(245, 158, 11, 0.12);
-    border-color: rgba(245, 158, 11, 0.3);
-}
-
-.am-status-badge.is-problems {
-    color: #ef4444;
-    background-color: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.3);
 }
 
 .am-status-badge.is-offline {

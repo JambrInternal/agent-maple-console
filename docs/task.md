@@ -1,13 +1,13 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Project Status Updates
+## Current Task: Project Status Simplification
 
-**Goal**: Remove hibernation and align project status labels to Online/Warning/Problems/Offline.
+**Goal**: Simplify project status to Online and Offline only.
 
 **Todo**
-- [x] Remove hibernate/resume controls from Projects grid
-- [x] Update status filters and badges to Online/Warning/Problems/Offline
-- [x] Update mock project data and tests to match new statuses
+- [x] Remove Warning/Problems statuses from the Projects grid filters
+- [x] Update mock data and types to Online/Offline only
+- [x] Update status badge styling and tests
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
