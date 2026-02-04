@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Re-Enable Mock Mode
+## Current Task: Clarify Console Users vs Contacts
 
-**Goal**: Default to mock data unless `VITE_USE_MOCKS=false`.
+**Goal**: Update Core Concepts to distinguish console users from contacts.
 
 **Todo**
-- [x] Flip mock-mode default back on
-- [x] Update docs for mock mode behavior
+- [x] Add explicit Console User definition and distinction in Core Concepts
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

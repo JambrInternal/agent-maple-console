@@ -4,13 +4,14 @@
 
 ## Principles
 - **Console is configuration + reporting**, not realtime chat.
-- Use **Organization / Project / Thread / Issue / Contact** terminology (console terms). Map to existing Certly models where needed.
+- Use **Organization / Project / Thread / Issue / Contact / Console User** terminology (console terms). Map to existing Certly models where needed.
 - Prefer **consistent, predictable endpoints**, with pagination and filtering on list routes.
 - Keep **auth** consistent with existing Bearer JWT + `x-tenant-id` for Organization context.
 
 ## Terminology Mapping
 - **Project** = Certly **Tenant** (`tenant_id`) **today**
 - **Organization** = Console grouping above Projects (**not represented in Certly yet**)
+- **Console User** = Authenticated console user (Cognito + Certly user record)
 - **Thread** = Contact + Issue mapping
 - **Issue** = Root cause linked to multiple threads
 - **Contact** = Certly **Tenant User** (current)
@@ -21,7 +22,7 @@ These already exist and can be reused/mapped:
 - **Projects (Tenants)**:
   - `GET /user/tenants` (list projects for current user)
   - `GET /admin/tenants` and related admin tenant endpoints
-  - `GET/POST/PATCH/DELETE /tenants/users...` (team management)
+  - `GET/POST/PATCH/DELETE /tenants/users...` (console_users team management)
 - **Knowledge Base** (Datasources):
   - `GET /datasources`
   - `POST /datasources/upload`
@@ -73,6 +74,39 @@ PATCH /projects/{project_id}
 
 **Fields (Project)**
 - `id`, `organization_id`, `name`, `agent_status`, `thread_count`, `issue_count`, `last_activity_at`, `created_at`
+
+### Console Users
+Console users are internal, authenticated users. Use `console_users` to avoid confusion with Contacts.
+
+```
+GET    /organizations/{organization_id}/console_users
+POST   /organizations/{organization_id}/console_users
+PATCH  /console_users/{console_user_id}
+DELETE /console_users/{console_user_id}
+```
+
+**Notes**
+- Likely backing endpoints: `/tenants/users` and `/admin/tenants/{tenant_id}/users`.
+- Invitations can use `/tenants/send-invitation` and `/tenants/create-and-invite-user`.
+
+**OpenAPI (api.yaml snippet)**
+```yaml
+paths:
+  /organizations/{organization_id}/console_users:
+    get:
+      tags: [Console Users]
+      summary: List console users for an organization
+    post:
+      tags: [Console Users]
+      summary: Create or invite console user
+  /console_users/{console_user_id}:
+    patch:
+      tags: [Console Users]
+      summary: Update console user
+    delete:
+      tags: [Console Users]
+      summary: Remove console user
+```
 
 **OpenAPI (api.yaml snippet)**
 ```yaml

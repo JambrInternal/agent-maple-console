@@ -20,6 +20,7 @@ External person the AI agent interacts with.
 - Belongs to a Project
 - Has escalation tier (1, 2, 3) used by the Escalation Skill
 - May have multiple Threads (one per Issue)
+- **Not a console user**: Contacts do not log into the console
 
 ## Tools & Skills
 The **logic and capabilities** of the AI agent.
@@ -40,8 +41,13 @@ Legal and billing entity.
 - Controls: Permissions, billing, global config
 - Data siloed at org level for security
 
-## User
-Authenticated human with role-based access.
+## Console User
+Authenticated human with role-based access to the console.
 - Belongs to one or more Organizations
 - Roles: Owner, Admin, Member, Viewer
 - Access determined by org-level role
+- **Not a contact**: Console users are internal operators/admins
+
+## Contact vs. Console User (Quick Reference)
+- **Contact**: External person the agent communicates with (field/crew/customer)
+- **Console User**: Internal person who configures and monitors the system
