@@ -16,17 +16,8 @@ const MOCK_USER: User = {
     createdAt: new Date().toISOString()
 };
 
-const isLocalhost = () => {
-    if (typeof window === 'undefined') return false;
-    const host = window.location.hostname;
-    return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-};
-
 export async function login(email: string, password: string): Promise<AuthSession> {
     if (API_CONFIG.useMocks) {
-        if (!isLocalhost()) {
-            throw new Error('Demo login is only available on localhost.');
-        }
         if (email === 'jeremy@agentmaple.ca' && password === 'password') {
             return mockFetch({
                 user: MOCK_USER,
@@ -67,7 +58,6 @@ export async function logout(): Promise<void> {
 
 export async function getSessionUser(): Promise<User | null> {
     if (API_CONFIG.useMocks) {
-        if (!isLocalhost()) return mockFetch(null);
         const hasToken = localStorage.getItem('am_auth_token');
         if (hasToken) return mockFetch(MOCK_USER);
         return mockFetch(null);

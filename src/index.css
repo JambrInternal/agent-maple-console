@@ -198,6 +198,17 @@ button {
     min-height: 0;
 }
 
+.am-build-tag {
+    position: fixed;
+    right: 16px;
+    bottom: 12px;
+    font-size: 0.7rem;
+    color: var(--am-text-2);
+    opacity: 0.6;
+    pointer-events: none;
+    font-family: var(--font-mono);
+}
+
 /* Navigation Panel (Inner Left) */
 .am-nav-panel {
     width: var(--panel-width);

@@ -4,9 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
 
 const Login = () => {
-    const isDemoHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ||
-        window.location.hostname.startsWith('beta.')
-    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false' && isDemoHost
+    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false'
     const [email, setEmail] = useState(isMockMode ? 'jeremy@agentmaple.ca' : '')
     const [password, setPassword] = useState(isMockMode ? 'password' : '')
     const [error, setError] = useState('')

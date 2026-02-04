@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Mock Credentials on Beta
+## Current Task: Show Build Identifier
 
-**Goal**: Show demo credentials in the mock-mode banner on beta.
+**Goal**: Display the current build/commit identifier in the UI for verification.
 
 **Todo**
-- [x] Show demo credentials in banner for beta hosts
-- [x] Show demo credentials on login page in beta mock mode
+- [x] Inject commit hash into the client bundle
+- [x] Render build tag in the bottom-right corner
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
