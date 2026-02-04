@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Agent Card Download Icon
+## Current Task: Agent Card Role Row Removal
 
-**Goal**: Show a download icon on hover instead of copy text on the agent card.
+**Goal**: Show only phone and email on the agent business card in the sidebar.
 
 **Todo**
-- [x] Replace download text with hover icon
+- [x] Remove the role row from the agent card details
+- [x] Ensure the vCard download excludes the role field
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

@@ -69,7 +69,6 @@ const Sidebar = () => {
         org: orgName || 'Agent Maple',
         firstName: projectName || 'Project',
         lastName: 'Agent',
-        title: 'Agentic AI',
         phone: '+15065023431',
         email: 'agent@agentmaple.ca',
     }
@@ -81,7 +80,6 @@ const Sidebar = () => {
             `N:${agentProfile.lastName};${agentProfile.firstName}`,
             `FN:${agentProfile.firstName} ${agentProfile.lastName}`,
             `ORG:${agentProfile.org}`,
-            `TITLE:${agentProfile.title}`,
             `TEL;TYPE=WORK,VOICE:${agentProfile.phone}`,
             `EMAIL:${agentProfile.email}`,
             'END:VCARD',
@@ -112,7 +110,6 @@ const Sidebar = () => {
                         <div className="am-agent-card-name">
                             {agentProfile.firstName} {agentProfile.lastName}
                         </div>
-                        <div className="am-agent-card-detail">{agentProfile.title}</div>
                         <div className="am-agent-card-detail">{agentProfile.phone}</div>
                         <div className="am-agent-card-detail">{agentProfile.email}</div>
                         <div className="am-agent-card-download" aria-hidden="true">
