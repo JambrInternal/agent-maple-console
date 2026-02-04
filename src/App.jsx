@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext'
 import AuthGuard from './components/AuthGuard'
 import Layout from './components/Layout'
+import BuildTag from './components/BuildTag'
 
 // Pages
 import Login from './pages/Login'
@@ -26,41 +27,44 @@ function App() {
     return (
         <AuthProvider>
             <Router>
-                <Routes>
-                    {/* Public Routes */}
-                    <Route path="/login" element={<Login />} />
+                <>
+                    <Routes>
+                        {/* Public Routes */}
+                        <Route path="/login" element={<Login />} />
 
-                    {/* Protected Console Routes */}
-                    <Route element={<AuthGuard><Layout /></AuthGuard>}>
-                        <Route path="/" element={<OrgSelection />} />
+                        {/* Protected Console Routes */}
+                        <Route element={<AuthGuard><Layout /></AuthGuard>}>
+                            <Route path="/" element={<OrgSelection />} />
 
-                        {/* Organization Context */}
-                        <Route path="/:orgId">
-                            <Route index element={<Navigate to="projects" replace />} />
+                            {/* Organization Context */}
+                            <Route path="/:orgId">
+                                <Route index element={<Navigate to="projects" replace />} />
 
-                            {/* Org Level Pages */}
-                            <Route path="projects" element={<Projects />} />
-                            <Route path="team" element={<OrgTeam />} />
-                            <Route path="billing" element={<OrgBilling />} />
-                            <Route path="usage" element={<OrgUsage />} />
-                            <Route path="settings" element={<OrgSettings />} />
+                                {/* Org Level Pages */}
+                                <Route path="projects" element={<Projects />} />
+                                <Route path="team" element={<OrgTeam />} />
+                                <Route path="billing" element={<OrgBilling />} />
+                                <Route path="usage" element={<OrgUsage />} />
+                                <Route path="settings" element={<OrgSettings />} />
 
-                            {/* Project Context */}
-                            <Route path=":projId">
-                                <Route index element={<Navigate to="triage" replace />} />
-                                <Route path="triage" element={<ThreadsMonitor />} />
-                                <Route path="issues" element={<IssuesDashboard />} />
-                                <Route path="config" element={<ToolsSkills />} />
-                                <Route path="kb" element={<KnowledgeBase />} />
-                                <Route path="people" element={<Contacts />} />
-                                <Route path="data" element={<Insights />} />
+                                {/* Project Context */}
+                                <Route path=":projId">
+                                    <Route index element={<Navigate to="triage" replace />} />
+                                    <Route path="triage" element={<ThreadsMonitor />} />
+                                    <Route path="issues" element={<IssuesDashboard />} />
+                                    <Route path="config" element={<ToolsSkills />} />
+                                    <Route path="kb" element={<KnowledgeBase />} />
+                                    <Route path="people" element={<Contacts />} />
+                                    <Route path="data" element={<Insights />} />
+                                </Route>
                             </Route>
                         </Route>
-                    </Route>
 
-                    {/* Fallback */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                        {/* Fallback */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                    <BuildTag />
+                </>
             </Router>
         </AuthProvider>
     )

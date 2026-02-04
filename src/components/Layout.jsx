@@ -81,9 +81,6 @@ const Layout = () => {
                     </div>
                 </main>
             </div>
-            <div className="am-build-tag">
-                Build {typeof window !== 'undefined' && window.__APP_COMMIT__ ? window.__APP_COMMIT__ : 'dev'}
-            </div>
         </div>
     )
 }

@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Show Build Identifier
+## Current Task: Build Tag Everywhere
 
-**Goal**: Display the current build/commit identifier in the UI for verification.
+**Goal**: Show the build/commit tag on every page, including login.
 
 **Todo**
-- [x] Inject commit hash into the client bundle
-- [x] Render build tag in the bottom-right corner
+- [x] Move build tag into app shell so it appears on all routes
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
