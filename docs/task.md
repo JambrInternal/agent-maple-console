@@ -1,11 +1,13 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Coming Soon Nav
+## Current Task: Project Status Updates
 
-**Goal**: Fade out unbuilt org-level nav items and show a “Coming soon” tooltip.
+**Goal**: Remove hibernation and align project status labels to Online/Warning/Problems/Offline.
 
 **Todo**
-- [x] Mark Team, Billing, Usage, and Organization Settings as coming soon
+- [x] Remove hibernate/resume controls from Projects grid
+- [x] Update status filters and badges to Online/Warning/Problems/Offline
+- [x] Update mock project data and tests to match new statuses
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

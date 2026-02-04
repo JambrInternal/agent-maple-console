@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Search, Plus, Power } from 'lucide-react'
-import { getProjects, updateProjectStatus } from '../services/projects'
+import { Search, Plus } from 'lucide-react'
+import { getProjects } from '../services/projects'
 
 const STATUS_OPTIONS = [
     { key: 'all', label: 'All' },
     { key: 'online', label: 'Online' },
-    { key: 'syncing', label: 'Syncing' },
-    { key: 'hibernating', label: 'Hibernating' },
+    { key: 'warning', label: 'Warning' },
+    { key: 'problems', label: 'Problems' },
     { key: 'offline', label: 'Offline' },
 ]
 
 const STATUS_LABELS = {
     online: 'Online',
-    syncing: 'Syncing',
-    hibernating: 'Hibernating',
+    warning: 'Warning',
+    problems: 'Problems',
     offline: 'Offline',
 }
 
@@ -38,7 +38,6 @@ const Projects = () => {
     const [error, setError] = useState('')
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
-    const [updatingId, setUpdatingId] = useState(null)
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -65,20 +64,6 @@ const Projects = () => {
             return matchesSearch && matchesStatus
         })
     }, [projects, searchTerm, statusFilter])
-
-    const handleToggleStatus = async (event, project) => {
-        event.stopPropagation()
-        const nextStatus = project.agentStatus === 'hibernating' ? 'online' : 'hibernating'
-        setUpdatingId(project.id)
-        try {
-            const updated = await updateProjectStatus(project.id, nextStatus)
-            setProjects((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
-        } catch (err) {
-            console.error('Failed to update project status:', err)
-        } finally {
-            setUpdatingId(null)
-        }
-    }
 
     return (
         <div className="am-page-content">
@@ -151,20 +136,6 @@ const Projects = () => {
                                         {STATUS_LABELS[project.agentStatus] || 'Unknown'}
                                     </div>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="am-btn-secondary"
-                                    onClick={(event) => handleToggleStatus(event, project)}
-                                    disabled={
-                                        updatingId === project.id ||
-                                        !['online', 'hibernating'].includes(project.agentStatus)
-                                    }
-                                >
-                                    <Power size={16} />
-                                    <span>
-                                        {project.agentStatus === 'hibernating' ? 'Resume' : 'Hibernate'}
-                                    </span>
-                                </button>
                             </div>
 
                             <div className="am-project-meta">

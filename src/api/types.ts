@@ -4,7 +4,7 @@
 // Enums
 // ============================================
 
-export type AgentStatus = 'online' | 'syncing' | 'hibernating' | 'offline';
+export type AgentStatus = 'online' | 'warning' | 'problems' | 'offline';
 export type ThreadStatus = 'open' | 'needs_response' | 'waiting' | 'done';
 export type IssueStatus = 'open' | 'resolved';
 export type Channel = 'voice' | 'sms' | 'email';
