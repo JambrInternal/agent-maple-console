@@ -51,7 +51,7 @@ function App() {
 
                                 {/* Project Context */}
                                 <Route path=":projId">
-                                    <Route index element={<Navigate to="threads" replace />} />
+                                    <Route index element={<Navigate to="contacts" replace />} />
                                     <Route path="threads" element={<ComingSoon title="Threads" />} />
                                     <Route path="issues" element={<ComingSoon title="Issues" />} />
                                     <Route path="tools-skills" element={<ComingSoon title="Skills & Tools" />} />

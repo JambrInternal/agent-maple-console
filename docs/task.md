@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Contacts Menu Overflow
+## Current Task: Project Default Route
 
-**Goal**: Ensure contact action menus are not clipped by the table container.
+**Goal**: Set Contacts as the default project page.
 
 **Todo**
-- [x] Allow action menus to overflow the table card
+- [x] Update project index redirect to Contacts
+- [x] Update project card navigation to Contacts
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
