@@ -16,6 +16,7 @@ docs/
 ├── architecture/
 │   ├── BACKEND.md       # API services and endpoints
 │   ├── CERTLY_API.md    # Certly API snapshot + auth notes
+│   ├── CERTLY_CONSOLE_API.md # Console API design draft
 │   └── HIERARCHY.md     # Org > Project > Thread model
 └── contributing/
     ├── AGENT_RULES.md   # Constraints for AI agents
@@ -32,6 +33,7 @@ docs/
 | [BRAND.md](./product/BRAND.md) | Industrial Navy theme, typography |
 | [BACKEND.md](./architecture/BACKEND.md) | API endpoints, auth flow |
 | [CERTLY_API.md](./architecture/CERTLY_API.md) | Certly API snapshot + OpenAPI location |
+| [CERTLY_CONSOLE_API.md](./architecture/CERTLY_CONSOLE_API.md) | Console API design draft |
 | [TESTING.md](./contributing/TESTING.md) | How to run and write tests |
 
 ## Terminology

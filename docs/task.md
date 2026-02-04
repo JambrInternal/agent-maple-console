@@ -1,11 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Fix Favicon Theme Switching
+## Current Task: Clarify Org Storage
 
-**Goal**: Ensure the favicon switches correctly for light/dark themes in all browsers.
+**Goal**: Document that Organizations will live in the Certly DB.
 
 **Todo**
-- [x] Add JS-based favicon switching for browsers that ignore media queries
+- [x] Update open questions with org storage decision
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

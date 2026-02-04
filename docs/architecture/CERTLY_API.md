@@ -8,7 +8,7 @@
 ## Auth
 - **Scheme**: `Authorization: Bearer <JWT>`
 - **Token source**: AWS Cognito (via Amplify)
-- **Organization context**: optional `x-tenant-id` header (Organization ID)
+- **Project context**: optional `x-tenant-id` header (Certly tenant ID)
 
 ## User Sync
 - **Endpoint**: `POST /user/sync`

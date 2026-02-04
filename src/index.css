@@ -121,8 +121,7 @@ button {
     font-weight: 700;
     color: var(--am-text-2);
     cursor: pointer;
-    transition: transform var(--am-dur-2) var(--am-ease-out),
-        border-color var(--am-dur-2) var(--am-ease-in-out),
+    transition: border-color var(--am-dur-2) var(--am-ease-in-out),
         color var(--am-dur-2) var(--am-ease-in-out),
         background-color var(--am-dur-2) var(--am-ease-in-out);
 }
@@ -130,7 +129,6 @@ button {
 .am-avatar:hover {
     color: var(--am-text-1);
     border-color: rgba(148, 163, 184, 0.6);
-    transform: translateY(-1px);
 }
 
 .am-user-menu {
@@ -251,19 +249,16 @@ button {
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
-    transition: transform var(--am-dur-2) var(--am-ease-out),
-        box-shadow var(--am-dur-2) var(--am-ease-out),
+    transition: box-shadow var(--am-dur-2) var(--am-ease-out),
         opacity var(--am-dur-2) var(--am-ease-in-out);
 }
 
 .am-btn-primary:hover {
     opacity: 0.9;
-    transform: translateY(-1px);
     box-shadow: 0 8px 16px -12px rgba(0, 0, 0, 0.7);
 }
 
 .am-btn-primary:active {
-    transform: translateY(0);
 }
 
 .am-card {
@@ -272,13 +267,11 @@ button {
     border-radius: var(--radius-md);
     padding: 1.25rem;
     transition: border-color var(--am-dur-2) var(--am-ease-in-out),
-        transform var(--am-dur-2) var(--am-ease-out),
         box-shadow var(--am-dur-2) var(--am-ease-out);
 }
 
 .am-card:hover {
     border-color: rgba(148, 163, 184, 0.35);
-    transform: translateY(-2px);
     box-shadow: 0 16px 28px -20px rgba(0, 0, 0, 0.8);
 }
 

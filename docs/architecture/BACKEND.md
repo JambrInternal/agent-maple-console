@@ -13,10 +13,12 @@ The console implements a clean service layer that abstracts API interactions. Cu
 ### Organizations
 - **Service**: `src/services/organizations.ts`
 - **Functions**: `getOrganizations()`, `getOrganization(id)`
+- **Note**: Current Certly `tenant` objects map to **Projects**, not Organizations
 
 ### Projects
 - **Service**: `src/services/projects.ts`
 - **Functions**: `getProjects(orgId)`, `getProject(id)`, `updateProjectStatus(id, status)`
+- **Note**: Console Projects currently align with Certly tenants (`/user/tenants`)
 
 ### Threads & Communication
 - **Service**: `src/services/threads.ts`
@@ -34,6 +36,11 @@ The console implements a clean service layer that abstracts API interactions. Cu
 ### Insights
 - **Service**: `src/services/insights.ts`
 - **Functions**: `getInsights(projectId, range)`
+
+### Contacts
+- **Service**: `src/services/contacts.ts`
+- **Functions**: `getContacts(projectId)`, `getContact(id)`, `createContact(data)`, `updateContact(id, data)`
+- **Note**: Contacts map to Certly tenant users
 
 ## API Client (`src/api/client.ts`)
 
