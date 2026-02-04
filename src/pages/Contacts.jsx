@@ -1,5 +1,5 @@
-import React from 'react'
-import { Plus } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { MoreVertical, Plus } from 'lucide-react'
 
 const Contacts = () => {
     const contacts = [
@@ -21,7 +21,7 @@ const Contacts = () => {
             email: 'sarah@firm.com',
             phone: '+1 (555) 4422',
             reportsTo: '—',
-            status: 'active',
+            status: 'inactive',
         },
         {
             id: 'contact_3',
@@ -39,6 +39,27 @@ const Contacts = () => {
         active: 'Active',
         inactive: 'Inactive',
     }
+
+    const [openMenuId, setOpenMenuId] = useState(null)
+    const menuRefs = useRef({})
+
+    const toggleMenu = (contactId) => {
+        setOpenMenuId((prev) => (prev === contactId ? null : contactId))
+    }
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (!event.target) return
+            const currentMenu = openMenuId ? menuRefs.current[openMenuId] : null
+            if (currentMenu && !currentMenu.contains(event.target)) {
+                setOpenMenuId(null)
+            }
+        }
+        if (openMenuId) {
+            document.addEventListener('mousedown', handleOutsideClick)
+        }
+        return () => document.removeEventListener('mousedown', handleOutsideClick)
+    }, [openMenuId])
 
     return (
         <div className="am-page-content">
@@ -66,6 +87,7 @@ const Contacts = () => {
                                 <th>Phone</th>
                                 <th>Reports To</th>
                                 <th>Status</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,6 +102,39 @@ const Contacts = () => {
                                         <span className={`am-status-pill is-${contact.status}`}>
                                             {statusLabels[contact.status] || contact.status}
                                         </span>
+                                    </td>
+                                    <td className="am-table-action">
+                                        <div
+                                            className="am-row-menu"
+                                            ref={(node) => {
+                                                if (node) {
+                                                    menuRefs.current[contact.id] = node
+                                                } else {
+                                                    delete menuRefs.current[contact.id]
+                                                }
+                                            }}
+                                        >
+                                            <button
+                                                type="button"
+                                                className="am-icon-button"
+                                                aria-label="Contact actions"
+                                                aria-haspopup="menu"
+                                                aria-expanded={openMenuId === contact.id}
+                                                onClick={() => toggleMenu(contact.id)}
+                                            >
+                                                <MoreVertical size={16} />
+                                            </button>
+                                            {openMenuId === contact.id && (
+                                                <div className="am-row-menu-dropdown" role="menu">
+                                                    <button type="button" className="am-row-menu-item">
+                                                        View
+                                                    </button>
+                                                    <button type="button" className="am-row-menu-item">
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Contacts Field Update
+## Current Task: Contacts Actions Menu
 
-**Goal**: Update Contacts table columns to Role, Company, Email, Phone, Reports To, Status.
+**Goal**: Add row actions for Contacts with View/Edit options.
 
 **Todo**
-- [x] Update Contacts table columns and mock data
-- [x] Update status treatment for Active/Inactive
+- [x] Add per-row actions menu with View/Edit
+- [x] Style action menu to match Industrial Navy theme
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

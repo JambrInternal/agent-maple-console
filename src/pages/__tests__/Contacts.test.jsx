@@ -19,5 +19,6 @@ describe('Contacts page', () => {
 
         expect(screen.getByText('GC Superintendent')).toBeInTheDocument()
         expect(screen.getByText('Iron Maple Construction')).toBeInTheDocument()
+        expect(screen.getAllByRole('button', { name: 'Contact actions' }).length).toBeGreaterThan(0)
     })
 })

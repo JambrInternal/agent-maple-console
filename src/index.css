@@ -385,6 +385,65 @@ button {
     border-color: rgba(249, 115, 22, 0.3);
 }
 
+.am-table-action {
+    width: 1%;
+    text-align: right;
+    position: relative;
+}
+
+.am-row-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.am-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    color: var(--am-text-2);
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: color var(--am-dur-2) var(--am-ease-in-out),
+        border-color var(--am-dur-2) var(--am-ease-in-out),
+        background-color var(--am-dur-2) var(--am-ease-in-out);
+}
+
+.am-icon-button:hover {
+    color: var(--am-text-1);
+    border-color: rgba(148, 163, 184, 0.2);
+    background-color: rgba(148, 163, 184, 0.08);
+}
+
+.am-row-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-subtle);
+    padding: 0.35rem;
+    min-width: 140px;
+    z-index: 20;
+}
+
+.am-row-menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    color: var(--am-text-1);
+    font-size: 0.85rem;
+}
+
+.am-row-menu-item:hover {
+    background-color: rgba(148, 163, 184, 0.1);
+}
+
 .am-filter-row {
     display: flex;
     flex-wrap: wrap;
