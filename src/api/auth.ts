@@ -33,7 +33,7 @@ export async function login(email: string, password: string): Promise<AuthSessio
     if (isSignedIn) {
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
-        const token = session.tokens?.idToken?.toString() || session.tokens?.accessToken?.toString() || null;
+        const token = session.tokens?.accessToken?.toString() || session.tokens?.idToken?.toString() || null;
 
         return {
             user: {
@@ -66,7 +66,7 @@ export async function getSessionUser(): Promise<User | null> {
     try {
         const cognitoUser = await getCurrentUser();
         const session = await fetchAuthSession();
-        const token = session.tokens?.idToken?.toString() || session.tokens?.accessToken?.toString() || null;
+        const token = session.tokens?.accessToken?.toString() || session.tokens?.idToken?.toString() || null;
         if (token) {
             localStorage.setItem('am_auth_token', token);
         }

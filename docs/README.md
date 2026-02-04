@@ -15,6 +15,7 @@ docs/
 │   └── BRAND.md         # Voice, tone, visual direction
 ├── architecture/
 │   ├── BACKEND.md       # API services and endpoints
+│   ├── CERTLY_API.md    # Certly API snapshot + auth notes
 │   └── HIERARCHY.md     # Org > Project > Thread model
 └── contributing/
     ├── AGENT_RULES.md   # Constraints for AI agents
@@ -30,6 +31,7 @@ docs/
 | [CORE_CONCEPTS.md](./product/CORE_CONCEPTS.md) | Thread, Issue, Contact definitions |
 | [BRAND.md](./product/BRAND.md) | Industrial Navy theme, typography |
 | [BACKEND.md](./architecture/BACKEND.md) | API endpoints, auth flow |
+| [CERTLY_API.md](./architecture/CERTLY_API.md) | Certly API snapshot + OpenAPI location |
 | [TESTING.md](./contributing/TESTING.md) | How to run and write tests |
 
 ## Terminology

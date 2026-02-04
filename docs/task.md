@@ -1,5 +1,16 @@
 # Professional Design Process: Agent Maple Console
 
+## Current Task: Certly API Auth + Docs
+
+**Goal**: Connect Cognito auth to the Certly API and store the service docs in-repo for agent access.
+
+**Todo**
+- [x] Pull the stage OpenAPI snapshot into `docs/architecture/certly-openapi.json`
+- [x] Document auth + Organization header requirements in `docs/architecture/CERTLY_API.md` and `docs/architecture/BACKEND.md`
+- [x] Wire auth flow to `POST /user/sync` after login/session restore
+- [x] Add auth sync tests
+- [ ] Human review requested
+
 ## Phase 1: Context & Discovery [x]
 - [x] Requirement Gathering: Define the "Why"
 - [x] User Personas & Stories: Define the "Who"
