@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Clarify Org Storage
+## Current Task: Re-Enable Mock Mode
 
-**Goal**: Document that Organizations will live in the Certly DB.
+**Goal**: Default to mock data unless `VITE_USE_MOCKS=false`.
 
 **Todo**
-- [x] Update open questions with org storage decision
+- [x] Flip mock-mode default back on
+- [x] Update docs for mock mode behavior
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
