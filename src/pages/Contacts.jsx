@@ -143,6 +143,7 @@ const Contacts = () => {
                     <table className="am-table">
                         <thead>
                             <tr>
+                                <th>Name</th>
                                 <th>Role</th>
                                 <th>Company</th>
                                 <th>Email</th>
@@ -155,7 +156,8 @@ const Contacts = () => {
                         <tbody>
                             {contacts.map((contact) => (
                                 <tr key={contact.id}>
-                                    <td className="am-contact-name">{contact.role}</td>
+                                    <td className="am-contact-name">{contact.name}</td>
+                                    <td className="am-contact-role">{contact.role}</td>
                                     <td className="am-text-2">{contact.company}</td>
                                     <td className="am-contact-info">{contact.email}</td>
                                     <td className="am-contact-info">{contact.phone}</td>

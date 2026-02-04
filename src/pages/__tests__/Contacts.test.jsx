@@ -11,6 +11,7 @@ describe('Contacts page', () => {
         expect(screen.getByRole('heading', { name: 'Contacts' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Add Contact' })).toBeInTheDocument()
 
+        expect(screen.getByText('Name')).toBeInTheDocument()
         expect(screen.getByText('Role')).toBeInTheDocument()
         expect(screen.getByText('Company')).toBeInTheDocument()
         expect(screen.getByText('Email')).toBeInTheDocument()
@@ -18,6 +19,7 @@ describe('Contacts page', () => {
         expect(screen.getByText('Reports To')).toBeInTheDocument()
         expect(screen.getByText('Status')).toBeInTheDocument()
 
+        expect(screen.getByText('Joe Henderson')).toBeInTheDocument()
         expect(screen.getByText('GC Superintendent')).toBeInTheDocument()
         expect(screen.getByText('Iron Maple Construction')).toBeInTheDocument()
         expect(screen.getAllByRole('button', { name: 'Contact actions' }).length).toBeGreaterThan(0)

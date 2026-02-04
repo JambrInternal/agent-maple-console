@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Knowledge Source Icons
+## Current Task: Agent Contact Details
 
-**Goal**: Show provider icons for Cloud Storage sources in Knowledge.
+**Goal**: Align the agent vCard fields with project/org context and channel settings.
 
 **Todo**
-- [x] Add Google Drive and SharePoint source icons
-- [x] Update Knowledge source rendering for cloud entries
+- [x] Use project name + "Agent" for vCard name
+- [x] Set title to "Agentic AI" and include org, phone, email
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

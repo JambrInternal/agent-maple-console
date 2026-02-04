@@ -349,6 +349,11 @@ button {
     color: var(--am-text-1);
 }
 
+.am-contact-role {
+    color: var(--am-text-1);
+    font-weight: 500;
+}
+
 .am-contact-info {
     color: var(--am-text-1);
     font-weight: 500;
@@ -953,6 +958,59 @@ button {
     color: var(--am-text-2);
     margin: 1.25rem 0.75rem 0.5rem;
     opacity: 0.6;
+}
+
+.am-agent-card {
+    width: 100%;
+    text-align: left;
+    background: linear-gradient(135deg, rgba(194, 106, 46, 0.18), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(194, 106, 46, 0.4);
+    border-radius: 14px;
+    padding: 0.9rem 0.8rem;
+    margin: 0.5rem 0.2rem 1rem;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--am-text-1);
+    transition: transform var(--am-dur-2) var(--am-ease-out),
+        box-shadow var(--am-dur-2) var(--am-ease-out),
+        border-color var(--am-dur-2) var(--am-ease-in-out);
+}
+
+.am-agent-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -20px rgba(0, 0, 0, 0.8);
+    border-color: rgba(194, 106, 46, 0.6);
+}
+
+.am-agent-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--am-text-2);
+}
+
+.am-agent-card-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--am-text-1);
+}
+
+.am-agent-card-detail {
+    font-size: 0.75rem;
+    color: var(--am-text-2);
+}
+
+.am-agent-card-action {
+    margin-top: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--am-text-1);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .am-coming-soon {
