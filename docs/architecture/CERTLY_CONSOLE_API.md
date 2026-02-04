@@ -7,6 +7,7 @@
 - Use **Organization / Project / Thread / Issue / Contact / Console User** terminology (console terms). Map to existing Certly models where needed.
 - Prefer **consistent, predictable endpoints**, with pagination and filtering on list routes.
 - Keep **auth** consistent with existing Bearer JWT + `x-tenant-id` for Organization context.
+- Keep **Console Users** and **Contacts** as separate concepts, even if they share storage today.
 
 ## Terminology Mapping
 - **Project** = Certly **Tenant** (`tenant_id`) **today**

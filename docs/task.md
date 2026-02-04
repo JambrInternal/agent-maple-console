@@ -1,11 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Clarify Console Users vs Contacts
+## Current Task: Separate Console Users and Contacts
 
-**Goal**: Update Core Concepts to distinguish console users from contacts.
+**Goal**: Document the decision to keep console users and contacts as distinct concepts.
 
 **Todo**
-- [x] Add explicit Console User definition and distinction in Core Concepts
+- [x] Add principle to keep console users and contacts separate
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

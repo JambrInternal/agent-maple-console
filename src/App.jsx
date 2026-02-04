@@ -14,9 +14,9 @@ const ProjectsGrid = () => <h1 className="am-text-1">Projects</h1>
 const OrgTeam = () => <h1 className="am-text-1">Team</h1>
 const OrgBilling = () => <h1 className="am-text-1">Billing</h1>
 const OrgUsage = () => <h1 className="am-text-1">Usage</h1>
-const OrgSettings = () => <h1 className="am-text-1">Settings</h1>
+const OrgSettings = () => <h1 className="am-text-1">Organization Settings</h1>
 
-const ThreadsMonitor = () => <h1 className="am-text-1">Threads Monitoring</h1>
+const ThreadsMonitor = () => <h1 className="am-text-1">Threads</h1>
 const IssuesDashboard = () => <h1 className="am-text-1">Issues</h1>
 const ToolsSkills = () => <h1 className="am-text-1">Tools & Skills</h1>
 const KnowledgeBase = () => <h1 className="am-text-1">Knowledge Base</h1>

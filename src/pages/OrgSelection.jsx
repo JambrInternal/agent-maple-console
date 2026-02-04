@@ -39,7 +39,7 @@ const OrgSelection = () => {
         <div className="am-page-content" style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
                 <h1 className="am-text-1" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Welcome back</h1>
-                <p className="am-text-2">Select an organization to manage your projects</p>
+                <p className="am-text-2">Select an organization to manage projects and contacts</p>
             </div>
 
             <div style={{ position: 'relative', marginBottom: '2.5rem' }}>

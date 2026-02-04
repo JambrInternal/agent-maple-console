@@ -20,11 +20,11 @@ const Contacts = () => {
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Contacts</h1>
-                    <p className="page-subtitle">Manage your users and Agent Maple's Contacts</p>
+                    <p className="page-subtitle">Manage contacts and escalation details</p>
                 </div>
                 <button className="btn-primary">
                     <Plus size={16} />
-                    <span>Invite User</span>
+                    <span>Add Contact</span>
                 </button>
             </div>
 
