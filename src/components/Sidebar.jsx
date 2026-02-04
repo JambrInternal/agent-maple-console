@@ -34,20 +34,20 @@ const Sidebar = () => {
         {
             title: 'Agent',
             items: [
-                { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/people` },
+                { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice`, comingSoon: true },
                 { icon: Mail, label: 'Email', path: `/${orgId}/${projId}/email`, comingSoon: true },
-                { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/config`, comingSoon: true },
+                { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/tools-skills`, comingSoon: true },
             ],
         },
         {
             title: 'Data',
             items: [
-                { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/triage`, comingSoon: true },
+                { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/threads`, comingSoon: true },
                 { icon: AlertCircle, label: 'Issues', path: `/${orgId}/${projId}/issues`, comingSoon: true },
-                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb`, comingSoon: true },
-                { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data`, comingSoon: true },
+                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/knowledge`, comingSoon: true },
+                { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/insights`, comingSoon: true },
             ],
         },
     ]

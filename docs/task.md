@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Page 7 - Contacts Directory
+## Current Task: Contacts Field Update
 
-**Goal**: Implement the Contacts page to match the Page 7 mockups.
+**Goal**: Update Contacts table columns to Role, Company, Email, Phone, Reports To, Status.
 
 **Todo**
-- [x] Align Contacts layout, copy, and table columns to the mockup
-- [x] Add Industrial Navy table styling and status pills
+- [x] Update Contacts table columns and mock data
+- [x] Update status treatment for Active/Inactive
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

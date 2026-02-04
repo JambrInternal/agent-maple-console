@@ -9,7 +9,7 @@ const renderWithRoute = (initialEntry) => {
         <MemoryRouter initialEntries={[initialEntry]}>
             <Routes>
                 <Route path="/:orgId/projects" element={<Breadcrumbs />} />
-                <Route path="/:orgId/:projId/triage" element={<Breadcrumbs />} />
+                <Route path="/:orgId/:projId/threads" element={<Breadcrumbs />} />
             </Routes>
         </MemoryRouter>
     );
@@ -22,8 +22,8 @@ describe('Breadcrumbs', () => {
         expect(screen.queryByText('Projects')).not.toBeInTheDocument();
     });
 
-    it('shows project context and Threads for triage', () => {
-        renderWithRoute('/iron_maple/alpha_site/triage');
+    it('shows project context and Threads for threads', () => {
+        renderWithRoute('/iron_maple/alpha_site/threads');
         expect(screen.getByText('Iron Maple')).toBeInTheDocument();
         expect(screen.getByText('Alpha Site')).toBeInTheDocument();
         expect(screen.getByText('Threads')).toBeInTheDocument();

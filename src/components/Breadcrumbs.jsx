@@ -18,12 +18,15 @@ const Breadcrumbs = () => {
     let viewLabel = ''
     if (pathSegments.length > 0) {
         const lastPortion = pathSegments[pathSegments.length - 1]
-        // Special case for triage -> Threads
-        if (lastPortion === 'triage') viewLabel = 'Threads'
-        else if (lastPortion === 'kb') viewLabel = 'Knowledge Base'
-        else if (lastPortion === 'people') viewLabel = 'Contacts'
-        else if (lastPortion === 'config') viewLabel = 'Tools & Skills'
-        else if (lastPortion === 'data') viewLabel = 'Insights'
+        if (lastPortion === 'threads') viewLabel = 'Threads'
+        else if (lastPortion === 'issues') viewLabel = 'Issues'
+        else if (lastPortion === 'knowledge') viewLabel = 'Knowledge'
+        else if (lastPortion === 'contacts') viewLabel = 'Contacts'
+        else if (lastPortion === 'tools-skills') viewLabel = 'Skills & Tools'
+        else if (lastPortion === 'insights') viewLabel = 'Insights'
+        else if (lastPortion === 'sms') viewLabel = 'SMS'
+        else if (lastPortion === 'voice') viewLabel = 'Voice'
+        else if (lastPortion === 'email') viewLabel = 'Email'
         else viewLabel = formatLabel(lastPortion)
     }
 

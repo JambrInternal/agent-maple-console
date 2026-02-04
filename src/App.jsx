@@ -50,13 +50,13 @@ function App() {
 
                                 {/* Project Context */}
                                 <Route path=":projId">
-                                    <Route index element={<Navigate to="triage" replace />} />
-                                    <Route path="triage" element={<ComingSoon title="Threads" />} />
+                                    <Route index element={<Navigate to="threads" replace />} />
+                                    <Route path="threads" element={<ComingSoon title="Threads" />} />
                                     <Route path="issues" element={<ComingSoon title="Issues" />} />
-                                    <Route path="config" element={<ComingSoon title="Skills & Tools" />} />
-                                    <Route path="kb" element={<ComingSoon title="Knowledge" />} />
-                                    <Route path="people" element={<Contacts />} />
-                                    <Route path="data" element={<ComingSoon title="Insights" />} />
+                                    <Route path="tools-skills" element={<ComingSoon title="Skills & Tools" />} />
+                                    <Route path="knowledge" element={<ComingSoon title="Knowledge" />} />
+                                    <Route path="contacts" element={<Contacts />} />
+                                    <Route path="insights" element={<ComingSoon title="Insights" />} />
                                     <Route path="sms" element={<ComingSoon title="SMS" />} />
                                     <Route path="voice" element={<ComingSoon title="Voice" />} />
                                     <Route path="email" element={<ComingSoon title="Email" />} />

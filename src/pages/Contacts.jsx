@@ -7,31 +7,37 @@ const Contacts = () => {
             id: 'contact_1',
             name: 'Joe Henderson',
             role: 'GC Superintendent',
-            contactInfo: '+1 (555) 0123',
-            escalation: 'Level 1 (Direct)',
+            company: 'Iron Maple Construction',
+            email: 'joe@ironmaple.ca',
+            phone: '+1 (555) 0123',
+            reportsTo: 'Sarah Jenkins',
             status: 'active',
         },
         {
             id: 'contact_2',
             name: 'Sarah Jenkins',
             role: 'Senior Architect',
-            contactInfo: 'sarah@firm.com',
-            escalation: 'Level 2 (Technical)',
+            company: 'Signal Studio',
+            email: 'sarah@firm.com',
+            phone: '+1 (555) 4422',
+            reportsTo: '—',
             status: 'active',
         },
         {
             id: 'contact_3',
             name: 'Mike Ross',
             role: 'Safety Officer',
-            contactInfo: '+1 (555) 9988',
-            escalation: 'Emergency Only',
-            status: 'on-break',
+            company: 'Harbor Safety',
+            email: 'mike@harborsafety.com',
+            phone: '+1 (555) 9988',
+            reportsTo: 'Joe Henderson',
+            status: 'inactive',
         },
     ]
 
     const statusLabels = {
         active: 'Active',
-        'on-break': 'On-Break',
+        inactive: 'Inactive',
     }
 
     return (
@@ -54,20 +60,22 @@ const Contacts = () => {
                     <table className="am-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
                                 <th>Role</th>
-                                <th>Contact Info</th>
-                                <th>Escalation Level</th>
+                                <th>Company</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Reports To</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {contacts.map((contact) => (
                                 <tr key={contact.id}>
-                                    <td className="am-contact-name">{contact.name}</td>
-                                    <td className="am-text-2">{contact.role}</td>
-                                    <td className="am-contact-info">{contact.contactInfo}</td>
-                                    <td className="am-text-2">{contact.escalation}</td>
+                                    <td className="am-contact-name">{contact.role}</td>
+                                    <td className="am-text-2">{contact.company}</td>
+                                    <td className="am-contact-info">{contact.email}</td>
+                                    <td className="am-contact-info">{contact.phone}</td>
+                                    <td className="am-text-2">{contact.reportsTo}</td>
                                     <td>
                                         <span className={`am-status-pill is-${contact.status}`}>
                                             {statusLabels[contact.status] || contact.status}

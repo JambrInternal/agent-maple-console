@@ -118,10 +118,10 @@ const Projects = () => {
                             className="am-card am-project-card"
                             role="button"
                             tabIndex={0}
-                            onClick={() => navigate(`/${orgId}/${project.id}/triage`)}
+                            onClick={() => navigate(`/${orgId}/${project.id}/threads`)}
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter') {
-                                    navigate(`/${orgId}/${project.id}/triage`)
+                                    navigate(`/${orgId}/${project.id}/threads`)
                                 }
                             }}
                         >

@@ -303,6 +303,7 @@ button {
 .am-contacts-container {
     max-width: 900px;
     width: 100%;
+    margin: 0 auto;
 }
 
 .am-table-card {
@@ -376,6 +377,12 @@ button {
     color: #f59e0b;
     background-color: rgba(245, 158, 11, 0.12);
     border-color: rgba(245, 158, 11, 0.3);
+}
+
+.am-status-pill.is-inactive {
+    color: #f97316;
+    background-color: rgba(249, 115, 22, 0.12);
+    border-color: rgba(249, 115, 22, 0.3);
 }
 
 .am-filter-row {
