@@ -5,7 +5,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Layout from '../Layout'
 
 vi.mock('../../contexts/AuthContext', () => ({
-    useAuth: () => ({ user: null }),
+    useAuth: () => ({ user: null, logout: vi.fn() }),
 }))
 
 describe('Layout', () => {

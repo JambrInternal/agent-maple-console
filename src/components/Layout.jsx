@@ -1,5 +1,5 @@
-import React from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Breadcrumbs from './Breadcrumbs'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,7 +7,10 @@ import { useAuth } from '../contexts/AuthContext'
 const Layout = () => {
     const { orgId } = useParams()
     const showSidebar = Boolean(orgId)
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
+    const navigate = useNavigate()
+    const [menuOpen, setMenuOpen] = useState(false)
+    const menuRef = useRef(null)
 
     const getInitials = (value) => {
         if (!value) return 'AM'
@@ -18,20 +21,46 @@ const Layout = () => {
 
     const initials = getInitials(user?.name || user?.email)
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!menuRef.current || menuRef.current.contains(event.target)) return
+            setMenuOpen(false)
+        }
+        if (menuOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [menuOpen])
+
+    const handleLogout = async () => {
+        await logout()
+        navigate('/login')
+    }
+
     return (
         <div className="am-app-shell">
             <header className="am-topbar">
                 <div className="am-topbar-left">
-                    <div className="am-logo-mark" aria-hidden="true" />
-                    <span className="am-logo-text">Agent Maple</span>
-                </div>
-                <div className="am-topbar-center">
                     <Breadcrumbs />
                 </div>
-                <div className="am-topbar-right">
-                    <div className="am-avatar" aria-label="Account">
+                <div className="am-topbar-right" ref={menuRef}>
+                    <button
+                        type="button"
+                        className="am-avatar"
+                        aria-label="Account"
+                        aria-haspopup="menu"
+                        aria-expanded={menuOpen}
+                        onClick={() => setMenuOpen((prev) => !prev)}
+                    >
                         {initials}
-                    </div>
+                    </button>
+                    {menuOpen && (
+                        <div className="am-user-menu" role="menu">
+                            <button type="button" className="am-user-menu-item" onClick={handleLogout}>
+                                Log out
+                            </button>
+                        </div>
+                    )}
                 </div>
             </header>
 

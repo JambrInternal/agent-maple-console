@@ -1,11 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Add Mise Config
+## Current Task: Remove Top Banner Logo
 
-**Goal**: Add a `mise.toml` so `mise install` works out of the box.
+**Goal**: Remove the Agent Maple logo and text from the top banner.
 
 **Todo**
-- [x] Add `mise.toml` with the Node version
+- [x] Remove logo mark and text from the top banner
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

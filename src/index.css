@@ -84,36 +84,15 @@ button {
 .am-topbar-left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-}
-
-.am-topbar-center {
     flex: 1;
-    display: flex;
-    align-items: center;
-    padding: 0 1.5rem;
     min-width: 0;
-}
-
-.am-logo-mark {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #d07a3f, #b85d23);
-    box-shadow: 0 0 0 1px rgba(194, 106, 46, 0.4), 0 6px 12px -8px rgba(0, 0, 0, 0.8);
-}
-
-.am-logo-text {
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    color: var(--am-text-1);
 }
 
 .am-topbar-right {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    position: relative;
 }
 
 .am-avatar {
@@ -128,6 +107,33 @@ button {
     font-size: 10px;
     font-weight: 700;
     color: var(--am-text-2);
+    cursor: pointer;
+}
+
+.am-user-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    border-radius: var(--radius-md);
+    min-width: 160px;
+    padding: 0.5rem;
+    box-shadow: var(--shadow-subtle);
+    z-index: 70;
+}
+
+.am-user-menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    color: var(--am-text-1);
+    font-size: 0.875rem;
+}
+
+.am-user-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .am-shell-body {
@@ -147,35 +153,6 @@ button {
     height: 100%;
 }
 
-.am-panel-icons {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.25rem 0.75rem;
-}
-
-.am-panel-icon {
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    color: var(--am-text-2);
-    transition: all 0.2s;
-}
-
-.am-panel-icon:hover {
-    color: var(--am-text-1);
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.am-panel-icon.active {
-    color: var(--am-text-1);
-    background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 1px var(--am-border);
-}
-
 .am-panel-content {
     flex: 1;
     overflow-y: auto;
@@ -183,7 +160,7 @@ button {
 }
 
 .am-panel-title {
-    padding: 0 0.5rem 0.75rem;
+    padding: 0.25rem 0.5rem 0.75rem;
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--am-text-1);
