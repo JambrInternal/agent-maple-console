@@ -1,11 +1,13 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Hide Sidebar Without Organization
+## Current Task: App-Wide Top Banner
 
-**Goal**: Remove the side navigation when no Organization is selected (org selection view).
+**Goal**: Add a full-width top banner with the Agent Maple logo and move admin controls to the top right, with the nav panel starting below it.
 
 **Todo**
-- [x] Hide sidebar when no `orgId` route param is present
+- [x] Add the top banner and move the admin avatar to the right side
+- [x] Ensure the nav panel starts below the banner across the app
+- [x] Update layout tests for the banner presence
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

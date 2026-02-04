@@ -14,11 +14,10 @@
     --am-text-2: #94a3b8;
 
     /* Layout */
-    --sidebar-width: 64px;
-    /* Icon sidebar */
     --panel-width: 260px;
     /* Navigation panel */
     --header-height: 56px;
+    --topbar-height: 56px;
 
     /* Typography */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -64,44 +63,69 @@ button {
 /* App Shell Layout */
 .am-app-shell {
     display: flex;
+    flex-direction: column;
     height: 100vh;
     width: 100vw;
     background-color: var(--am-bg-0);
 }
 
-/* Icon Sidebar (Far Left) */
-.am-sidebar {
-    width: var(--sidebar-width);
-    background-color: var(--am-bg-0);
-    border-right: 1px solid var(--am-border);
+.am-topbar {
+    height: var(--topbar-height);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 1rem 0;
-    z-index: 50;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    background-color: var(--am-bg-0);
+    border-bottom: 1px solid var(--am-border);
+    flex-shrink: 0;
+    z-index: 60;
 }
 
-.am-sidebar-icon {
-    width: 32px;
-    height: 32px;
+.am-topbar-left {
     display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.am-logo-mark {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #d07a3f, #b85d23);
+    box-shadow: 0 0 0 1px rgba(194, 106, 46, 0.4), 0 6px 12px -8px rgba(0, 0, 0, 0.8);
+}
+
+.am-logo-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--am-text-1);
+}
+
+.am-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.am-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 700;
     color: var(--am-text-2);
-    margin-bottom: 0.75rem;
-    transition: all 0.2s;
 }
 
-.am-sidebar-icon:hover {
-    color: var(--am-text-1);
-    background-color: var(--am-bg-1);
-}
-
-.am-sidebar-icon.active {
-    color: var(--am-text-1);
-    background-color: var(--am-bg-1);
-    box-shadow: 0 0 0 1px var(--am-border);
+.am-shell-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
 }
 
 /* Navigation Panel (Inner Left) */
@@ -112,6 +136,37 @@ button {
     display: flex;
     flex-direction: column;
     z-index: 40;
+    height: 100%;
+}
+
+.am-panel-icons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--am-border);
+}
+
+.am-panel-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: var(--am-text-2);
+    transition: all 0.2s;
+}
+
+.am-panel-icon:hover {
+    color: var(--am-text-1);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.am-panel-icon.active {
+    color: var(--am-text-1);
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 1px var(--am-border);
 }
 
 .am-panel-header {
@@ -138,6 +193,7 @@ button {
     flex-direction: column;
     min-width: 0;
     background-color: var(--am-bg-0);
+    min-height: 0;
 }
 
 .am-header {
@@ -147,7 +203,7 @@ button {
     display: flex;
     align-items: center;
     padding: 0 1.5rem;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .am-page-content {

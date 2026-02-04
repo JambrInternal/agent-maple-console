@@ -53,58 +53,52 @@ const Sidebar = () => {
     }
 
     return (
-        <>
-            {/* Far-Left Icon Sidebar */}
-            <aside className="am-sidebar">
-                <div className="am-sidebar-icon active" title="Console">
-                    <Building2 size={20} />
-                </div>
-                <div className="am-sidebar-icon" title="Settings">
-                    <Settings size={20} />
-                </div>
-                <div style={{ marginTop: 'auto' }}>
-                    <div className="am-sidebar-icon" title="Account">
-                        <User size={20} />
-                    </div>
-                </div>
-            </aside>
+        <aside className="am-nav-panel">
+            <div className="am-panel-icons">
+                <button className="am-panel-icon active" title="Console" type="button">
+                    <Building2 size={18} />
+                </button>
+                <button className="am-panel-icon" title="Settings" type="button">
+                    <Settings size={18} />
+                </button>
+                <button className="am-panel-icon" title="Account" type="button">
+                    <User size={18} />
+                </button>
+            </div>
 
-            {/* Navigation Panel */}
-            <aside className="am-nav-panel">
-                <div className="am-panel-header">
-                    {isProjectContext ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Construction size={16} className="am-text-2" />
-                            <span>{projId.replace('_', ' ')}</span>
-                        </div>
-                    ) : (
-                        <span>{orgId?.replace('_', ' ') || 'Management'}</span>
-                    )}
-                </div>
-                <div className="am-panel-content">
-                    <h3 className="am-nav-group-title">{panelTitle}</h3>
-                    {currentNavItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) =>
-                                `am-nav-item ${isActive ? 'active' : ''}`
-                            }
-                        >
-                            <item.icon size={18} />
-                            <span>{item.label}</span>
-                        </NavLink>
-                    ))}
-
-                    <div style={{ marginTop: '2rem' }}>
-                        <button className="am-nav-item" style={{ width: '100%' }} onClick={handleLogout}>
-                            <LogOut size={18} />
-                            <span>Log out</span>
-                        </button>
+            <div className="am-panel-header">
+                {isProjectContext ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Construction size={16} className="am-text-2" />
+                        <span>{projId.replace('_', ' ')}</span>
                     </div>
+                ) : (
+                    <span>{orgId?.replace('_', ' ') || 'Management'}</span>
+                )}
+            </div>
+            <div className="am-panel-content">
+                <h3 className="am-nav-group-title">{panelTitle}</h3>
+                {currentNavItems.map((item) => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        className={({ isActive }) =>
+                            `am-nav-item ${isActive ? 'active' : ''}`
+                        }
+                    >
+                        <item.icon size={18} />
+                        <span>{item.label}</span>
+                    </NavLink>
+                ))}
+
+                <div style={{ marginTop: '2rem' }}>
+                    <button className="am-nav-item" style={{ width: '100%' }} onClick={handleLogout}>
+                        <LogOut size={18} />
+                        <span>Log out</span>
+                    </button>
                 </div>
-            </aside>
-        </>
+            </div>
+        </aside>
     )
 }
 
