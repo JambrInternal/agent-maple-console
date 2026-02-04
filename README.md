@@ -7,7 +7,7 @@ The official management console for **Agent Maple**.
 This project is built with **Vite + React**.
 
 ### Prerequisites
-- Node.js v18+ (Managed via `mise` is recommended)
+- Node.js v20.19+ (Managed via `mise` is recommended)
 
 ### Development
 
