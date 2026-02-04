@@ -25,6 +25,9 @@ const Layout = () => {
                     <div className="am-logo-mark" aria-hidden="true" />
                     <span className="am-logo-text">Agent Maple</span>
                 </div>
+                <div className="am-topbar-center">
+                    <Breadcrumbs />
+                </div>
                 <div className="am-topbar-right">
                     <div className="am-avatar" aria-label="Account">
                         {initials}
@@ -35,9 +38,6 @@ const Layout = () => {
             <div className="am-shell-body">
                 {showSidebar && <Sidebar />}
                 <main className="am-main-layout">
-                    <header className="am-header">
-                        <Breadcrumbs />
-                    </header>
                     <div className="am-page-content">
                         <Outlet />
                     </div>

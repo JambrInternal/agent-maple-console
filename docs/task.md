@@ -1,13 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: App-Wide Top Banner
+## Current Task: Add Mise Config
 
-**Goal**: Add a full-width top banner with the Agent Maple logo and move admin controls to the top right, with the nav panel starting below it.
+**Goal**: Add a `mise.toml` so `mise install` works out of the box.
 
 **Todo**
-- [x] Add the top banner and move the admin avatar to the right side
-- [x] Ensure the nav panel starts below the banner across the app
-- [x] Update layout tests for the banner presence
+- [x] Add `mise.toml` with the Node version
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

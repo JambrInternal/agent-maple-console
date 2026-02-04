@@ -54,29 +54,30 @@ const Sidebar = () => {
 
     return (
         <aside className="am-nav-panel">
-            <div className="am-panel-icons">
-                <button className="am-panel-icon active" title="Console" type="button">
-                    <Building2 size={18} />
-                </button>
-                <button className="am-panel-icon" title="Settings" type="button">
-                    <Settings size={18} />
-                </button>
-                <button className="am-panel-icon" title="Account" type="button">
-                    <User size={18} />
-                </button>
-            </div>
-
-            <div className="am-panel-header">
-                {isProjectContext ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Construction size={16} className="am-text-2" />
-                        <span>{projId.replace('_', ' ')}</span>
-                    </div>
-                ) : (
-                    <span>{orgId?.replace('_', ' ') || 'Management'}</span>
-                )}
-            </div>
             <div className="am-panel-content">
+                <div className="am-panel-icons">
+                    <button className="am-panel-icon active" title="Console" type="button">
+                        <Building2 size={18} />
+                    </button>
+                    <button className="am-panel-icon" title="Settings" type="button">
+                        <Settings size={18} />
+                    </button>
+                    <button className="am-panel-icon" title="Account" type="button">
+                        <User size={18} />
+                    </button>
+                </div>
+
+                <div className="am-panel-title">
+                    {isProjectContext ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Construction size={16} className="am-text-2" />
+                            <span>{projId.replace('_', ' ')}</span>
+                        </div>
+                    ) : (
+                        <span>{orgId?.replace('_', ' ') || 'Management'}</span>
+                    )}
+                </div>
+
                 <h3 className="am-nav-group-title">{panelTitle}</h3>
                 {currentNavItems.map((item) => (
                     <NavLink
