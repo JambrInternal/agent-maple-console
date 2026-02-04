@@ -43,6 +43,9 @@ const Layout = () => {
                 <div className="am-topbar-left">
                     <Breadcrumbs />
                 </div>
+                {import.meta.env.VITE_USE_MOCKS !== 'false' && (
+                    <div className="am-mock-banner">Mock Mode</div>
+                )}
                 <div className="am-topbar-right" ref={menuRef}>
                     <button
                         type="button"

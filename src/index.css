@@ -108,6 +108,18 @@ button {
     position: relative;
 }
 
+.am-mock-banner {
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--am-text-1);
+    background-color: rgba(194, 106, 46, 0.2);
+    border: 1px solid rgba(194, 106, 46, 0.5);
+}
+
 .am-avatar {
     width: 28px;
     height: 28px;

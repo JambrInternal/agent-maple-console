@@ -1,13 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Page 2 - Projects Grid (Org Home)
+## Current Task: Mock Mode Banner
 
-**Goal**: Implement the Organization-level Projects Grid view with status filters and agent controls.
+**Goal**: Display a mock-mode banner in the top bar when fixtures are active.
 
 **Todo**
-- [x] Build Projects Grid page with search + status filters
-- [x] Show project cards with status, thread/issue counts, and last activity
-- [x] Add hibernate/resume action for agent status (mocked)
+- [x] Add mock-mode banner in the top bar
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

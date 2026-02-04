@@ -100,8 +100,11 @@ const Login = () => {
                         )}
 
                         {isMockMode && (
-                            <div className="am-text-2" style={{ fontSize: '0.75rem' }}>
-                                Demo credentials are prefilled.
+                            <div className="am-text-2" style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>
+                                Demo credentials:
+                                <span style={{ display: 'block', marginTop: '4px' }}>
+                                    jeremy@agentmaple.ca / password
+                                </span>
                             </div>
                         )}
 
