@@ -424,6 +424,14 @@ button {
     width: 36px;
 }
 
+.am-table-knowledge th {
+    white-space: nowrap;
+}
+
+.am-table-knowledge th:nth-child(7) {
+    min-width: 160px;
+}
+
 .am-checkbox {
     width: 16px;
     height: 16px;

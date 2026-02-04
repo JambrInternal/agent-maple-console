@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Project Default Route
+## Current Task: Knowledge Table Header
 
-**Goal**: Set Contacts as the default project page.
+**Goal**: Keep Knowledge table headers single-line across tabs.
 
 **Todo**
-- [x] Update project index redirect to Contacts
-- [x] Update project card navigation to Contacts
+- [x] Prevent header wrapping for Knowledge columns
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
