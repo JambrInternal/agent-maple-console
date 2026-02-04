@@ -8,7 +8,8 @@
 2. **Check terminology**: Use `docs/product/CORE_CONCEPTS.md` for domain terms
 3. **Review constraints**: See `docs/contributing/AGENT_RULES.md`
 4. **Review testing**: See `docs/contributing/TESTING.md`
-5. **Review and Update** `docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
+5. **Tooling**: Use `mise` and `.tool-versions` to align Node versioning
+6. **Review and Update** `docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
 
 ## During Work
 

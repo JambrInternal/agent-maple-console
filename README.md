@@ -9,6 +9,13 @@ This project is built with **Vite + React**.
 ### Prerequisites
 - Node.js v20.19+ (Managed via `mise` is recommended)
 
+### Tooling (mise)
+This repo ships a `.tool-versions` file. If you use `mise`, run:
+
+```bash
+mise install
+```
+
 ### Development
 
 ```bash

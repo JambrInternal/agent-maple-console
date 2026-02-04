@@ -26,13 +26,13 @@
   - [x] Mock API/Service Layer (TypeScript + Fixtures)
   - [x] Foundations: Theme & Global Shell
   - [x] Page 1: Organization Selection [x]
-  - [/] Authentication & Certly Login Flow [/]
+  - [x] Authentication & Certly Login Flow [x]
     - [x] Identify Cognito Credentials
-    - [ ] `aws-amplify` Installation
-    - [ ] Amplify Configuration
-    - [ ] `AuthContext` & Certly integration
-    - [ ] Login Screen implementation
-    - [ ] Route guarding
+    - [x] `aws-amplify` Installation
+    - [x] Amplify Configuration
+    - [x] `AuthContext` & Certly integration
+    - [x] Login Screen implementation
+    - [x] Route guarding
   - [ ] Page 2: Projects Grid (Org Home) [ ]
   - [ ] Page 3: Threads Monitoring (Project Level) [ ]
   - [ ] Page 4: Issues Monitoring [ ]
