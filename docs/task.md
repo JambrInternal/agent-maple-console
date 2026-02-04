@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Mock Mode Banner
+## Current Task: Mock Credentials on Beta
 
-**Goal**: Display a mock-mode banner in the top bar when fixtures are active.
+**Goal**: Show demo credentials in the mock-mode banner on beta.
 
 **Todo**
-- [x] Add mock-mode banner in the top bar
+- [x] Show demo credentials in banner for beta hosts
+- [x] Show demo credentials on login page in beta mock mode
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

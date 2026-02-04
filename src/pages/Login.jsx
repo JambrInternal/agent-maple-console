@@ -4,8 +4,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
 
 const Login = () => {
-    const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
-    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false' && isLocalhost
+    const isDemoHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ||
+        window.location.hostname.startsWith('beta.')
+    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false' && isDemoHost
     const [email, setEmail] = useState(isMockMode ? 'jeremy@agentmaple.ca' : '')
     const [password, setPassword] = useState(isMockMode ? 'password' : '')
     const [error, setError] = useState('')
@@ -100,10 +101,10 @@ const Login = () => {
                         )}
 
                         {isMockMode && (
-                            <div className="am-text-2" style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>
-                                Demo credentials:
-                                <span style={{ display: 'block', marginTop: '4px' }}>
-                                    jeremy@agentmaple.ca / password
+                            <div className="am-mock-banner am-mock-banner--block">
+                                <span>Mock Mode</span>
+                                <span className="am-mock-banner-cred">
+                                    Demo: jeremy@agentmaple.ca / password
                                 </span>
                             </div>
                         )}

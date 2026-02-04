@@ -11,6 +11,11 @@ const Layout = () => {
     const navigate = useNavigate()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef(null)
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
+    const isDemoHost =
+        ['localhost', '127.0.0.1', '::1'].includes(hostname) || hostname.startsWith('beta.')
+    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false'
+    const showDemoCreds = isMockMode && isDemoHost
 
     const getInitials = (value) => {
         if (!value) return 'AM'
@@ -43,8 +48,15 @@ const Layout = () => {
                 <div className="am-topbar-left">
                     <Breadcrumbs />
                 </div>
-                {import.meta.env.VITE_USE_MOCKS !== 'false' && (
-                    <div className="am-mock-banner">Mock Mode</div>
+                {isMockMode && (
+                    <div className="am-mock-banner">
+                        <span>Mock Mode</span>
+                        {showDemoCreds && (
+                            <span className="am-mock-banner-cred">
+                                Demo: jeremy@agentmaple.ca / password
+                            </span>
+                        )}
+                    </div>
                 )}
                 <div className="am-topbar-right" ref={menuRef}>
                     <button
