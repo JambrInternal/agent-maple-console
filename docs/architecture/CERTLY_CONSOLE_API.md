@@ -13,8 +13,8 @@
 - **Project** = Certly **Tenant** (`tenant_id`) **today**
 - **Organization** = Console grouping above Projects (**not represented in Certly yet**)
 - **Console User** = Authenticated console user (Cognito + Certly user record)
-- **Thread** = Contact + Issue mapping
-- **Issue** = Root cause linked to multiple threads
+- **Thread** = Messaging history and agent activity across multiple channels about a topic/issue with a contact
+- **Issue** = A topic of conversation, a Possible problem, the solution that resolves one or more threads
 - **Contact** = Certly **Tenant User** (current)
 
 ## Existing Certly Endpoints (from OpenAPI)
