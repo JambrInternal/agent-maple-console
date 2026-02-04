@@ -23,10 +23,10 @@ const Sidebar = () => {
 
     const orgNavItems = [
         { icon: LayoutGrid, label: 'Projects', path: `/${orgId}/projects` },
-        { icon: Shield, label: 'Team', path: `/${orgId}/team` },
-        { icon: CreditCard, label: 'Billing', path: `/${orgId}/billing` },
-        { icon: Activity, label: 'Usage', path: `/${orgId}/usage` },
-        { icon: Settings, label: 'Organization Settings', path: `/${orgId}/settings` },
+        { icon: Shield, label: 'Team', path: `/${orgId}/team`, comingSoon: true },
+        { icon: CreditCard, label: 'Billing', path: `/${orgId}/billing`, comingSoon: true },
+        { icon: Activity, label: 'Usage', path: `/${orgId}/usage`, comingSoon: true },
+        { icon: Settings, label: 'Organization Settings', path: `/${orgId}/settings`, comingSoon: true },
     ]
 
     const projectNavItems = [
@@ -54,18 +54,33 @@ const Sidebar = () => {
                 )}
 
                 <h3 className="am-nav-group-title">{panelTitle}</h3>
-                {currentNavItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) =>
-                            `am-nav-item ${isActive ? 'active' : ''}`
-                        }
+                {currentNavItems.map((item) => {
+                    if (item.comingSoon) {
+                        return (
+                            <div
+                                key={item.path}
+                                className="am-nav-item am-nav-item--disabled"
+                                title="Coming soon"
+                            >
+                                <item.icon size={18} />
+                                <span>{item.label}</span>
+                            </div>
+                        )
+                    }
+
+                    return (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) =>
+                                `am-nav-item ${isActive ? 'active' : ''}`
+                            }
                         >
                             <item.icon size={18} />
                             <span>{item.label}</span>
                         </NavLink>
-                    ))}
+                    )
+                })}
             </div>
         </aside>
     )

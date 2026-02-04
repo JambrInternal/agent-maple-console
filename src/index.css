@@ -480,6 +480,12 @@ button {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.am-nav-item--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: auto;
+}
+
 .am-nav-group-title {
     font-size: 0.7rem;
     font-weight: 700;

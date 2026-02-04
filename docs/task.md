@@ -1,11 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Build Tag Everywhere
+## Current Task: Coming Soon Nav
 
-**Goal**: Show the build/commit tag on every page, including login.
+**Goal**: Fade out unbuilt org-level nav items and show a “Coming soon” tooltip.
 
 **Todo**
-- [x] Move build tag into app shell so it appears on all routes
+- [x] Mark Team, Billing, Usage, and Organization Settings as coming soon
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
