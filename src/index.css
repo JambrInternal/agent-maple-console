@@ -300,6 +300,84 @@ button {
     box-shadow: none;
 }
 
+.am-contacts-container {
+    max-width: 900px;
+    width: 100%;
+}
+
+.am-table-card {
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.am-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.am-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background-color: rgba(15, 23, 42, 0.6);
+    color: var(--am-text-2);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--am-border);
+}
+
+.am-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.7);
+    font-size: 0.85rem;
+    color: var(--am-text-1);
+}
+
+.am-table tr:last-child td {
+    border-bottom: none;
+}
+
+.am-table tr:hover {
+    background-color: rgba(15, 23, 42, 0.5);
+}
+
+.am-contact-name {
+    font-weight: 600;
+    color: var(--am-text-1);
+}
+
+.am-contact-info {
+    color: var(--am-text-1);
+    font-weight: 500;
+}
+
+.am-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.am-status-pill.is-active {
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.am-status-pill.is-on-break {
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
 .am-filter-row {
     display: flex;
     flex-wrap: wrap;

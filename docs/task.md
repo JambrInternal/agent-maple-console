@@ -1,13 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Coming Soon Coverage
+## Current Task: Page 7 - Contacts Directory
 
-**Goal**: Fade out and mark all unimplemented pages as Coming Soon.
+**Goal**: Implement the Contacts page to match the Page 7 mockups.
 
 **Todo**
-- [x] Mark unimplemented project nav items as Coming Soon
-- [x] Route unimplemented project pages to Coming Soon screens
-- [x] Add Threads/Issues to the Data nav group
+- [x] Align Contacts layout, copy, and table columns to the mockup
+- [x] Add Industrial Navy table styling and status pills
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
