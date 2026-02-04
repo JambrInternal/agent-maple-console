@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - Interactive Prototype</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .prototype-container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .prototype-section {
+            margin-bottom: 48px;
+        }
+
+        .prototype-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--am-text-1);
+            border-bottom: 1px solid var(--am-border);
+            padding-bottom: 8px;
+        }
+
+        .prototype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .prototype-card {
+            background: var(--am-bg-1);
+            border: 1px solid var(--am-border);
+            border-radius: 6px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--am-text-1);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .prototype-card:hover {
+            border-color: var(--am-accent);
+            transform: translateY(-2px);
+        }
+
+        .prototype-card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prototype-card-desc {
+            font-size: 13px;
+            color: var(--am-text-2);
+            line-height: 1.5;
+        }
+
+        .badge-new {
+            background: var(--am-accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body style="background: var(--am-bg-0); color: var(--am-text-1); font-family: 'Inter', sans-serif;">
+    <div class="prototype-container">
+        <div style="margin-bottom: 48px;">
+            <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Agent Maple Console</h1>
+            <p style="color: var(--am-text-2); font-size: 16px;">Interactive High-Fidelity Prototype</p>
+        </div>
+
+        <div class="prototype-section">
+            <h2>🏢 Organization Level (No Project Selected)</h2>
+            <div class="prototype-grid">
+                <a href="mockup_organizations.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M12 2H2v10h10V2z" />
+                            <path d="M22 2h-10v10h10V2z" />
+                            <path d="M12 12H2v10h10V12z" />
+                            <path d="M22 12h-10v10h10V12z" />
+                        </svg>
+                        Organizations
+                    </div>
+                    <div class="prototype-card-desc">Select your organization to access projects and settings.</div>
+                </a>
+
+                <a href="mockup_projects.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M12 2H2v10h10V2z" />
+                            <path d="M22 2h-10v10h10V2z" />
+                            <path d="M12 12H2v10h10V12z" />
+                            <path d="M22 12h-10v10h10V12z" />
+                        </svg>
+                        Projects Grid
+                    </div>
+                    <div class="prototype-card-desc">Manage all job sites and their AI agents across your organization.
+                    </div>
+                </a>
+
+                <a href="mockup_org_team.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Team Management
+                    </div>
+                    <div class="prototype-card-desc">Manage team members, roles, and security settings.</div>
+                </a>
+
+                <a href="mockup_org_billing.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                        Billing
+                    </div>
+                    <div class="prototype-card-desc">View subscription plans, invoices, and payment methods.</div>
+                </a>
+
+                <a href="mockup_org_usage.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        Usage & Metrics
+                    </div>
+                    <div class="prototype-card-desc">Monitor token consumption and concurrency across projects.</div>
+                </a>
+
+                <a href="mockup_org_settings.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        Org Settings
+                    </div>
+                    <div class="prototype-card-desc">Configure organization name and global preferences.</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="prototype-section">
+            <h2>🏗️ Project Level (Site Operations)</h2>
+            <div class="prototype-grid">
+                <a href="mockup_threads.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Threads (Triage)
+                        <span class="badge-new">Core</span>
+                    </div>
+                    <div class="prototype-card-desc">High-density operational triage for cross-channel conversations.
+                    </div>
+                </a>
+
+                <a href="mockup_issues.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        Issues
+                        <span class="badge-new">Core</span>
+                    </div>
+                    <div class="prototype-card-desc">Root cause management and pattern tracking across threads.</div>
+                </a>
+
+                <a href="mockup_knowledge.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                        </svg>
+                        Knowledge Base
+                    </div>
+                    <div class="prototype-card-desc">Manage documents, files, and ingestion pipelines.</div>
+                </a>
+
+                <a href="mockup_contacts.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Contacts
+                    </div>
+                    <div class="prototype-card-desc">View and manage site contacts and escalation levels.</div>
+                </a>
+
+                <a href="mockup_insights.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        Insights
+                    </div>
+                    <div class="prototype-card-desc">Analytics dashboard for thread metrics and resolution times.</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="prototype-section">
+            <h2>📞 Channel Views (Communication)</h2>
+            <div class="prototype-grid">
+                <a href="mockup_email.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        Email
+                    </div>
+                    <div class="prototype-card-desc">Unified email inbox for project correspondence.</div>
+                </a>
+
+                <a href="mockup_sms.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        SMS
+                    </div>
+                    <div class="prototype-card-desc">Text message conversations with site contacts.</div>
+                </a>
+
+                <a href="mockup_voice.html" class="prototype-card">
+                    <div class="prototype-card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.19-1.33a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        Voice Calls
+                    </div>
+                    <div class="prototype-card-desc">Call logs and voice transcripts for phone communications.</div>
+                </a>
+            </div>
+        </div>
+
+        <div
+            style="margin-top: 64px; padding: 24px; background: var(--am-bg-1); border: 1px solid var(--am-border); border-radius: 6px;">
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--am-text-1);">Navigation Flow
+            </h3>
+            <div style="font-size: 13px; color: var(--am-text-2); line-height: 1.6;">
+                <p style="margin-bottom: 8px;"><strong>Recommended Path:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Organizations</strong> → Select your organization</li>
+                    <li><strong>Projects</strong> → View all job sites</li>
+                    <li><strong>Threads</strong> → Operational triage dashboard (core workflow)</li>
+                    <li><strong>Issues</strong> → Root cause tracking</li>
+                    <li>Explore other views via sidebar navigation</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

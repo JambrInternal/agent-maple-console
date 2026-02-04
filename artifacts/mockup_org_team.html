@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - Team</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="am-app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo" style="margin-bottom: 24px;">
+            <div
+                style="width: 32px; height: 32px; background: var(--am-accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                M</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-icon" title="Projects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2H2v10h10V2z" />
+                    <path d="M22 2h-10v10h10V2z" />
+                    <path d="M12 12H2v10h10V12z" />
+                    <path d="M22 12h-10v10h10V12z" />
+                </svg>
+            </div>
+            <div class="nav-icon active" title="Team">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Usage">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Billing">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="nav-icon" title="Org Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </div>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="breadcrumbs">
+            <span class="breadcrumb-item">Iron Maple</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-item active">Team</span>
+        </div>
+        <div style="flex: 1;"></div>
+        <button class="btn btn-primary" style="background-color: var(--am-success);">Invite member</button>
+    </header>
+
+    <main>
+        <div class="view-content">
+            <div class="view-header">
+                <div>
+                    <h1>Team</h1>
+                    <p class="subtitle">Manage organization members and their access levels.</p>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Enabled MFA</th>
+                        <th>Role</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar-circle">JL</div>
+                                <div>
+                                    <div style="font-weight: 500;">jeremy.m.legere@gmail.com</div>
+                                    <div style="font-size: 11px; color: var(--am-text-3);">YOU</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" style="color: var(--am-text-3);">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </td>
+                        <td style="color: var(--am-text-3);">Owner</td>
+                        <td style="text-align: right;">
+                            <button class="btn"
+                                style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--am-border); color: var(--am-text-1); font-size: 11px;">Leave
+                                team</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar-circle" style="background: var(--am-accent);">JD</div>
+                                <div>
+                                    <div style="font-weight: 500;">john.doe@ironmaple.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" style="color: var(--am-success);">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </td>
+                        <td style="color: var(--am-text-3);">Developer</td>
+                        <td style="text-align: right;">
+                            <button class="btn" style="background: transparent; color: var(--am-text-3);"><svg
+                                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="12" cy="5" r="1" />
+                                    <circle cx="12" cy="19" r="1" />
+                                </svg></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+
+</html>

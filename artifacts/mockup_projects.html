@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - Projects</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="am-app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo"
+            style="height: 48px; border-bottom: 1px solid var(--am-border); width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+            <div
+                style="width: 24px; height: 24px; background: var(--am-accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">
+                M</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-icon active" title="Projects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2H2v10h10V2z" />
+                    <path d="M22 2h-10v10h10V2z" />
+                    <path d="M12 12H2v10h10V12z" />
+                    <path d="M22 12h-10v10h10V12z" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Team">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Usage">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Billing">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="nav-icon" title="Org Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </div>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="breadcrumbs">
+            <span class="breadcrumb-item">Iron Maple</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-item active">Projects</span>
+        </div>
+        <div style="flex: 1;"></div>
+        <button class="btn btn-primary">Launch New Project</button>
+    </header>
+
+    <main>
+        <div class="view-content" style="max-width: 1200px;">
+            <div class="view-header">
+                <div>
+                    <h1 style="font-size: 20px;">Projects</h1>
+                    <p class="subtitle">Deploy and manage AI agents for your job sites.</p>
+                </div>
+            </div>
+
+            <div class="project-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                <div class="project-card">
+                    <div class="project-card-header">
+                        <div class="project-card-title">Site-A Plaza</div>
+                        <span class="badge badge-success">Online</span>
+                    </div>
+                    <div class="project-card-meta">
+                        <p>Ontario, CA | AWS us-east-1</p>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 4px;">
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Open Threads</div>
+                            <div
+                                style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600; color: var(--am-accent);">
+                                12</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Active Issues</div>
+                            <div style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600;">3</div>
+                        </div>
+                    </div>
+                    <div class="project-card-footer" style="padding-top: 12px; font-size: 11px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        Last active 2m ago
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-card-header">
+                        <div class="project-card-title">Site-B Warehouse</div>
+                        <span class="badge badge-success">Online</span>
+                    </div>
+                    <div class="project-card-meta">
+                        <p>Calgary, AB | AWS ca-central-1</p>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 4px;">
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Open Threads</div>
+                            <div
+                                style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600; color: var(--am-text-3);">
+                                0</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Active Issues</div>
+                            <div style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600;">1</div>
+                        </div>
+                    </div>
+                    <div class="project-card-footer" style="padding-top: 12px; font-size: 11px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        Last active 1h ago
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-card-header">
+                        <div class="project-card-title">Site-C Bridge</div>
+                        <span class="badge badge-warning">Syncing</span>
+                    </div>
+                    <div class="project-card-meta">
+                        <p>Vancouver, BC | GCP northamerica-northeast1</p>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 4px;">
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Open Threads</div>
+                            <div
+                                style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600; color: var(--am-accent);">
+                                1</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Active Issues</div>
+                            <div style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600;">1</div>
+                        </div>
+                    </div>
+                    <div class="project-card-footer" style="padding-top: 12px; font-size: 11px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        Last active Yesterday
+                    </div>
+                </div>
+
+                <!-- Showing Density -->
+                <div class="project-card" style="opacity: 0.6;">
+                    <div class="project-card-header">
+                        <div class="project-card-title">Site-D Office</div>
+                        <span class="badge"
+                            style="background: var(--am-bg-0); color: var(--am-text-3);">Hibernating</span>
+                    </div>
+                    <div class="project-card-meta">
+                        <p>Montreal, QC | Azure canada-east</p>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 4px;">
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Open Threads</div>
+                            <div
+                                style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600; color: var(--am-text-3);">
+                                0</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 10px; color: var(--am-text-3); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Active Issues</div>
+                            <div style="font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600;">0</div>
+                        </div>
+                    </div>
+                    <div class="project-card-footer" style="padding-top: 12px; font-size: 11px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        Offline since Jan 15
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

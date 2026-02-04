@@ -1,36 +1,34 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import Breadcrumbs from './Breadcrumbs'
 
 const Layout = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false)
-
-    // Auto-collapse on mobile/tablet
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 1024) {
-                setIsCollapsed(true)
-            } else {
-                setIsCollapsed(false)
-            }
-        }
-
-        // Set initial state
-        handleResize()
-
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    }, [])
-
-    const toggleSidebar = () => {
-        setIsCollapsed(!isCollapsed)
-    }
-
     return (
-        <div className={`layout-container ${isCollapsed ? 'collapsed' : ''}`}>
-            <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
-            <main className="app-layout">
-                <div className="page-content">
+        <div className="am-app-shell">
+            <Sidebar />
+            <main className="am-main-layout">
+                <header className="am-header">
+                    <Breadcrumbs />
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--am-bg-1)',
+                            border: '1px solid var(--am-border)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            color: 'var(--am-text-2)'
+                        }}>
+                            JL
+                        </div>
+                    </div>
+                </header>
+                <div className="am-page-content">
                     <Outlet />
                 </div>
             </main>

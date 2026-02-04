@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - Insights</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--am-bg-1);
+            border: 1px solid var(--am-border);
+            padding: 16px;
+            border-radius: 6px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--am-text-2);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--am-text-1);
+        }
+
+        .kpi-trend {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .kpi-trend.positive {
+            color: #22c55e;
+        }
+
+        .kpi-trend.negative {
+            color: #ef4444;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--am-bg-1);
+            border: 1px solid var(--am-border);
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--am-text-1);
+        }
+
+        .chart-subtitle {
+            font-size: 12px;
+            color: var(--am-text-2);
+        }
+
+        .chart-area {
+            height: 200px;
+            position: relative;
+            border-left: 1px solid var(--am-border);
+            border-bottom: 1px solid var(--am-border);
+            margin-left: 40px;
+        }
+
+        .chart-y-label {
+            position: absolute;
+            left: -40px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--am-text-3);
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(194, 106, 46, 0.3) 0%, rgba(194, 106, 46, 0.05) 100%);
+            clip-path: polygon(0% 80%, 10% 60%, 20% 70%, 30% 40%, 40% 50%, 50% 30%, 60% 35%, 70% 20%, 80% 25%, 90% 15%, 100% 10%, 100% 100%, 0% 100%);
+        }
+
+        .chart-line-stroke {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            border-top: 2px solid var(--am-accent);
+            clip-path: polygon(0% 80%, 10% 60%, 20% 70%, 30% 40%, 40% 50%, 50% 30%, 60% 35%, 70% 20%, 80% 25%, 90% 15%, 100% 10%);
+        }
+
+        .donut-chart {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(var(--am-accent) 0deg 144deg,
+                    #3b82f6 144deg 234deg,
+                    #22c55e 234deg 306deg,
+                    #a855f7 306deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .donut-center {
+            width: 80px;
+            height: 80px;
+            background: var(--am-bg-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .donut-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--am-text-1);
+        }
+
+        .donut-label {
+            font-size: 10px;
+            color: var(--am-text-2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--am-text-2);
+            margin-bottom: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-value {
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: auto;
+            color: var(--am-text-1);
+        }
+
+        .table-card {
+            background: var(--am-bg-1);
+            border: 1px solid var(--am-border);
+            border-radius: 6px;
+        }
+
+        .table-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--am-border);
+        }
+
+        .insights-table {
+            width: 100%;
+        }
+
+        .insights-table th {
+            text-align: left;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--am-text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--am-border);
+        }
+
+        .insights-table td {
+            padding: 12px 20px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+        }
+
+        .issue-title {
+            font-weight: 500;
+            color: var(--am-text-1);
+        }
+
+        .metric-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .bar-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-bar {
+            height: 6px;
+            background: var(--am-accent);
+            border-radius: 3px;
+            opacity: 0.7;
+        }
+
+        .date-range-btn {
+            background: var(--am-bg-0);
+            border: 1px solid var(--am-border);
+            color: var(--am-text-2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .date-range-btn.active {
+            border-color: var(--am-accent);
+            color: var(--am-text-1);
+        }
+    </style>
+</head>
+
+<body class="am-app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo" style="margin-bottom: 24px;">
+            <div
+                style="width: 32px; height: 32px; background: var(--am-accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                M</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="mockup_projects.html" class="nav-icon" title="Projects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2H2v10h10V2z" />
+                    <path d="M22 2h-10v10h10V2z" />
+                    <path d="M12 12H2v10h10V12z" />
+                    <path d="M22 12h-10v10h10V12z" />
+                </svg>
+            </a>
+            <a href="mockup_threads.html" class="nav-icon" title="Threads">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </a>
+            <a href="mockup_issues.html" class="nav-icon" title="Issues">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+            </a>
+            <a href="mockup_knowledge.html" class="nav-icon" title="Knowledge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+            </a>
+            <a href="mockup_contacts.html" class="nav-icon" title="Contacts">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </a>
+            <div class="nav-icon active" title="Insights">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <a href="mockup_org_settings.html" class="nav-icon" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </a>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="breadcrumbs">
+            <a href="mockup_organizations.html" class="breadcrumb-item">Iron Maple</a>
+            <span class="breadcrumb-sep">/</span>
+            <a href="mockup_projects.html" class="breadcrumb-item">Site-A Plaza</a>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-item active">Insights</span>
+        </div>
+        <div style="display: flex; gap: 8px; margin-left: auto;">
+            <button class="date-range-btn">7d</button>
+            <button class="date-range-btn active">30d</button>
+            <button class="date-range-btn">90d</button>
+            <button class="btn btn-primary" style="margin-left: 8px;">Export Report</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="view-content">
+            <div class="view-header">
+                <div>
+                    <h1>Insights Dashboard</h1>
+                    <p class="subtitle">Operational analytics and performance metrics for Site-A Plaza.</p>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="dashboard-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Threads</div>
+                    <div class="kpi-value">1,247</div>
+                    <div class="kpi-trend positive">↑ 12.3% vs last period</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Open Issues</div>
+                    <div class="kpi-value">23</div>
+                    <div class="kpi-trend negative">↑ 4 new this week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Resolution Time</div>
+                    <div class="kpi-value">4.2h</div>
+                    <div class="kpi-trend positive">↓ 18% faster</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Auto-Resolved</div>
+                    <div class="kpi-value">89%</div>
+                    <div class="kpi-trend positive">↑ 3% improvement</div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Thread Volume & Resolution Trend</div>
+                            <div class="chart-subtitle">Daily thread count over the selected period</div>
+                        </div>
+                    </div>
+                    <div class="chart-area">
+                        <span class="chart-y-label" style="top: 0;">100</span>
+                        <span class="chart-y-label" style="top: 50%;">50</span>
+                        <span class="chart-y-label" style="bottom: 0;">0</span>
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Channel Breakdown</div>
+                            <div class="chart-subtitle">Threads by communication channel</div>
+                        </div>
+                    </div>
+                    <div class="donut-chart">
+                        <div class="donut-center">
+                            <div class="donut-value">1,247</div>
+                            <div class="donut-label">total</div>
+                        </div>
+                    </div>
+                    <div style="padding: 0 8px;">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--am-accent);"></span>
+                            <span>Voice</span>
+                            <span class="legend-value">498</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #3b82f6;"></span>
+                            <span>SMS</span>
+                            <span class="legend-value">374</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #22c55e;"></span>
+                            <span>Email</span>
+                            <span class="legend-value">300</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #a855f7;"></span>
+                            <span>Web Chat</span>
+                            <span class="legend-value">75</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Issues Table -->
+            <div class="table-card">
+                <div class="table-header-row">
+                    <div class="chart-title">Top Issues by Thread Count</div>
+                    <a href="mockup_issues.html"
+                        style="color: var(--am-accent); font-size: 13px; text-decoration: none;">View All →</a>
+                </div>
+                <table class="insights-table">
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Status</th>
+                            <th>Threads</th>
+                            <th>Distribution</th>
+                            <th>Last Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="issue-title">Missing Documentation (L3 Wiring)</td>
+                            <td><span class="badge badge-warning">Open</span></td>
+                            <td class="metric-mono">47</td>
+                            <td class="bar-cell">
+                                <div class="mini-bar" style="width: 100%;"></div>
+                            </td>
+                            <td class="metric-mono" style="color: var(--am-text-2);">2h ago</td>
+                        </tr>
+                        <tr>
+                            <td class="issue-title">Gate Access Code Questions</td>
+                            <td><span class="badge badge-warning">Open</span></td>
+                            <td class="metric-mono">32</td>
+                            <td class="bar-cell">
+                                <div class="mini-bar" style="width: 68%;"></div>
+                            </td>
+                            <td class="metric-mono" style="color: var(--am-text-2);">4h ago</td>
+                        </tr>
+                        <tr>
+                            <td class="issue-title">Delivery Schedule Conflicts</td>
+                            <td><span class="badge badge-success">Resolved</span></td>
+                            <td class="metric-mono">28</td>
+                            <td class="bar-cell">
+                                <div class="mini-bar" style="width: 60%;"></div>
+                            </td>
+                            <td class="metric-mono" style="color: var(--am-text-2);">1d ago</td>
+                        </tr>
+                        <tr>
+                            <td class="issue-title">Safety Inspection Query</td>
+                            <td><span class="badge badge-success">Resolved</span></td>
+                            <td class="metric-mono">19</td>
+                            <td class="bar-cell">
+                                <div class="mini-bar" style="width: 40%;"></div>
+                            </td>
+                            <td class="metric-mono" style="color: var(--am-text-2);">3d ago</td>
+                        </tr>
+                        <tr>
+                            <td class="issue-title">Parking Allocation</td>
+                            <td><span class="badge badge-success">Resolved</span></td>
+                            <td class="metric-mono">12</td>
+                            <td class="bar-cell">
+                                <div class="mini-bar" style="width: 25%;"></div>
+                            </td>
+                            <td class="metric-mono" style="color: var(--am-text-2);">5d ago</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

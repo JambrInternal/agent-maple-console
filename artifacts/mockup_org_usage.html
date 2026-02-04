@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - Usage</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="am-app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo" style="margin-bottom: 24px;">
+            <div
+                style="width: 32px; height: 32px; background: var(--am-accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                M</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-icon" title="Projects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2H2v10h10V2z" />
+                    <path d="M22 2h-10v10h10V2z" />
+                    <path d="M12 12H2v10h10V12z" />
+                    <path d="M22 12h-10v10h10V12z" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Team">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </div>
+            <div class="nav-icon active" title="Usage">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Billing">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="nav-icon" title="Org Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </div>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="breadcrumbs">
+            <span class="breadcrumb-item">Iron Maple</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-item active">Usage</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="view-content">
+            <div class="view-header">
+                <div>
+                    <h1>Org Usage</h1>
+                    <p class="subtitle">Monitor AI concurrency and token consumption across all projects.</p>
+                </div>
+            </div>
+
+            <div class="org-section">
+                <div class="org-section-header">
+                    <h3>Enterprise Rollup</h3>
+                </div>
+                <div class="project-grid">
+                    <div class="am-card">
+                        <div style="font-size: 11px; color: var(--am-text-3); text-transform: uppercase;">Total Tokens
+                            (Feb)</div>
+                        <div style="font-size: 32px; font-weight: 700; margin-top: 8px;">2,450,120</div>
+                        <p style="font-size: 12px; color: var(--am-success); margin-top: 4px;">↑ 12% from last month</p>
+                    </div>
+                    <div class="am-card">
+                        <div style="font-size: 11px; color: var(--am-text-3); text-transform: uppercase;">Max
+                            Concurrency</div>
+                        <div style="font-size: 32px; font-weight: 700; margin-top: 8px;">12 / 50</div>
+                        <p style="font-size: 12px; color: var(--am-text-3); margin-top: 4px;">Active agent threads</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="org-section">
+                <div class="org-section-header">
+                    <h3>Usage by Project</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Project Site</th>
+                            <th>Tokens Consumed</th>
+                            <th>Active Concurrency</th>
+                            <th>Avg Latency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600;">Site-A Plaza</td>
+                            <td>1,840,000</td>
+                            <td>8</td>
+                            <td>850ms</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Site-B Warehouse</td>
+                            <td>610,120</td>
+                            <td>4</td>
+                            <td>1.2s</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,119 +1,110 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import {
-    Users,
-    Phone,
+    LayoutGrid,
     MessageSquare,
-    Mail,
-    Calendar,
-    MessageCircle,
     AlertCircle,
     Database,
-    Brain,
-    Lightbulb,
+    Zap,
+    Users,
+    BarChart3,
+    Settings,
+    Shield,
+    CreditCard,
+    Activity,
     LogOut,
     User,
-    ChevronLeft,
-    ChevronRight
+    Building2,
+    Construction
 } from 'lucide-react'
 
-const Sidebar = ({ isCollapsed, toggleSidebar }) => {
-    const menuGroups = [
-        {
-            title: 'Agent',
-            items: [
-                { icon: Users, label: 'Contacts', path: '/contacts' },
-                { icon: Phone, label: 'Phone', path: '/phone' },
-                { icon: MessageSquare, label: 'SMS', path: '/sms' },
-                { icon: Mail, label: 'Email', path: '/email', disabled: true },
-                { icon: Calendar, label: 'Calendar', path: '/calendar', disabled: true },
-                { icon: MessageCircle, label: 'Threads', path: '/threads', disabled: true },
-                { icon: AlertCircle, label: 'Issues', path: '/issues', disabled: true },
-            ]
-        },
-        {
-            title: 'Data & Analytics',
-            items: [
-                { icon: Database, label: 'Data Sources', path: '/data-sources' },
-                { icon: Brain, label: 'Knowledge', path: '/knowledge', disabled: true },
-                { icon: Lightbulb, label: 'Insights', path: '/insights', disabled: true },
-            ]
-        }
+const Sidebar = () => {
+    const { orgId, projId } = useParams()
+    const navigate = useNavigate()
+    const { logout } = useAuth()
+
+    // Determine current section (Org vs Project)
+    const isProjectContext = !!projId
+
+    const orgNavItems = [
+        { icon: LayoutGrid, label: 'Projects', path: `/${orgId}/projects` },
+        { icon: Shield, label: 'Team', path: `/${orgId}/team` },
+        { icon: CreditCard, label: 'Billing', path: `/${orgId}/billing` },
+        { icon: Activity, label: 'Usage', path: `/${orgId}/usage` },
+        { icon: Settings, label: 'Settings', path: `/${orgId}/settings` },
     ]
 
+    const projectNavItems = [
+        { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/triage` },
+        { icon: AlertCircle, label: 'Issues', path: `/${orgId}/${projId}/issues` },
+        { icon: Zap, label: 'Tools & Skills', path: `/${orgId}/${projId}/config` },
+        { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb` },
+        { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/people` },
+        { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data` },
+    ]
+
+    const currentNavItems = isProjectContext ? projectNavItems : orgNavItems
+    const panelTitle = isProjectContext ? 'Project' : 'Organization'
+
+    const handleLogout = async () => {
+        await logout()
+        navigate('/login')
+    }
+
     return (
-        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-            {/* Brand Header */}
-            <div className="sidebar-header">
-                <div className="brand-logo">
-                    {isCollapsed ? (
-                        <img src="/src/assets/logo-icon.png" alt="AM" className="logo-icon" />
-                    ) : (
-                        <div className="logo-container">
-                            <img src="/src/assets/logo.png" alt="Agent Maple" className="logo-image" />
-                            <span className="beta-badge">BETA</span>
+        <>
+            {/* Far-Left Icon Sidebar */}
+            <aside className="am-sidebar">
+                <div className="am-sidebar-icon active" title="Console">
+                    <Building2 size={20} />
+                </div>
+                <div className="am-sidebar-icon" title="Settings">
+                    <Settings size={20} />
+                </div>
+                <div style={{ marginTop: 'auto' }}>
+                    <div className="am-sidebar-icon" title="Account">
+                        <User size={20} />
+                    </div>
+                </div>
+            </aside>
+
+            {/* Navigation Panel */}
+            <aside className="am-nav-panel">
+                <div className="am-panel-header">
+                    {isProjectContext ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Construction size={16} className="am-text-2" />
+                            <span>{projId.replace('_', ' ')}</span>
                         </div>
+                    ) : (
+                        <span>{orgId?.replace('_', ' ') || 'Management'}</span>
                     )}
                 </div>
-            </div>
+                <div className="am-panel-content">
+                    <h3 className="am-nav-group-title">{panelTitle}</h3>
+                    {currentNavItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) =>
+                                `am-nav-item ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            <item.icon size={18} />
+                            <span>{item.label}</span>
+                        </NavLink>
+                    ))}
 
-            {/* Navigation */}
-            <nav className="sidebar-nav">
-                {menuGroups.map((group, index) => (
-                    <div key={index} className="nav-group">
-                        {!isCollapsed && <h3 className="group-title">{group.title}</h3>}
-                        {group.items.map((item) => (
-                            item.disabled ? (
-                                <div
-                                    key={item.label}
-                                    className="nav-item disabled"
-                                    title="Coming Soon"
-                                >
-                                    <item.icon size={20} className="nav-icon" />
-                                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
-                                </div>
-                            ) : (
-                                <NavLink
-                                    key={item.path}
-                                    to={item.path}
-                                    className={({ isActive }) =>
-                                        `nav-item ${isActive ? 'active' : ''}`
-                                    }
-                                    title={isCollapsed ? item.label : ''}
-                                >
-                                    <item.icon size={20} className="nav-icon" />
-                                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
-                                </NavLink>
-                            )
-                        ))}
+                    <div style={{ marginTop: '2rem' }}>
+                        <button className="am-nav-item" style={{ width: '100%' }} onClick={handleLogout}>
+                            <LogOut size={18} />
+                            <span>Log out</span>
+                        </button>
                     </div>
-                ))}
-            </nav>
-
-            {/* Footer Toggle & User */}
-            <div className="sidebar-footer">
-                <button className="toggle-btn" onClick={toggleSidebar}>
-                    {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                </button>
-
-                {!isCollapsed && (
-                    <div className="user-profile">
-                        <div className="user-avatar">
-                            <User size={16} />
-                        </div>
-                        <div className="user-info">
-                            <span className="user-name">Jeremy Legere</span>
-                            <span className="user-org">Iron Maple</span>
-                        </div>
-                    </div>
-                )}
-
-                <button className="logout-btn">
-                    <LogOut size={16} />
-                    {!isCollapsed && <span>Log out</span>}
-                </button>
-            </div>
-        </aside>
+                </div>
+            </aside>
+        </>
     )
 }
 

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Maple Console - SMS</title>
+    <link rel="stylesheet" href="mockup_style.css">
+    <style>
+        .chat-container {
+            height: 500px;
+            background: var(--am-bg-1);
+            border: 1px solid var(--am-border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--am-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .msg-in {
+            align-self: flex-start;
+            background: var(--am-bg-0);
+            border: 1px solid var(--am-border);
+            color: var(--am-text-1);
+        }
+
+        .msg-out {
+            align-self: flex-end;
+            background: var(--am-accent);
+            color: white;
+        }
+
+        .msg-meta {
+            font-size: 11px;
+            color: var(--am-text-3);
+            margin-top: 4px;
+        }
+
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid var(--am-border);
+            display: flex;
+            gap: 12px;
+        }
+
+        input {
+            flex: 1;
+            background: var(--am-bg-0);
+            border: 1px solid var(--am-border);
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="am-app-shell">
+        <aside class="sidebar">
+            <div class="nav-icon" title="Home">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+            </div>
+            <div class="nav-icon active" title="Threads">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Knowledge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Contacts">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </div>
+            <div class="nav-icon" title="Insights">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="nav-icon" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </div>
+        </aside>
+
+        <header>
+            <div class="breadcrumbs">
+                <span class="breadcrumb-item">Iron Maple</span>
+                <span class="breadcrumb-sep">/</span>
+
+                <span class="breadcrumb-item active">SMS History</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="view-content">
+                <div class="view-header">
+                    <div>
+                        <h1>SMS: Sub Foreman B</h1>
+                        <p class="subtitle">Reviewing real-time automated SMS triage.</p>
+                    </div>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <span style="font-weight: 600;">+1 (555) 9988</span>
+                        <span class="badge badge-warning">Urgent Escalation</span>
+                    </div>
+                    <div class="chat-messages">
+                        <div class="msg msg-in">
+                            Emergency water leak on L2. Waiting for response. Needs plumber now.
+                            <div class="msg-meta">19:05</div>
+                        </div>
+                        <div class="msg msg-out">
+                            Understood. I've escalated this to Joe Henderson (GC Super) and called the on-site plumber.
+                            <div class="msg-meta">19:05 (Agent)</div>
+                        </div>
+                        <div class="msg msg-in">
+                            Thanks. He's on his way?
+                            <div class="msg-meta">19:06</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="Type a message to take over...">
+                        <button class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
