@@ -10,6 +10,7 @@ import {
     BarChart3,
     Mail,
     Phone,
+    Download,
     Settings,
     Shield,
     CreditCard,
@@ -114,7 +115,9 @@ const Sidebar = () => {
                         <div className="am-agent-card-detail">{agentProfile.title}</div>
                         <div className="am-agent-card-detail">{agentProfile.phone}</div>
                         <div className="am-agent-card-detail">{agentProfile.email}</div>
-                        <div className="am-agent-card-action">Download vCard</div>
+                        <div className="am-agent-card-download" aria-hidden="true">
+                            <Download size={14} />
+                        </div>
                     </button>
                 )}
 

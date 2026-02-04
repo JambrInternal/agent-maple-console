@@ -974,6 +974,7 @@ button {
     transition: transform var(--am-dur-2) var(--am-ease-out),
         box-shadow var(--am-dur-2) var(--am-ease-out),
         border-color var(--am-dur-2) var(--am-ease-in-out);
+    position: relative;
 }
 
 .am-agent-card:hover {
@@ -1004,13 +1005,28 @@ button {
     color: var(--am-text-2);
 }
 
-.am-agent-card-action {
-    margin-top: 0.25rem;
-    font-size: 0.7rem;
-    font-weight: 600;
+.am-agent-card-download {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--am-text-1);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    background-color: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--am-dur-2) var(--am-ease-out),
+        transform var(--am-dur-2) var(--am-ease-out);
+}
+
+.am-agent-card:hover .am-agent-card-download {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .am-coming-soon {

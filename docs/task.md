@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Agent Contact Details
+## Current Task: Agent Card Download Icon
 
-**Goal**: Align the agent vCard fields with project/org context and channel settings.
+**Goal**: Show a download icon on hover instead of copy text on the agent card.
 
 **Todo**
-- [x] Use project name + "Agent" for vCard name
-- [x] Set title to "Agentic AI" and include org, phone, email
+- [x] Replace download text with hover icon
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
