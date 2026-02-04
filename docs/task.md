@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Adaptive Brand Icon
+## Current Task: Disable Mock Mode on Main
 
-**Goal**: Use light/dark variants of the Agent Maple icon for favicon and breadcrumbs.
+**Goal**: Default to the live API unless `VITE_USE_MOCKS=true`.
 
 **Todo**
-- [x] Add light/dark SVG variants for the Agent Maple icon
-- [x] Update favicon and breadcrumbs to switch based on color scheme
+- [x] Flip mock-mode default to off
+- [x] Update docs for mock mode behavior
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

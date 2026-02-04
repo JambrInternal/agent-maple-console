@@ -6,7 +6,7 @@ const MOCK_DELAY_MS = 300;
 
 export const API_CONFIG = {
     baseUrl: import.meta.env.VITE_API_URL || 'https://api.stage.certly.jambr.ca/stage',
-    useMocks: import.meta.env.VITE_USE_MOCKS !== 'false',
+    useMocks: import.meta.env.VITE_USE_MOCKS === 'true',
 };
 
 /**

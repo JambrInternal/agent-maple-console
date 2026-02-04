@@ -18,7 +18,7 @@
 
 ## Console Config
 - `VITE_API_URL` defaults to `https://api.stage.certly.jambr.ca/stage`
-- `VITE_USE_MOCKS=false` uses the live API instead of fixtures
+- `VITE_USE_MOCKS=true` enables fixtures; default is live API
 
 ## Update Snapshot
 ```bash
