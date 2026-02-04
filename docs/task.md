@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Disable Mock Mode on Main
+## Current Task: Fix Favicon Theme Switching
 
-**Goal**: Default to the live API unless `VITE_USE_MOCKS=true`.
+**Goal**: Ensure the favicon switches correctly for light/dark themes in all browsers.
 
 **Todo**
-- [x] Flip mock-mode default to off
-- [x] Update docs for mock mode behavior
+- [x] Add JS-based favicon switching for browsers that ignore media queries
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

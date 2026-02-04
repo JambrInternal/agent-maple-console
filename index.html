@@ -3,9 +3,25 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" media="(prefers-color-scheme: light)" />
-  <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
-  <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+  <link id="app-favicon" rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+  <script>
+    (() => {
+      const applyFavicon = () => {
+        const link = document.getElementById('app-favicon');
+        if (!link) return;
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        link.href = prefersDark ? '/favicon-dark.svg' : '/favicon-light.svg';
+      };
+      applyFavicon();
+      if (!window.matchMedia) return;
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (typeof mq.addEventListener === 'function') {
+        mq.addEventListener('change', applyFavicon);
+      } else if (typeof mq.addListener === 'function') {
+        mq.addListener(applyFavicon);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Maple Console</title>
 </head>
