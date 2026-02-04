@@ -8,11 +8,12 @@ import {
     Zap,
     Users,
     BarChart3,
+    Mail,
+    Phone,
     Settings,
     Shield,
     CreditCard,
-    Activity,
-    Construction
+    Activity
 } from 'lucide-react'
 
 const Sidebar = () => {
@@ -29,32 +30,32 @@ const Sidebar = () => {
         { icon: Settings, label: 'Organization Settings', path: `/${orgId}/settings`, comingSoon: true },
     ]
 
-    const projectNavItems = [
-        { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/triage` },
-        { icon: AlertCircle, label: 'Issues', path: `/${orgId}/${projId}/issues` },
-        { icon: Zap, label: 'Tools & Skills', path: `/${orgId}/${projId}/config` },
-        { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb` },
-        { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/people` },
-        { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data` },
+    const projectNavSections = [
+        {
+            title: 'Agent',
+            items: [
+                { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/people` },
+                { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
+                { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice`, comingSoon: true },
+                { icon: Mail, label: 'Email', path: `/${orgId}/${projId}/email`, comingSoon: true },
+                { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/config` },
+            ],
+        },
+        {
+            title: 'Data',
+            items: [
+                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb` },
+                { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data` },
+            ],
+        },
     ]
 
-    const currentNavItems = isProjectContext ? projectNavItems : orgNavItems
-    const panelTitle = isProjectContext ? 'Project' : 'Organization'
-
+    const currentNavItems = isProjectContext ? [] : orgNavItems
     return (
         <aside className="am-nav-panel">
             <div className="am-panel-content">
-                {isProjectContext && (
-                    <div className="am-panel-title">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Construction size={16} className="am-text-2" />
-                            <span>{projId.replace('_', ' ')}</span>
-                        </div>
-                    </div>
-                )}
-
-                <h3 className="am-nav-group-title">{panelTitle}</h3>
-                {currentNavItems.map((item) => {
+                {!isProjectContext && <h3 className="am-nav-group-title">Organization</h3>}
+                {!isProjectContext && currentNavItems.map((item) => {
                     if (item.comingSoon) {
                         return (
                             <div
@@ -81,6 +82,39 @@ const Sidebar = () => {
                         </NavLink>
                     )
                 })}
+
+                {isProjectContext && projectNavSections.map((section) => (
+                    <div key={section.title}>
+                        <h3 className="am-nav-group-title">{section.title}</h3>
+                        {section.items.map((item) => {
+                            if (item.comingSoon) {
+                                return (
+                                    <div
+                                        key={item.path}
+                                        className="am-nav-item am-nav-item--disabled"
+                                        title="Coming soon"
+                                    >
+                                        <item.icon size={18} />
+                                        <span>{item.label}</span>
+                                    </div>
+                                )
+                            }
+
+                            return (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) =>
+                                        `am-nav-item ${isActive ? 'active' : ''}`
+                                    }
+                                >
+                                    <item.icon size={18} />
+                                    <span>{item.label}</span>
+                                </NavLink>
+                            )
+                        })}
+                    </div>
+                ))}
             </div>
         </aside>
     )

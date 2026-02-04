@@ -1,13 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Project Status Simplification
+## Current Task: Project Nav Grouping
 
-**Goal**: Simplify project status to Online and Offline only.
+**Goal**: Group project navigation into Agent and Data sections.
 
 **Todo**
-- [x] Remove Warning/Problems statuses from the Projects grid filters
-- [x] Update mock data and types to Online/Offline only
-- [x] Update status badge styling and tests
+- [x] Reorganize project nav items into Agent and Data groups
+- [x] Add SMS/Voice/Email as Coming Soon items
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

@@ -10,13 +10,9 @@ import Login from './pages/Login'
 import OrgSelection from './pages/OrgSelection'
 import Projects from './pages/Projects'
 import Contacts from './pages/Contacts'
+import ComingSoon from './pages/ComingSoon'
 
 // Simple Placeholders for the new hierarchy
-const OrgTeam = () => <h1 className="am-text-1">Team</h1>
-const OrgBilling = () => <h1 className="am-text-1">Billing</h1>
-const OrgUsage = () => <h1 className="am-text-1">Usage</h1>
-const OrgSettings = () => <h1 className="am-text-1">Organization Settings</h1>
-
 const ThreadsMonitor = () => <h1 className="am-text-1">Threads</h1>
 const IssuesDashboard = () => <h1 className="am-text-1">Issues</h1>
 const ToolsSkills = () => <h1 className="am-text-1">Tools & Skills</h1>
@@ -42,10 +38,22 @@ function App() {
 
                                 {/* Org Level Pages */}
                                 <Route path="projects" element={<Projects />} />
-                                <Route path="team" element={<OrgTeam />} />
-                                <Route path="billing" element={<OrgBilling />} />
-                                <Route path="usage" element={<OrgUsage />} />
-                                <Route path="settings" element={<OrgSettings />} />
+                                <Route
+                                    path="team"
+                                    element={<ComingSoon title="Team" />}
+                                />
+                                <Route
+                                    path="billing"
+                                    element={<ComingSoon title="Billing" />}
+                                />
+                                <Route
+                                    path="usage"
+                                    element={<ComingSoon title="Usage" />}
+                                />
+                                <Route
+                                    path="settings"
+                                    element={<ComingSoon title="Organization Settings" />}
+                                />
 
                                 {/* Project Context */}
                                 <Route path=":projId">
