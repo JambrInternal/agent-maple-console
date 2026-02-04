@@ -2,6 +2,34 @@ import React, { useMemo, useState } from 'react'
 import { FileText, MoreVertical, UploadCloud } from 'lucide-react'
 
 const Knowledge = () => {
+    const GoogleDriveIcon = () => (
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="am-source-icon">
+            <path
+                d="M9.3 3.2h5.4l5.1 8.8-2.7 4.6h-5.5l-2.7-4.6 2.7-4.6h-5.4z"
+                fill="currentColor"
+            />
+            <path
+                d="M4.2 12l2.7-4.6 2.7 4.6-2.7 4.6L4.2 12z"
+                fill="currentColor"
+                opacity="0.7"
+            />
+            <path
+                d="M12.4 7.4l2.7 4.6-2.7 4.6H6.9l-2.7-4.6 2.7-4.6h5.5z"
+                fill="currentColor"
+                opacity="0.4"
+            />
+        </svg>
+    )
+
+    const SharePointIcon = () => (
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="am-source-icon">
+            <circle cx="9" cy="12" r="6" fill="currentColor" opacity="0.8" />
+            <circle cx="15.5" cy="9" r="5.5" fill="currentColor" opacity="0.4" />
+            <text x="9" y="14" textAnchor="middle" fontSize="7" fill="currentColor" fontWeight="700">
+                S
+            </text>
+        </svg>
+    )
     const tabs = [
         { key: 'upload', label: 'File Upload' },
         { key: 'cloud', label: 'Cloud Storage' },
@@ -59,7 +87,7 @@ const Knowledge = () => {
                     hash: 'ac72b501a1b0...',
                     size: '8.02 MB',
                     type: 'PDF',
-                    source: 'cloud',
+                    source: 'google_drive',
                     extraction: 'completed',
                     uploaded: '3 days ago',
                 },
@@ -69,7 +97,7 @@ const Knowledge = () => {
                     hash: '9efc118ff2d1...',
                     size: '410 KB',
                     type: 'DOCX',
-                    source: 'cloud',
+                    source: 'sharepoint',
                     extraction: 'indexing',
                     uploaded: '5 days ago',
                 },
@@ -84,6 +112,29 @@ const Knowledge = () => {
         completed: 'Completed',
         indexing: 'Indexing',
         error: 'Error',
+    }
+
+    const renderSource = (source) => {
+        if (source === 'upload') {
+            return <span className="am-pill is-upload">Upload</span>
+        }
+        if (source === 'google_drive') {
+            return (
+                <span className="am-source-badge is-google-drive">
+                    <GoogleDriveIcon />
+                    <span>Google Drive</span>
+                </span>
+            )
+        }
+        if (source === 'sharepoint') {
+            return (
+                <span className="am-source-badge is-sharepoint">
+                    <SharePointIcon />
+                    <span>SharePoint</span>
+                </span>
+            )
+        }
+        return <span className="am-pill">{source}</span>
     }
 
     return (
@@ -150,11 +201,7 @@ const Knowledge = () => {
                                     </td>
                                     <td className="am-text-2">{row.size}</td>
                                     <td className="am-text-2">{row.type}</td>
-                                    <td>
-                                        <span className={`am-pill is-${row.source}`}>
-                                            {row.source}
-                                        </span>
-                                    </td>
+                                    <td>{renderSource(row.source)}</td>
                                     <td>
                                         <span className={`am-pill is-${row.extraction}`}>
                                             {extractionLabels[row.extraction] || row.extraction}

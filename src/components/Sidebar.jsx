@@ -36,7 +36,7 @@ const Sidebar = () => {
             items: [
                 { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
-                { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice`, comingSoon: true },
+                { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice` },
                 { icon: Mail, label: 'Email', path: `/${orgId}/${projId}/email`, comingSoon: true },
                 { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/tools-skills`, comingSoon: true },
             ],

@@ -11,6 +11,7 @@ import OrgSelection from './pages/OrgSelection'
 import Projects from './pages/Projects'
 import Contacts from './pages/Contacts'
 import Knowledge from './pages/Knowledge'
+import Voice from './pages/Voice'
 import ComingSoon from './pages/ComingSoon'
 
 function App() {
@@ -59,7 +60,7 @@ function App() {
                                     <Route path="contacts" element={<Contacts />} />
                                     <Route path="insights" element={<ComingSoon title="Insights" />} />
                                     <Route path="sms" element={<ComingSoon title="SMS" />} />
-                                    <Route path="voice" element={<ComingSoon title="Voice" />} />
+                                    <Route path="voice" element={<Voice />} />
                                     <Route path="email" element={<ComingSoon title="Email" />} />
                                 </Route>
                             </Route>

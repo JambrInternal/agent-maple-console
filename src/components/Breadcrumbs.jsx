@@ -25,7 +25,7 @@ const Breadcrumbs = () => {
         else if (lastPortion === 'tools-skills') viewLabel = 'Skills & Tools'
         else if (lastPortion === 'insights') viewLabel = 'Insights'
         else if (lastPortion === 'sms') viewLabel = 'SMS'
-        else if (lastPortion === 'voice') viewLabel = 'Voice'
+        else if (lastPortion === 'voice') viewLabel = 'Phone'
         else if (lastPortion === 'email') viewLabel = 'Email'
         else viewLabel = formatLabel(lastPortion)
     }

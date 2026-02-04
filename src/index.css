@@ -511,6 +511,137 @@ button {
     border-color: rgba(239, 68, 68, 0.3);
 }
 
+.am-source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    border: 1px solid transparent;
+}
+
+.am-source-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.am-source-badge.is-google-drive {
+    color: #60a5fa;
+    background-color: rgba(96, 165, 250, 0.15);
+    border-color: rgba(96, 165, 250, 0.35);
+}
+
+.am-source-badge.is-sharepoint {
+    color: #34d399;
+    background-color: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.35);
+}
+
+.am-voice-container {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.am-voice-stack {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.am-voice-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.5rem;
+}
+
+.am-voice-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--am-text-1);
+}
+
+.am-step-list {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    padding: 0;
+    margin: 0;
+    color: var(--am-text-2);
+    font-size: 0.9rem;
+}
+
+.am-step-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.am-step-index {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--am-border);
+    color: var(--am-text-1);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.am-phone-callout {
+    background-color: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.am-phone-number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--am-text-1);
+}
+
+.am-phone-number-sub {
+    font-size: 0.75rem;
+    color: var(--am-text-2);
+    margin-top: 0.2rem;
+}
+
+.am-voice-callout {
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: rgba(96, 165, 250, 0.1);
+    padding: 1.5rem;
+}
+
+.am-voice-callout h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--am-text-1);
+}
+
+.am-callout-list {
+    list-style: disc;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    color: #d6e2ff;
+    font-size: 0.9rem;
+}
+
 .am-table-action {
     width: 1%;
     text-align: right;

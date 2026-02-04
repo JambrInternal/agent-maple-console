@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Knowledge Table Header
+## Current Task: Knowledge Source Icons
 
-**Goal**: Keep Knowledge table headers single-line across tabs.
+**Goal**: Show provider icons for Cloud Storage sources in Knowledge.
 
 **Todo**
-- [x] Prevent header wrapping for Knowledge columns
+- [x] Add Google Drive and SharePoint source icons
+- [x] Update Knowledge source rendering for cloud entries
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
