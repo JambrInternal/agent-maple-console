@@ -10,6 +10,7 @@ import Login from './pages/Login'
 import OrgSelection from './pages/OrgSelection'
 import Projects from './pages/Projects'
 import Contacts from './pages/Contacts'
+import Knowledge from './pages/Knowledge'
 import ComingSoon from './pages/ComingSoon'
 
 function App() {
@@ -54,7 +55,7 @@ function App() {
                                     <Route path="threads" element={<ComingSoon title="Threads" />} />
                                     <Route path="issues" element={<ComingSoon title="Issues" />} />
                                     <Route path="tools-skills" element={<ComingSoon title="Skills & Tools" />} />
-                                    <Route path="knowledge" element={<ComingSoon title="Knowledge" />} />
+                                    <Route path="knowledge" element={<Knowledge />} />
                                     <Route path="contacts" element={<Contacts />} />
                                     <Route path="insights" element={<ComingSoon title="Insights" />} />
                                     <Route path="sms" element={<ComingSoon title="SMS" />} />

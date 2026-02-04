@@ -1,12 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Motion System
+## Current Task: Contacts Menu Overflow
 
-**Goal**: Add standard animations and apply them to key UI actions (menus, modals).
+**Goal**: Ensure contact action menus are not clipped by the table container.
 
 **Todo**
-- [x] Add reusable animation keyframes
-- [x] Apply menu and modal animations
+- [x] Allow action menus to overflow the table card
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

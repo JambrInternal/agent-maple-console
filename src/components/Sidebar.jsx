@@ -46,7 +46,7 @@ const Sidebar = () => {
             items: [
                 { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/threads`, comingSoon: true },
                 { icon: AlertCircle, label: 'Issues', path: `/${orgId}/${projId}/issues`, comingSoon: true },
-                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/knowledge`, comingSoon: true },
+                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/knowledge` },
                 { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/insights`, comingSoon: true },
             ],
         },
