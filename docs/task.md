@@ -1,11 +1,13 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Separate Console Users and Contacts
+## Current Task: Page 2 - Projects Grid (Org Home)
 
-**Goal**: Document the decision to keep console users and contacts as distinct concepts.
+**Goal**: Implement the Organization-level Projects Grid view with status filters and agent controls.
 
 **Todo**
-- [x] Add principle to keep console users and contacts separate
+- [x] Build Projects Grid page with search + status filters
+- [x] Show project cards with status, thread/issue counts, and last activity
+- [x] Add hibernate/resume action for agent status (mocked)
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
@@ -41,7 +43,7 @@
     - [x] `AuthContext` & Certly integration
     - [x] Login Screen implementation
     - [x] Route guarding
-  - [ ] Page 2: Projects Grid (Org Home) [ ]
+  - [x] Page 2: Projects Grid (Org Home) [x]
   - [ ] Page 3: Threads Monitoring (Project Level) [ ]
   - [ ] Page 4: Issues Monitoring [ ]
   - [ ] Page 5: Tools & Skills (Configuration) [ ]

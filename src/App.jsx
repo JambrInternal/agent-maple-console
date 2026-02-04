@@ -7,10 +7,10 @@ import Layout from './components/Layout'
 // Pages
 import Login from './pages/Login'
 import OrgSelection from './pages/OrgSelection'
+import Projects from './pages/Projects'
 import Contacts from './pages/Contacts'
 
 // Simple Placeholders for the new hierarchy
-const ProjectsGrid = () => <h1 className="am-text-1">Projects</h1>
 const OrgTeam = () => <h1 className="am-text-1">Team</h1>
 const OrgBilling = () => <h1 className="am-text-1">Billing</h1>
 const OrgUsage = () => <h1 className="am-text-1">Usage</h1>
@@ -39,7 +39,7 @@ function App() {
                             <Route index element={<Navigate to="projects" replace />} />
 
                             {/* Org Level Pages */}
-                            <Route path="projects" element={<ProjectsGrid />} />
+                            <Route path="projects" element={<Projects />} />
                             <Route path="team" element={<OrgTeam />} />
                             <Route path="billing" element={<OrgBilling />} />
                             <Route path="usage" element={<OrgUsage />} />
