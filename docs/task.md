@@ -1,11 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Simplify Org Breadcrumbs
+## Current Task: Limit Demo Login to Localhost
 
-**Goal**: When no Project is selected, show only Organization and Projects in breadcrumbs.
+**Goal**: Ensure demo credentials only work on localhost (not beta/prod).
 
 **Todo**
-- [x] Remove the current page label from org-level breadcrumbs
+- [x] Gate mock login/session behavior to localhost
+- [x] Only prefill demo credentials on localhost
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
