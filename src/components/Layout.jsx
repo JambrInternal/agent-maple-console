@@ -1,12 +1,15 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useParams } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Breadcrumbs from './Breadcrumbs'
 
 const Layout = () => {
+    const { orgId } = useParams()
+    const showSidebar = Boolean(orgId)
+
     return (
         <div className="am-app-shell">
-            <Sidebar />
+            {showSidebar && <Sidebar />}
             <main className="am-main-layout">
                 <header className="am-header">
                     <Breadcrumbs />

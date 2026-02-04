@@ -1,14 +1,11 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Certly API Auth + Docs
+## Current Task: Hide Sidebar Without Organization
 
-**Goal**: Connect Cognito auth to the Certly API and store the service docs in-repo for agent access.
+**Goal**: Remove the side navigation when no Organization is selected (org selection view).
 
 **Todo**
-- [x] Pull the stage OpenAPI snapshot into `docs/architecture/certly-openapi.json`
-- [x] Document auth + Organization header requirements in `docs/architecture/CERTLY_API.md` and `docs/architecture/BACKEND.md`
-- [x] Wire auth flow to `POST /user/sync` after login/session restore
-- [x] Add auth sync tests
+- [x] Hide sidebar when no `orgId` route param is present
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
