@@ -1,12 +1,12 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Limit Demo Login to Localhost
+## Current Task: Adaptive Brand Icon
 
-**Goal**: Ensure demo credentials only work on localhost (not beta/prod).
+**Goal**: Use light/dark variants of the Agent Maple icon for favicon and breadcrumbs.
 
 **Todo**
-- [x] Gate mock login/session behavior to localhost
-- [x] Only prefill demo credentials on localhost
+- [x] Add light/dark SVG variants for the Agent Maple icon
+- [x] Update favicon and breadcrumbs to switch based on color scheme
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

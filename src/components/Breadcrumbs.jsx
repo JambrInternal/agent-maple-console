@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useParams, useLocation } from 'react-router-dom'
-import { ChevronRight, Home } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 
 const Breadcrumbs = () => {
     const { orgId, projId } = useParams()
@@ -30,7 +30,10 @@ const Breadcrumbs = () => {
     return (
         <nav className="am-breadcrumbs" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
             <Link to="/" className="am-text-2" style={{ display: 'flex', alignItems: 'center' }}>
-                <Home size={14} />
+                <picture>
+                    <source media="(prefers-color-scheme: dark)" srcSet="/favicon-dark.svg" />
+                    <img src="/favicon-light.svg" alt="Agent Maple" className="am-brand-icon" />
+                </picture>
             </Link>
 
             {orgId && (
