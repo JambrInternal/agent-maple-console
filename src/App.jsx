@@ -12,13 +12,6 @@ import Projects from './pages/Projects'
 import Contacts from './pages/Contacts'
 import ComingSoon from './pages/ComingSoon'
 
-// Simple Placeholders for the new hierarchy
-const ThreadsMonitor = () => <h1 className="am-text-1">Threads</h1>
-const IssuesDashboard = () => <h1 className="am-text-1">Issues</h1>
-const ToolsSkills = () => <h1 className="am-text-1">Tools & Skills</h1>
-const KnowledgeBase = () => <h1 className="am-text-1">Knowledge Base</h1>
-const Insights = () => <h1 className="am-text-1">Insights</h1>
-
 function App() {
     return (
         <AuthProvider>
@@ -58,12 +51,15 @@ function App() {
                                 {/* Project Context */}
                                 <Route path=":projId">
                                     <Route index element={<Navigate to="triage" replace />} />
-                                    <Route path="triage" element={<ThreadsMonitor />} />
-                                    <Route path="issues" element={<IssuesDashboard />} />
-                                    <Route path="config" element={<ToolsSkills />} />
-                                    <Route path="kb" element={<KnowledgeBase />} />
+                                    <Route path="triage" element={<ComingSoon title="Threads" />} />
+                                    <Route path="issues" element={<ComingSoon title="Issues" />} />
+                                    <Route path="config" element={<ComingSoon title="Skills & Tools" />} />
+                                    <Route path="kb" element={<ComingSoon title="Knowledge" />} />
                                     <Route path="people" element={<Contacts />} />
-                                    <Route path="data" element={<Insights />} />
+                                    <Route path="data" element={<ComingSoon title="Insights" />} />
+                                    <Route path="sms" element={<ComingSoon title="SMS" />} />
+                                    <Route path="voice" element={<ComingSoon title="Voice" />} />
+                                    <Route path="email" element={<ComingSoon title="Email" />} />
                                 </Route>
                             </Route>
                         </Route>

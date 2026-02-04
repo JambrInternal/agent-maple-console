@@ -38,14 +38,16 @@ const Sidebar = () => {
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice`, comingSoon: true },
                 { icon: Mail, label: 'Email', path: `/${orgId}/${projId}/email`, comingSoon: true },
-                { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/config` },
+                { icon: Zap, label: 'Skills & Tools', path: `/${orgId}/${projId}/config`, comingSoon: true },
             ],
         },
         {
             title: 'Data',
             items: [
-                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb` },
-                { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data` },
+                { icon: MessageSquare, label: 'Threads', path: `/${orgId}/${projId}/triage`, comingSoon: true },
+                { icon: AlertCircle, label: 'Issues', path: `/${orgId}/${projId}/issues`, comingSoon: true },
+                { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/kb`, comingSoon: true },
+                { icon: BarChart3, label: 'Insights', path: `/${orgId}/${projId}/data`, comingSoon: true },
             ],
         },
     ]

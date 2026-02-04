@@ -1,12 +1,13 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Project Nav Grouping
+## Current Task: Coming Soon Coverage
 
-**Goal**: Group project navigation into Agent and Data sections.
+**Goal**: Fade out and mark all unimplemented pages as Coming Soon.
 
 **Todo**
-- [x] Reorganize project nav items into Agent and Data groups
-- [x] Add SMS/Voice/Email as Coming Soon items
+- [x] Mark unimplemented project nav items as Coming Soon
+- [x] Route unimplemented project pages to Coming Soon screens
+- [x] Add Threads/Issues to the Data nav group
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]
