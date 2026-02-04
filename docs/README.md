@@ -18,7 +18,8 @@ docs/
 │   └── HIERARCHY.md     # Org > Project > Thread model
 └── contributing/
     ├── AGENT_RULES.md   # Constraints for AI agents
-    └── COPY_RULES.md    # Writing style guidelines
+    ├── COPY_RULES.md    # Writing style guidelines
+    └── TESTING.md       # Test stack and commands
 ```
 
 ## Key Documents
@@ -29,6 +30,7 @@ docs/
 | [CORE_CONCEPTS.md](./product/CORE_CONCEPTS.md) | Thread, Issue, Contact definitions |
 | [BRAND.md](./product/BRAND.md) | Industrial Navy theme, typography |
 | [BACKEND.md](./architecture/BACKEND.md) | API endpoints, auth flow |
+| [TESTING.md](./contributing/TESTING.md) | How to run and write tests |
 
 ## Terminology
 - **Thread**: Contact + Issue mapping with conversation history

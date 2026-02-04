@@ -22,6 +22,16 @@ npm run dev
 npm run build
 ```
 
+### Testing
+
+```bash
+npm test
+```
+
+```bash
+npm run test:ci
+```
+
 ## Features
 - **Dashboard**: Overview of agent activity.
 - **Contacts**: Manage user contacts.

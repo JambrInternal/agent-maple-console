@@ -7,13 +7,15 @@
 1. **Read docs**: Start with `docs/product/PRD.md` for requirements
 2. **Check terminology**: Use `docs/product/CORE_CONCEPTS.md` for domain terms
 3. **Review constraints**: See `docs/contributing/AGENT_RULES.md`
-4. **Review and Update** `docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
+4. **Review testing**: See `docs/contributing/TESTING.md`
+5. **Review and Update** `docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
 
 ## During Work
 
 - Use correct terminology (Thread, Issue, Contact, Project, Organization)
 - Follow the Industrial Navy design system (`docs/product/BRAND.md`)
 - Reference API contracts in `docs/architecture/BACKEND.md`
+- Add or update tests using Vitest (`docs/contributing/TESTING.md`) when behavior changes
 
 ## After Work (REQUIRED)
 
@@ -40,7 +42,8 @@ docs/
 │   └── HIERARCHY.md
 └── contributing/      # HOW to contribute
     ├── AGENT_RULES.md
-    └── COPY_RULES.md
+    ├── COPY_RULES.md
+    └── TESTING.md
 ├── task.md            # Current task tracking
 └── *.md               # Design/process docs (mockups, wireframes, audits, etc.)
 ```
