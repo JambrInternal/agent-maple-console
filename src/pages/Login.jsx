@@ -4,9 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
 
 const Login = () => {
-    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false'
-    const [email, setEmail] = useState(isMockMode ? 'jeremy@agentmaple.ca' : '')
-    const [password, setPassword] = useState(isMockMode ? 'password' : '')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { login, user, loading } = useAuth()
@@ -95,15 +94,6 @@ const Login = () => {
                             }}>
                                 <AlertCircle size={18} flexShrink={0} />
                                 <span>{error}</span>
-                            </div>
-                        )}
-
-                        {isMockMode && (
-                            <div className="am-mock-banner am-mock-banner--block">
-                                <span>Mock Mode</span>
-                                <span className="am-mock-banner-cred">
-                                    Demo: jeremy@agentmaple.ca / password
-                                </span>
                             </div>
                         )}
 

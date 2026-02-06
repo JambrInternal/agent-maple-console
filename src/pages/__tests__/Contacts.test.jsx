@@ -1,46 +1,47 @@
 import React from 'react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Contacts from '../Contacts'
+import { getContacts } from '../../services/people'
+
+vi.mock('../../services/people', () => ({
+    getContacts: vi.fn(),
+}))
 
 describe('Contacts page', () => {
-    it('renders the contacts table and header', () => {
-        render(<Contacts />)
+    it('renders the contacts table and header', async () => {
+        vi.mocked(getContacts).mockResolvedValue([
+            {
+                id: 'contact_1',
+                projectId: 'proj_1',
+                name: 'Joe Henderson',
+                company: 'Iron Maple Construction',
+                email: 'joe@ironmaple.ca',
+                phone: '+1 (555) 0123',
+                createdAt: '2026-02-01T10:00:00Z',
+            },
+        ])
 
-        expect(screen.getByRole('heading', { name: 'Contacts' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: 'Add Contact' })).toBeInTheDocument()
+        render(
+            <MemoryRouter initialEntries={["/org_1/proj_1/contacts"]}>
+                <Routes>
+                    <Route path="/:orgId/:projId/contacts" element={<Contacts />} />
+                </Routes>
+            </MemoryRouter>
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Contacts' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Add Contact' })).toBeDisabled()
 
         expect(screen.getByText('Name')).toBeInTheDocument()
-        expect(screen.getByText('Role')).toBeInTheDocument()
         expect(screen.getByText('Company')).toBeInTheDocument()
         expect(screen.getByText('Email')).toBeInTheDocument()
         expect(screen.getByText('Phone')).toBeInTheDocument()
-        expect(screen.getByText('Reports To')).toBeInTheDocument()
-        expect(screen.getByText('Status')).toBeInTheDocument()
+        expect(screen.getByText('Created')).toBeInTheDocument()
 
         expect(screen.getByText('Joe Henderson')).toBeInTheDocument()
-        expect(screen.getByText('GC Superintendent')).toBeInTheDocument()
         expect(screen.getByText('Iron Maple Construction')).toBeInTheDocument()
-        expect(screen.getAllByRole('button', { name: 'Contact actions' }).length).toBeGreaterThan(0)
+        expect(screen.getByText('joe@ironmaple.ca')).toBeInTheDocument()
     })
-})
-
-it('adds a contact from the modal', async () => {
-    const user = userEvent.setup()
-    render(<Contacts />)
-
-    await user.click(screen.getByRole('button', { name: 'Add Contact' }))
-    expect(screen.getByRole('heading', { name: 'Add Contact' })).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText('Name'), 'Alex Carter')
-    await user.type(screen.getByLabelText('Role'), 'Field Lead')
-    await user.type(screen.getByLabelText('Company'), 'Iron Maple Construction')
-    await user.type(screen.getByLabelText('Email'), 'alex@ironmaple.ca')
-    await user.type(screen.getByLabelText('Phone'), '+1 (555) 200-0000')
-
-    await user.click(screen.getByRole('button', { name: 'Save Contact' }))
-
-    expect(screen.getByText('Field Lead')).toBeInTheDocument()
-    expect(screen.getByText('alex@ironmaple.ca')).toBeInTheDocument()
 })

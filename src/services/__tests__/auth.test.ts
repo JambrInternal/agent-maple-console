@@ -7,7 +7,7 @@ vi.mock('../../api/auth', () => ({
 }));
 
 vi.mock('../../api/client', () => ({
-    API_CONFIG: { useMocks: false },
+    API_CONFIG: { baseUrl: '' },
     apiFetch: vi.fn(),
 }));
 

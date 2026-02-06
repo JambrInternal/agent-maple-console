@@ -1,5 +1,4 @@
 import { signIn, signOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { mockFetch, API_CONFIG } from './client';
 import type { User } from './types';
 
 export interface AuthSession {
@@ -7,26 +6,7 @@ export interface AuthSession {
     token: string | null;
 }
 
-const MOCK_USER: User = {
-    id: 'u1',
-    email: 'jeremy@agentmaple.ca',
-    name: 'Jeremy Legere',
-    role: 'admin',
-    mfaEnabled: false,
-    createdAt: new Date().toISOString()
-};
-
 export async function login(email: string, password: string): Promise<AuthSession> {
-    if (API_CONFIG.useMocks) {
-        if (email === 'jeremy@agentmaple.ca' && password === 'password') {
-            return mockFetch({
-                user: MOCK_USER,
-                token: 'mock-jwt-token-123'
-            });
-        }
-        throw new Error('Invalid email or password (mock)');
-    }
-
     // Real Cognito Login
     const { isSignedIn, nextStep } = await signIn({ username: email, password });
 
@@ -52,17 +32,10 @@ export async function login(email: string, password: string): Promise<AuthSessio
 }
 
 export async function logout(): Promise<void> {
-    if (API_CONFIG.useMocks) return mockFetch(undefined);
     await signOut();
 }
 
 export async function getSessionUser(): Promise<User | null> {
-    if (API_CONFIG.useMocks) {
-        const hasToken = localStorage.getItem('am_auth_token');
-        if (hasToken) return mockFetch(MOCK_USER);
-        return mockFetch(null);
-    }
-
     try {
         const cognitoUser = await getCurrentUser();
         const session = await fetchAuthSession();

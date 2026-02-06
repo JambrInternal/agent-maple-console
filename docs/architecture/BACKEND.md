@@ -1,11 +1,11 @@
 # Backend Architecture
 
-## Service Layer (Mocked)
+## Service Layer
 
-The console implements a clean service layer that abstracts API interactions. Currently, this layer uses a mock client with realistic data fixtures, allowing for rapid front-end development.
+The console implements a clean service layer that abstracts API interactions over the live backend.
 
 ### Identity & Access
-- **Services**: `src/services/auth.ts`, `src/services/users.ts`
+- **Services**: `src/services/auth.ts`, `src/services/people.ts`
 - **Auth Provider**: AWS Cognito (OIDC) with Bearer JWT for API requests
 - **Functions**: `login()`, `logout()`, `getCurrentUser()`, `syncUser()`, `getUsers()`, `getUser(id)`
 - **User Sync**: `POST /user/sync` after Cognito login to ensure the backend user record exists
@@ -13,17 +13,17 @@ The console implements a clean service layer that abstracts API interactions. Cu
 ### Organizations
 - **Service**: `src/services/organizations.ts`
 - **Functions**: `getOrganizations()`, `getOrganization(id)`
-- **Note**: Current Certly `tenant` objects map to **Projects**, not Organizations
+- **Note**: Organization endpoints exist in `api.yaml`, but Certly tenants still map to Projects.
 
 ### Projects
 - **Service**: `src/services/projects.ts`
 - **Functions**: `getProjects(orgId)`, `getProject(id)`, `updateProjectStatus(id, status)`
-- **Note**: Console Projects currently align with Certly tenants (`/user/tenants`)
+- **Note**: Console Projects align with Certly tenants.
 
 ### Threads & Communication
 - **Service**: `src/services/threads.ts`
 - **Functions**: `getThreads(projectId, filters)`, `getThread(id)`, `updateThread(id, data)`
-- **Messages**: Managed within threads via `Message` entity.
+- **Messages**: Not currently exposed in thread detail responses; UI does not display messages yet.
 
 ### Issues
 - **Service**: `src/services/issues.ts`
@@ -36,15 +36,24 @@ The console implements a clean service layer that abstracts API interactions. Cu
 ### Insights
 - **Service**: `src/services/insights.ts`
 - **Functions**: `getInsights(projectId, range)`
+- **Status**: Not implemented. No Insights endpoints exist in `docs/architecture/api.yaml` yet.
+
+### Tools & Skills
+- **Status**: Not implemented. No Tools & Skills endpoints exist in `docs/architecture/api.yaml` yet.
 
 ### Contacts
-- **Service**: `src/services/contacts.ts`
-- **Functions**: `getContacts(projectId)`, `getContact(id)`, `createContact(data)`, `updateContact(id, data)`
+- **Service**: `src/services/people.ts`
+- **Functions**: `getContacts(projectId)`, `getContact(id)`
 - **Note**: Contacts map to Certly tenant users
+- **Status**: Create/update are disabled until contact-only support is confirmed in the API.
+
+### Console Users
+- **Service**: `src/services/people.ts`
+- **Functions**: `getUsers(projectId?)`, `getUser(id, projectId?)`
 
 ## API Client (`src/api/client.ts`)
 
-The `mockFetch` wrapper simulates network latency (300ms) and returns typed data. The real client attaches:
+The client attaches:
 - `Authorization: Bearer <JWT>` from `am_auth_token`
 - `x-tenant-id` header when an Organization is selected (`am_tenant_id`)
 
@@ -53,4 +62,4 @@ Reference the Certly OpenAPI snapshot in `docs/architecture/certly-openapi.json`
 ## Core Data Model
 
 Refer to `src/api/types.ts` for full TypeScript interfaces. Key entities follow the hierarchy:
-**User → Organization → Project → Thread (Contact + Issue) → Messages**
+**User → Organization → Project → Thread (Contact + Issue)**

@@ -1,20 +1,18 @@
-# Walkthrough: Mock Backend Service Layer
+# Walkthrough: Backend Service Layer
 
-I have implemented a comprehensive mock backend service layer in the `src` directory. This provides a clean foundation for building the React frontend while simulating a real backend environment.
+The console uses a service layer in the `src` directory to abstract API calls to the live backend.
 
 ## Architecture Overview
 
 The system is organized into three main layers:
 
-1.  **API Layer (`src/api/`)**: Defines TypeScript types and a mock client with network delay simulation.
-2.  **Mock Data (`src/mocks/`)**: Realistic data fixtures for all core entities (Iron Maple Construction, Site-A Plaza, etc.).
-3.  **Service Layer (`src/services/`)**: CRUD functions and business logic that components will call directly.
+1.  **API Layer (`src/api/`)**: Defines TypeScript types and the API client.
+2.  **Service Layer (`src/services/`)**: CRUD functions and business logic that components will call directly.
 
 ```mermaid
 graph LR
     UI[React Components] --> S[Service Layer]
-    S --> C[Mock API Client]
-    C --> M[Mock Data Fixtures]
+    S --> C[API Client]
 ```
 
 ## Available Services
@@ -25,7 +23,7 @@ graph LR
 | **Projects** | `services/projects.ts` | Manage job sites and agent status. |
 | **Threads** | `services/threads.ts` | Triage conversations (Contact + Issue mapping). |
 | **Issues** | `services/issues.ts` | Track root cause issues and patterns. |
-| **Contacts** | `services/contacts.ts` | Manage site contacts and escalation tiers. |
+| **Contacts** | `services/people.ts` | Manage site contacts. |
 | **Knowledge** | `services/knowledge.ts` | RAG data sources and indexing status. |
 | **Insights** | `services/insights.ts` | High-level analytics and reporting data. |
 
@@ -40,23 +38,15 @@ const threads = await getThreads('proj_1', { status: 'open' });
 console.log(threads);
 ```
 
-To fetch full thread details with messages:
+To fetch full thread details:
 
 ```typescript
 import { getThread } from './services/threads';
 
 const thread = await getThread('thread_1');
 console.log(thread.contact.name);
-console.log(thread.messages);
+console.log(thread.issue.title);
 ```
-
-## Mock Data Context
-
-I have populated the system with realistic construction data:
-*   **Organizations**: Iron Maple Construction, Bushy Tailed Contracting.
-*   **Issues**: Missing L3 Wiring Specs, Gate Access Code Questions, etc.
-*   **Contacts**: Dave Morrison (Morrison Electric), Lisa Park (City Inspector), etc.
-*   **Threads**: Conversations across Voice, SMS, and Email channels.
 
 ## Next Steps
 

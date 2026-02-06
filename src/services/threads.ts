@@ -1,10 +1,7 @@
 // Threads Service
-import { mockFetch } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { Thread, ThreadWithDetails, ThreadFilters } from '../api/types';
-import { mockThreads, getMockThread, getMockThreadsByProject, getMockThreadsByIssue } from '../mocks/threads';
-import { getMockContact } from '../mocks/contacts';
-import { getMockIssue } from '../mocks/issues';
-import { getMockMessagesByThread } from '../mocks/messages';
+import { mapThreadDetailResponse, mapThreadResponse, unwrapData, type ApiResponse, type ApiThread, type ApiThreadDetail, type ApiIssue } from '../api/mappers';
 
 /**
  * Get all threads for a project with optional filters
@@ -13,55 +10,44 @@ export async function getThreads(
     projectId: string,
     filters?: ThreadFilters
 ): Promise<Thread[]> {
-    let threads = getMockThreadsByProject(projectId);
+    const params = new URLSearchParams();
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.issueId) params.set('issue_id', filters.issueId);
+    if (filters?.contactId) params.set('contact_id', filters.contactId);
+    const query = params.toString();
 
-    if (filters?.status) {
-        threads = threads.filter((t) => t.status === filters.status);
-    }
-    if (filters?.issueId) {
-        threads = threads.filter((t) => t.issueId === filters.issueId);
-    }
-    if (filters?.contactId) {
-        threads = threads.filter((t) => t.contactId === filters.contactId);
-    }
-    if (filters?.channel) {
-        threads = threads.filter((t) => t.channels.includes(filters.channel!));
-    }
-
-    return mockFetch(threads);
+    const response = await apiFetch<ApiResponse<ApiThread[]>>(
+        `/projects/${projectId}/threads${query ? `?${query}` : ''}`,
+        {
+            headers: {
+                'x-tenant-id': projectId,
+            },
+        }
+    );
+    const data = unwrapData(response, []);
+    return data.map(mapThreadResponse);
 }
 
 /**
- * Get a single thread with full details (contact, issue, messages)
+ * Get a single thread with full details (contact, issue)
  */
 export async function getThread(id: string): Promise<ThreadWithDetails> {
-    const thread = getMockThread(id);
-    if (!thread) {
-        throw new Error(`Thread not found: ${id}`);
-    }
-
-    const contact = getMockContact(thread.contactId);
-    const issue = getMockIssue(thread.issueId);
-    const messages = getMockMessagesByThread(id);
-
-    if (!contact || !issue) {
-        throw new Error(`Thread data incomplete: ${id}`);
-    }
-
-    const threadWithDetails: ThreadWithDetails = {
-        ...thread,
-        contact,
-        issue,
-        messages,
-    };
-
-    return mockFetch(threadWithDetails);
+    const response = await apiFetch<ApiResponse<ApiThreadDetail>>(`/threads/${id}`);
+    const data = unwrapData(response);
+    return mapThreadDetailResponse(data);
 }
 
 /**
  * Get threads linked to a specific issue
  */
 export async function getThreadsByIssue(issueId: string): Promise<Thread[]> {
-    const threads = getMockThreadsByIssue(issueId);
-    return mockFetch(threads);
+    const issueResponse = await apiFetch<ApiResponse<ApiIssue>>(`/issues/${issueId}`);
+    const issue = unwrapData(issueResponse);
+    const projectId = issue?.project_id ? String(issue.project_id) : '';
+
+    if (!projectId) {
+        throw new Error(`Issue ${issueId} missing project_id for thread lookup`);
+    }
+
+    return getThreads(projectId, { issueId });
 }

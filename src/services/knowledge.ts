@@ -1,25 +1,28 @@
 // Knowledge Base Service
-import { mockFetch } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { KnowledgeSource } from '../api/types';
-import { getMockKnowledgeSourcesByProject, getMockKnowledgeSource } from '../mocks/knowledge';
+import { mapDatasourceResponse, unwrapData, type ApiDatasource, type ApiResponse } from '../api/mappers';
 
 /**
  * Get all knowledge sources for a project
  */
 export async function getKnowledgeSources(projectId: string): Promise<KnowledgeSource[]> {
-    const sources = getMockKnowledgeSourcesByProject(projectId);
-    return mockFetch(sources);
+    const response = await apiFetch<ApiResponse<ApiDatasource[]>>('/datasources', {
+        headers: {
+            'x-tenant-id': projectId,
+        },
+    });
+    const data = unwrapData(response, []);
+    return data.map(mapDatasourceResponse);
 }
 
 /**
  * Get a single knowledge source by ID
  */
 export async function getKnowledgeSource(id: string): Promise<KnowledgeSource> {
-    const source = getMockKnowledgeSource(id);
-    if (!source) {
-        throw new Error(`Knowledge source not found: ${id}`);
-    }
-    return mockFetch(source);
+    const response = await apiFetch<ApiResponse<ApiDatasource>>(`/datasources/${id}`);
+    const data = unwrapData(response);
+    return mapDatasourceResponse(data);
 }
 
 /**
@@ -27,44 +30,37 @@ export async function getKnowledgeSource(id: string): Promise<KnowledgeSource> {
  */
 export async function uploadKnowledgeSource(
     projectId: string,
-    fileName: string,
-    type: 'pdf' | 'doc'
+    file: File,
+    metadata?: Record<string, any>
 ): Promise<KnowledgeSource> {
-    const newSource: KnowledgeSource = {
-        id: `ks_${Date.now()}`,
-        projectId,
-        name: fileName,
-        type,
-        status: 'pending',
-        documentCount: 1,
-        lastSyncAt: null,
-        createdAt: new Date().toISOString(),
-    };
+    const formData = new FormData();
+    formData.append('file', file);
+    if (metadata) {
+        formData.append('metadata', JSON.stringify(metadata));
+    }
 
-    return mockFetch(newSource);
+    const response = await apiFetch<ApiResponse<ApiDatasource>>('/datasources/upload', {
+        method: 'POST',
+        headers: {
+            'x-tenant-id': projectId,
+        },
+        body: formData,
+    });
+    const data = unwrapData(response);
+    return mapDatasourceResponse(data);
 }
 
 /**
  * Simulates deleting a knowledge source
  */
 export async function deleteKnowledgeSource(id: string): Promise<void> {
-    // In a real app, this would call the API
-    return mockFetch(undefined);
+    await apiFetch(`/datasources/${id}`, { method: 'DELETE' });
 }
 
 /**
  * Simulates re-indexing a knowledge source
  */
 export async function reindexKnowledgeSource(id: string): Promise<KnowledgeSource> {
-    const source = getMockKnowledgeSource(id);
-    if (!source) {
-        throw new Error(`Knowledge source not found: ${id}`);
-    }
-
-    const updated: KnowledgeSource = {
-        ...source,
-        status: 'indexing',
-    };
-
-    return mockFetch(updated);
+    await apiFetch(`/datasources/${id}/reprocess`, { method: 'POST' });
+    return getKnowledgeSource(id);
 }

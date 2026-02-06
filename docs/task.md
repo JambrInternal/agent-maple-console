@@ -1,12 +1,23 @@
 # Professional Design Process: Agent Maple Console
 
-## Current Task: Agent Card Role Row Removal
+## Current Task: Wire Console To `api.yaml`
 
-**Goal**: Show only phone and email on the agent business card in the sidebar.
+**Goal**: Use the live API surface from `docs/architecture/api.yaml` and remove all mock features.
 
 **Todo**
-- [x] Remove the role row from the agent card details
-- [x] Ensure the vCard download excludes the role field
+- [x] Review `docs/architecture/api.yaml` endpoints and schemas used by the console.
+- [x] Audit `src/services/*` and `src/api/types.ts` for data expectations and gaps.
+- [x] Align UI models to current API gaps (IssueStatus `in_progress`, drop Thread channels/messages, remove Contact escalation fields).
+- [x] Add a response-mapping layer (snake_case -> camelCase) with shared helpers.
+- [x] Implement Organizations + Projects API calls (`/organizations`, `/organizations/{id}`, `/organizations/{id}/projects`, `/projects/{id}`).
+- [x] Implement Threads + Issues API calls with filters and status mapping.
+- [x] Implement Contacts/Console Users mapping via `/tenants/users` endpoints and document missing fields.
+- [x] Implement Knowledge Base calls via `/datasources` endpoints with mapped fields.
+- [x] Decide approach for missing surfaces (thread messages, insights, tools & skills) and document backend needs.
+- [x] Update/extend service and page tests to cover API wiring.
+- [x] Remove mock mode, fixtures, and mock UI surfaces.
+- [x] Consolidate Contacts + Console Users into `src/services/people.ts`.
+- [ ] Manual verification against the live API.
 - [ ] Human review requested
 
 ## Phase 1: Context & Discovery [x]

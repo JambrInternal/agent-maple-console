@@ -1,9 +1,8 @@
 import * as authApi from '../api/auth';
-import { apiFetch, API_CONFIG } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { User } from '../api/types';
 
 export async function syncUser(): Promise<void> {
-    if (API_CONFIG.useMocks) return;
     const token = localStorage.getItem('am_auth_token');
     if (!token) return;
     await apiFetch('/user/sync', { method: 'POST' });

@@ -6,11 +6,10 @@
 
 export type AgentStatus = 'online' | 'offline';
 export type ThreadStatus = 'open' | 'needs_response' | 'waiting' | 'done';
-export type IssueStatus = 'open' | 'resolved';
+export type IssueStatus = 'open' | 'in_progress' | 'resolved';
 export type Channel = 'voice' | 'sms' | 'email';
 export type MessageDirection = 'inbound' | 'outbound';
 export type UserRole = 'owner' | 'admin' | 'member' | 'viewer';
-export type EscalationTier = 1 | 2 | 3;
 export type KnowledgeSourceType = 'pdf' | 'doc' | 'google_drive' | 'dropbox';
 export type KnowledgeSourceStatus = 'pending' | 'indexing' | 'ready' | 'error';
 
@@ -55,7 +54,6 @@ export interface Thread {
     issueId: string;
     status: ThreadStatus;
     subject: string;
-    channels: Channel[];
     lastMessageAt: string;
     createdAt: string;
     updatedAt: string;
@@ -64,7 +62,6 @@ export interface Thread {
 export interface ThreadWithDetails extends Thread {
     contact: Contact;
     issue: Issue;
-    messages: Message[];
 }
 
 export interface Issue {
@@ -93,9 +90,6 @@ export interface Contact {
     phone: string;
     email: string;
     company?: string;
-    escalationTier: EscalationTier;
-    threadCount: number;
-    isBlocked: boolean;
     createdAt: string;
 }
 
@@ -177,7 +171,6 @@ export interface ThreadFilters {
     status?: ThreadStatus;
     issueId?: string;
     contactId?: string;
-    channel?: Channel;
 }
 
 export interface DateRange {
@@ -209,7 +202,6 @@ export interface CreateContactRequest {
     phone: string;
     email: string;
     company?: string;
-    escalationTier: EscalationTier;
 }
 
 export interface UpdateContactRequest {
@@ -217,6 +209,4 @@ export interface UpdateContactRequest {
     phone?: string;
     email?: string;
     company?: string;
-    escalationTier?: EscalationTier;
-    isBlocked?: boolean;
 }

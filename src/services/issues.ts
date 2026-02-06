@@ -1,37 +1,34 @@
 // Issues Service
-import { mockFetch } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { Issue, IssueWithThreads } from '../api/types';
-import { mockIssues, getMockIssue, getMockIssuesByProject } from '../mocks/issues';
-import { getMockUser } from '../mocks/users';
-import { getMockThreadsByIssue } from '../mocks/threads';
+import { mapIssueResponse, unwrapData, type ApiIssue, type ApiResponse } from '../api/mappers';
+import { getThreads } from './threads';
 
 /**
  * Get all issues for a project
  */
 export async function getIssues(projectId: string): Promise<Issue[]> {
-    const issues = getMockIssuesByProject(projectId);
-    return mockFetch(issues);
+    const response = await apiFetch<ApiResponse<ApiIssue[]>>(`/projects/${projectId}/issues`, {
+        headers: {
+            'x-tenant-id': projectId,
+        },
+    });
+    const data = unwrapData(response, []);
+    return data.map(mapIssueResponse);
 }
 
 /**
  * Get a single issue with linked threads and owner
  */
 export async function getIssue(id: string): Promise<IssueWithThreads> {
-    const issue = getMockIssue(id);
-    if (!issue) {
-        throw new Error(`Issue not found: ${id}`);
-    }
+    const response = await apiFetch<ApiResponse<ApiIssue>>(`/issues/${id}`);
+    const data = unwrapData(response);
+    const issue = mapIssueResponse(data);
+    const threads = await getThreads(issue.projectId, { issueId: issue.id });
 
-    const threads = getMockThreadsByIssue(id);
-    const owner = issue.ownerId ? getMockUser(issue.ownerId) : null;
-
-    const issueWithThreads: IssueWithThreads = {
+    return {
         ...issue,
         threads,
-        owner: owner || null,
+        owner: null,
     };
-
-    return mockFetch(issueWithThreads);
 }
-
-

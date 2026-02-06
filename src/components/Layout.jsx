@@ -11,7 +11,6 @@ const Layout = () => {
     const navigate = useNavigate()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef(null)
-    const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false'
 
     const getInitials = (value) => {
         if (!value) return 'AM'
@@ -44,14 +43,6 @@ const Layout = () => {
                 <div className="am-topbar-left">
                     <Breadcrumbs />
                 </div>
-                {isMockMode && (
-                    <div className="am-mock-banner">
-                        <span>Mock Mode</span>
-                        <span className="am-mock-banner-cred">
-                            Demo: jeremy@agentmaple.ca / password
-                        </span>
-                    </div>
-                )}
                 <div className="am-topbar-right" ref={menuRef}>
                     <button
                         type="button"

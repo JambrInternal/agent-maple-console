@@ -1,14 +1,16 @@
-# Mock Backend Implementation Plan
+# Backend Integration Plan (Deprecated)
+
+**Status**: Superseded by `docs/architecture/BACKEND.md` and `docs/architecture/api.yaml`. The mock layer and fixtures have been removed.
 
 ## Goal
-Create a mock API layer with TypeScript types, service functions, and realistic mock data that can be swapped for real backend calls later.
+Historically described a mock API layer. Use the live service layer described in `docs/architecture/BACKEND.md` instead.
 
 ## Architecture
 
 ```
 src/
 ├── api/
-│   ├── client.ts          # API client (mock now, real later)
+│   ├── client.ts          # API client
 │   ├── types.ts           # TypeScript interfaces
 │   └── index.ts           # Re-exports
 ├── services/
@@ -16,18 +18,10 @@ src/
 │   ├── projects.ts        # Project CRUD
 │   ├── threads.ts         # Thread operations
 │   ├── issues.ts          # Issue operations
-│   ├── contacts.ts        # Contact operations
+│   ├── people.ts          # Contacts + console users
 │   ├── knowledge.ts       # Knowledge base
 │   ├── insights.ts        # Analytics/metrics
 │   └── index.ts           # Re-exports
-└── mocks/
-    ├── organizations.ts   # Mock org data
-    ├── projects.ts        # Mock project data
-    ├── threads.ts         # Mock thread data
-    ├── issues.ts          # Mock issue data
-    ├── contacts.ts        # Mock contact data
-    ├── messages.ts        # Mock message data
-    └── index.ts           # Re-exports
 ```
 
 ---

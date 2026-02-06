@@ -10,7 +10,6 @@ import {
     BarChart3,
     Mail,
     Phone,
-    Download,
     Settings,
     Shield,
     CreditCard,
@@ -63,59 +62,22 @@ const Sidebar = () => {
 
     const currentNavItems = isProjectContext ? [] : orgNavItems
 
-    const orgName = formatLabel(orgId)
     const projectName = formatLabel(projId)
-    const agentProfile = {
-        org: orgName || 'Agent Maple',
-        firstName: projectName || 'Project',
-        lastName: 'Agent',
-        phone: '+15065023431',
-        email: 'agent@agentmaple.ca',
-    }
 
-    const handleDownloadVCard = () => {
-        const vcard = [
-            'BEGIN:VCARD',
-            'VERSION:3.0',
-            `N:${agentProfile.lastName};${agentProfile.firstName}`,
-            `FN:${agentProfile.firstName} ${agentProfile.lastName}`,
-            `ORG:${agentProfile.org}`,
-            `TEL;TYPE=WORK,VOICE:${agentProfile.phone}`,
-            `EMAIL:${agentProfile.email}`,
-            'END:VCARD',
-        ].join('\n')
-        const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = 'agent-maple.vcf'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-    }
     return (
         <aside className="am-nav-panel">
             <div className="am-panel-content">
                 {isProjectContext && (
-                    <button
-                        type="button"
-                        className="am-agent-card"
-                        onClick={handleDownloadVCard}
-                    >
+                    <div className="am-agent-card" aria-disabled="true">
                         <div className="am-agent-card-title">
                             <Phone size={16} />
                             <span>Agent Contact</span>
                         </div>
                         <div className="am-agent-card-name">
-                            {agentProfile.firstName} {agentProfile.lastName}
+                            {projectName || 'Project'} Agent
                         </div>
-                        <div className="am-agent-card-detail">{agentProfile.phone}</div>
-                        <div className="am-agent-card-detail">{agentProfile.email}</div>
-                        <div className="am-agent-card-download" aria-hidden="true">
-                            <Download size={14} />
-                        </div>
-                    </button>
+                        <div className="am-agent-card-detail">Not configured</div>
+                    </div>
                 )}
 
                 {!isProjectContext && <h3 className="am-nav-group-title">Organization</h3>}

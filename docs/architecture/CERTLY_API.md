@@ -2,8 +2,11 @@
 
 ## Snapshot
 - **OpenAPI spec**: `docs/architecture/certly-openapi.json`
+- **Extended console spec**: `docs/architecture/api.yaml` (stage snapshot + console gaps)
 - **Swagger UI**: https://api.stage.certly.jambr.ca/docs
 - **Base URL**: https://api.stage.certly.jambr.ca/stage
+- **Last reviewed**: February 4, 2026
+- **Console gap analysis**: see `docs/architecture/CERTLY_CONSOLE_API.md`
 
 ## Auth
 - **Scheme**: `Authorization: Bearer <JWT>`
@@ -18,7 +21,7 @@
 
 ## Console Config
 - `VITE_API_URL` defaults to `https://api.stage.certly.jambr.ca/stage`
-- `VITE_USE_MOCKS=false` uses the live API; default is fixtures
+- Mocks have been removed; the console always targets the live API.
 
 ## Update Snapshot
 ```bash

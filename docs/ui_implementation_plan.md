@@ -58,7 +58,7 @@ To ensure high quality and catch issues early, we will implement the UI **one pa
 ### 8. Contacts
 - **Goal**: Project personnel management.
 - **Features**: Add/Edit modal, escalation tier setting.
-- **Service**: `contacts.ts`
+- **Service**: `people.ts`
 
 ### 9. Org Settings (Team, Billing, Usage)
 - **Goal**: Admin functions.
@@ -73,7 +73,7 @@ To ensure high quality and catch issues early, we will implement the UI **one pa
 3. **Forms**: Unified styling for Knowledge Base uploads and Contact editing.
 
 ## Phase 5: Polish
-1. **Micro-animations**: Hover states, loading transitions (using `mockFetch` delay).
+1. **Micro-animations**: Hover states and loading transitions driven by real API latency.
 2. **Empty States**: Beautiful placeholders for fresh projects.
 3. **Responsiveness**: Ensure the shell works on tablet/mobile (though desktop is primary).
 

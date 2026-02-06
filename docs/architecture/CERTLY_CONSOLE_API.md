@@ -17,20 +17,100 @@
 - **Issue** = A topic of conversation, a Possible problem, the solution that resolves one or more threads
 - **Contact** = Certly **Tenant User** (current)
 
+## Status (February 4, 2026)
+- OpenAPI snapshot: `docs/architecture/certly-openapi.json`
+- Console live calls now include:
+  - `POST /user/sync`
+  - `GET /organizations`, `GET /organizations/{organization_id}`
+  - `GET /organizations/{organization_id}/projects`, `GET /projects/{project_id}`
+  - `POST /admin/tenants/{tenant_id}/disable` (agent status)
+  - `GET /projects/{project_id}/threads`, `GET /threads/{thread_id}`
+  - `GET /projects/{project_id}/issues`, `GET /issues/{issue_id}`
+  - `GET /tenants/users` (Contacts + Console Users)
+  - `GET /datasources`, `GET /datasources/{datasource_id}`, `POST /datasources/upload`, `DELETE /datasources/{datasource_id}`, `POST /datasources/{datasource_id}/reprocess`
+- Missing surfaces are tracked below.
+
 ## Existing Certly Endpoints (from OpenAPI)
 These already exist and can be reused/mapped:
 - **Auth**: `POST /user/sync` (Cognito user sync)
 - **Projects (Tenants)**:
-  - `GET /user/tenants` (list projects for current user)
-  - `GET /admin/tenants` and related admin tenant endpoints
-  - `GET/POST/PATCH/DELETE /tenants/users...` (console_users team management)
+  - `GET /user/tenants` (list tenants for current user)
+  - `GET /admin/tenants` and `GET /admin/tenants/{tenant_id}`
+  - `POST /admin/tenants/{tenant_id}/disable`
+- **Tenant Users (Console Users or Contacts)**:
+  - `GET /tenants/users`
+  - `POST /tenants/users`
+  - `PATCH /tenants/users/{user_id}`
+  - `GET /tenants/users/{user_id}/permissions`
+  - `POST /tenants/send-invitation`
+  - `POST /tenants/create-and-invite-user`
 - **Knowledge Base** (Datasources):
   - `GET /datasources`
   - `POST /datasources/upload`
   - `GET /datasources/{datasource_id}`
   - `DELETE /datasources/{datasource_id}`
+  - `POST /datasources/{datasource_id}/reprocess`
   - `POST /datasources/sync-google-drive`
   - `POST /datasources/sync-sharepoint`
+
+## Gap Analysis (Console vs Certly OpenAPI)
+
+| Console Surface | Needed Endpoints (current console) | Certly OpenAPI Status | Required Change |
+| --- | --- | --- | --- |
+| Auth + User Sync | `POST /user/sync` | Exists | None |
+| Organizations | `GET /organizations`, `GET /organizations/{id}`, `PATCH /organizations/{id}` | Missing | Add an Organization layer and change console to treat tenants as Projects |
+| Projects | `GET /organizations/{org_id}/projects`, `GET /projects/{id}`, `PATCH /projects/{id}` | Partial via tenants | Add org scoping plus project fields (`agentStatus`, `threadCount`, `issueCount`, `lastActivityAt`) |
+| Console Users (Team) | `GET/POST/PATCH/DELETE /console_users` | Partial via `/tenants/users` and invitation endpoints | Map or rename to console users and add role mapping plus MFA status |
+| Contacts | `GET/POST/PATCH /contacts` | Missing as a distinct resource | Separate Contacts from console users and add escalation tier fields |
+| Threads | `GET /projects/{project_id}/threads`, `GET /threads/{id}`, `PATCH /threads/{id}` | Missing | Add thread storage, list, and detail endpoints with filters |
+| Messages | `GET /threads/{thread_id}/messages` | Missing | Add message list or embed messages in thread detail response |
+| Issues | `GET /projects/{project_id}/issues`, `GET /issues/{id}`, `POST /projects/{project_id}/issues`, `PATCH /issues/{id}` | Missing | Add issue storage, list, and detail endpoints |
+| Knowledge Base | `GET /datasources`, `POST /datasources/upload`, `DELETE /datasources/{id}`, `POST /datasources/{id}/reprocess` | Exists | Map datasource fields to `KnowledgeSource` and include tenant mapping |
+| Tools & Skills | `GET /projects/{project_id}/tools-skills`, `PATCH /tools-skills/{id}` | Missing | Add tools and skills configuration endpoints |
+| Insights | `GET /projects/{project_id}/insights` | Missing | Add metrics aggregation endpoint |
+
+## Field Mapping Notes (from OpenAPI)
+
+### TenantResponse -> Project
+| Console Field | Certly Field | Notes |
+| --- | --- | --- |
+| `id` | `id` | Cast to string |
+| `name` | `name` | Fallback if null |
+| `agentStatus` | `is_disabled` | Map `true` to `offline`, `false` to `online` |
+| `createdAt` | `created_at` | Use ISO string |
+| `organizationId` | Missing | Requires Organization layer |
+| `threadCount` | Missing | Requires aggregation |
+| `issueCount` | Missing | Requires aggregation |
+| `lastActivityAt` | Missing | Requires aggregation |
+
+### TenantUserResponse -> Contact or Console User
+| Console Field | Certly Field | Notes |
+| --- | --- | --- |
+| `id` | `user_id` | String |
+| `projectId` | `tenant_id` | Cast to string |
+| `name` | `given_name` + `family_name` | Concatenate with fallback |
+| `email` | `email` | Optional in Certly |
+| `phone` | `phone_number` | Optional in Certly |
+| `role` | `role` | Certly roles are `ADMIN/INSTRUCTOR/LEARNER` |
+| `mfaEnabled` | Missing | Requires backend support |
+| `escalationTier` | Missing | Requires backend support |
+| `threadCount` | Missing | Requires aggregation |
+| `isBlocked` | Missing | Requires backend support |
+| `company` | Missing | Requires backend support |
+
+**Note**: `TenantUserResponse` does not expose `is_contact_only`, so the console cannot reliably separate Contacts from Console Users yet. We treat `/tenants/users` as a shared directory until the backend exposes a contact-only flag.
+
+### DatasourceDetailResponse -> KnowledgeSource
+| Console Field | Certly Field | Notes |
+| --- | --- | --- |
+| `id` | `id` | Cast to string |
+| `projectId` | `tenant_id` | Cast to string |
+| `name` | `file_name` | |
+| `type` | `source` or `content_type` | Map to `pdf`, `doc`, `google_drive`, `dropbox` |
+| `status` | `embedding_status` | Map `NOT_STARTED/IN_PROGRESS/COMPLETED/FAILED` to `pending/indexing/ready/error` |
+| `createdAt` | `created_at` | Use ISO string |
+| `lastSyncAt` | `updated_at` | Use ISO string |
+| `documentCount` | Missing | Requires new field or derived from file chunks |
 
 ## Proposed Console API (Missing Surface)
 
@@ -339,6 +419,6 @@ Continue using the Certly response wrapper to keep parity:
 - `x-tenant-id` is the **Project** (tenant) context in the current Certly API
 
 ## Open Questions
-2. **Projects model**: Can we formalize tenants as projects with stable identifiers?
-3. **Thread/Issue storage**: Are these backed by realtime chat or separate entities?
-4. **Permissions**: What roles map to `owner/admin/member/viewer` for each endpoint?
+1. **Projects model**: Can we formalize tenants as projects with stable identifiers?
+2. **Thread/Issue storage**: Are these backed by realtime chat or separate entities?
+3. **Permissions**: What roles map to `owner/admin/member/viewer` for each endpoint?

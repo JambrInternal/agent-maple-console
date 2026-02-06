@@ -3,7 +3,6 @@ export * from './organizations';
 export * from './projects';
 export * from './threads';
 export * from './issues';
-export * from './contacts';
+export * from './people';
 export * from './knowledge';
 export * from './insights';
-export * from './users';
