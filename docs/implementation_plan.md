@@ -68,24 +68,23 @@ type MessageDirection = 'inbound' | 'outbound'
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `getThreads` | `(projectId, filters?) => Thread[]` | List threads |
-| `getThread` | `(id) => Thread & { messages }` | Get thread with messages |
-| `updateThread` | `(id, data) => Thread` | Update status, link issue |
+| `getThread` | `(id) => Thread & { issue, contact }` | Get thread detail |
 
 ### Issues
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `getIssues` | `(projectId) => Issue[]` | List issues |
 | `getIssue` | `(id) => Issue & { threads }` | Get issue with threads |
-| `createIssue` | `(data) => Issue` | Create new issue |
-| `updateIssue` | `(id, data) => Issue` | Update status, owner |
+| `createIssue` | `(data) => Issue` | Create new issue (API pending) |
+| `updateIssue` | `(id, data) => Issue` | Update status, owner (API pending) |
 
 ### Contacts
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `getContacts` | `(projectId) => Contact[]` | List contacts |
-| `getContact` | `(id) => Contact` | Get single contact |
-| `createContact` | `(data) => Contact` | Add contact |
-| `updateContact` | `(id, data) => Contact` | Edit contact |
+| `getContact` | `(id, projectId?) => Contact` | Get single contact |
+| `createContact` | `(data) => Contact` | Add contact (API pending) |
+| `updateContact` | `(id, data) => Contact` | Edit contact (API pending) |
 
 ### Knowledge
 | Function | Signature | Description |
@@ -101,7 +100,7 @@ type MessageDirection = 'inbound' | 'outbound'
 
 ---
 
-## Mock Data Requirements
+## Mock Data Requirements (Removed)
 
 ### Organizations (2)
 - Iron Maple Construction (3 projects)

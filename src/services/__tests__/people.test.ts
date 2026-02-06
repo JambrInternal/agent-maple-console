@@ -1,0 +1,83 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getContact, getContacts, getUser, getUsers } from '../people';
+import { apiFetch } from '../../api/client';
+
+vi.mock('../../api/client', () => ({
+    API_CONFIG: { baseUrl: '' },
+    apiFetch: vi.fn(),
+}));
+
+describe('people service', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('lists contacts for a project', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    tenant_id: 1,
+                    user_id: 'user_1',
+                    given_name: 'Jamie',
+                    family_name: 'Ng',
+                    email: 'jamie@example.com',
+                    phone_number: '+1-555-0101',
+                    created_at: '2026-02-01T00:00:00Z',
+                },
+            ],
+        });
+
+        const result = await getContacts('1');
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/users', {
+            headers: { 'x-tenant-id': '1' },
+        });
+        expect(result[0].name).toBe('Jamie Ng');
+    });
+
+    it('gets a contact by id', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    tenant_id: 2,
+                    user_id: 'user_2',
+                    given_name: 'Casey',
+                    family_name: 'Lee',
+                    email: 'casey@example.com',
+                    phone_number: '+1-555-0102',
+                    created_at: '2026-02-01T00:00:00Z',
+                },
+            ],
+        });
+
+        const result = await getContact('user_2', '2');
+
+        expect(result.email).toBe('casey@example.com');
+    });
+
+    it('lists users', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    tenant_id: 3,
+                    user_id: 'user_3',
+                    given_name: 'Morgan',
+                    family_name: 'Grey',
+                    email: 'morgan@example.com',
+                    role: 'ADMIN',
+                    created_at: '2026-02-01T00:00:00Z',
+                },
+            ],
+        });
+
+        const result = await getUsers('3');
+
+        expect(result[0].role).toBe('admin');
+    });
+
+    it('throws when user is missing', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({ data: [] });
+
+        await expect(getUser('missing')).rejects.toThrow('User not found: missing');
+    });
+});
