@@ -108,6 +108,7 @@ const OrgSelection = () => {
                     <button
                         type="button"
                         className="am-card"
+                        aria-label="Create a New Organization"
                         style={{
                             cursor: 'pointer',
                             display: 'flex',
