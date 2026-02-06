@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building2, Search, ArrowRight } from 'lucide-react'
-import { getOrganizations } from '../services/organizations'
+import { Building2, Search, ArrowRight, Plus } from 'lucide-react'
+import { createOrganization, getOrganizations } from '../services/organizations'
 
 const OrgSelection = () => {
     const [orgs, setOrgs] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [isCreateOpen, setIsCreateOpen] = useState(false)
+    const [createName, setCreateName] = useState('')
+    const [createError, setCreateError] = useState('')
+    const [isCreating, setIsCreating] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -26,6 +30,43 @@ const OrgSelection = () => {
     const filteredOrgs = orgs.filter(org =>
         org.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
+    const hasOrganizations = orgs.length > 0
+    const showCreateTile = !hasOrganizations
+    const showNoMatches = hasOrganizations && filteredOrgs.length === 0
+
+    const openCreateModal = () => {
+        setCreateName('')
+        setCreateError('')
+        setIsCreateOpen(true)
+    }
+
+    const closeCreateModal = () => {
+        if (isCreating) return
+        setIsCreateOpen(false)
+    }
+
+    const handleCreate = async (event) => {
+        event.preventDefault()
+        const trimmed = createName.trim()
+        if (!trimmed) {
+            setCreateError('Organization name is required.')
+            return
+        }
+        setCreateError('')
+        setIsCreating(true)
+        try {
+            const org = await createOrganization(trimmed)
+            setOrgs((prev) => [org, ...prev])
+            localStorage.setItem('am_tenant_id', org.id)
+            setIsCreateOpen(false)
+            navigate(`/${org.id}/projects`)
+        } catch (error) {
+            console.error('Failed to create organization:', error)
+            setCreateError('Organization could not be created. Try again.')
+        } finally {
+            setIsCreating(false)
+        }
+    }
 
     if (loading) {
         return (
@@ -63,6 +104,49 @@ const OrgSelection = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                {showCreateTile && (
+                    <button
+                        type="button"
+                        className="am-card"
+                        style={{
+                            cursor: 'pointer',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.75rem',
+                            textAlign: 'left',
+                            borderStyle: 'dashed',
+                            borderWidth: '1px',
+                            borderColor: 'var(--am-border)',
+                            background: 'transparent',
+                            opacity: 0.85,
+                        }}
+                        onClick={openCreateModal}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{
+                                width: '44px',
+                                height: '44px',
+                                backgroundColor: 'var(--am-bg-0)',
+                                color: 'var(--am-accent)',
+                                borderRadius: 'var(--radius-md)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '1px dashed var(--am-border)'
+                            }}>
+                                <Plus size={20} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 className="am-text-1" style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>
+                                    Create a New Organization
+                                </h3>
+                                <p className="am-text-2" style={{ fontSize: '0.875rem' }}>
+                                    You don&apos;t belong to any organizations yet.
+                                </p>
+                            </div>
+                        </div>
+                    </button>
+                )}
                 {filteredOrgs.map((org) => (
                     <div
                         key={org.id}
@@ -96,12 +180,63 @@ const OrgSelection = () => {
                     </div>
                 ))}
 
-                {filteredOrgs.length === 0 && (
+                {showNoMatches && (
                     <div className="am-text-2" style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '3rem' }}>
                         No organizations found matching your search.
                     </div>
                 )}
             </div>
+
+            {isCreateOpen && (
+                <div className="am-modal-backdrop" role="presentation" onClick={closeCreateModal}>
+                    <div
+                        className="am-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="create-org-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="am-modal-header">
+                            <h2 className="am-modal-title" id="create-org-title">
+                                Create Organization
+                            </h2>
+                            <button type="button" className="am-icon-button" onClick={closeCreateModal}>
+                                ×
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreate}>
+                            <div className="am-modal-body">
+                                {createError && (
+                                    <div className="am-text-2" style={{ color: '#ef4444', marginBottom: '0.75rem' }}>
+                                        {createError}
+                                    </div>
+                                )}
+                                <label className="am-label" htmlFor="org-name">
+                                    Organization Name
+                                </label>
+                                <input
+                                    id="org-name"
+                                    className="am-input"
+                                    type="text"
+                                    placeholder="Enter organization name"
+                                    value={createName}
+                                    onChange={(event) => setCreateName(event.target.value)}
+                                    disabled={isCreating}
+                                    required
+                                />
+                            </div>
+                            <div className="am-modal-actions">
+                                <button type="button" className="am-btn-secondary" onClick={closeCreateModal} disabled={isCreating}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="am-btn-primary" disabled={isCreating}>
+                                    {isCreating ? 'Creating...' : 'Create Organization'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

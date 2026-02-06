@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getOrganization, getOrganizations } from '../organizations';
+import { createOrganization, getOrganization, getOrganizations } from '../organizations';
 import { apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
@@ -54,5 +54,24 @@ describe('organizations service', () => {
         expect(apiFetch).toHaveBeenCalledWith('/organizations/org_1');
         expect(result.id).toBe('org_1');
         expect(result.projectCount).toBe(1);
+    });
+
+    it('creates an organization', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'org_2',
+                name: 'New Org',
+                project_count: 0,
+                created_at: '2026-02-03T00:00:00Z',
+            },
+        });
+
+        const result = await createOrganization('New Org');
+
+        expect(apiFetch).toHaveBeenCalledWith('/organizations', {
+            method: 'POST',
+            body: JSON.stringify({ name: 'New Org' }),
+        });
+        expect(result.name).toBe('New Org');
     });
 });

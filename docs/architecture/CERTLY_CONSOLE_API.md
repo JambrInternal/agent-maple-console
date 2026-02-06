@@ -120,6 +120,7 @@ or a gateway that groups existing tenants into Organizations.
 
 ```
 GET  /organizations
+POST /organizations
 GET  /organizations/{organization_id}
 PATCH /organizations/{organization_id}
 ```
@@ -134,6 +135,9 @@ paths:
     get:
       tags: [Organizations]
       summary: List organizations
+    post:
+      tags: [Organizations]
+      summary: Create organization
   /organizations/{organization_id}:
     get:
       tags: [Organizations]

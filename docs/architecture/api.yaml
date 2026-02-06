@@ -2164,6 +2164,25 @@ paths:
                 $ref: '#/components/schemas/GenericResponse_list_OrganizationResponse__'
       description: List organizations
       operationId: get_organizations
+    post:
+      tags:
+      - Organizations
+      summary: Create organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse_OrganizationResponse_'
+      description: Create organization
+      operationId: post_organizations
   /organizations/{organization_id}:
     get:
       tags:
@@ -4673,6 +4692,14 @@ components:
     OrganizationUpdateRequest:
       type: object
       title: OrganizationUpdateRequest
+      properties:
+        name:
+          type: string
+    OrganizationCreateRequest:
+      type: object
+      title: OrganizationCreateRequest
+      required:
+      - name
       properties:
         name:
           type: string

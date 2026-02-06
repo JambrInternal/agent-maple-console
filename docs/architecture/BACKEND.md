@@ -12,7 +12,7 @@ The console implements a clean service layer that abstracts API interactions ove
 
 ### Organizations
 - **Service**: `src/services/organizations.ts`
-- **Functions**: `getOrganizations()`, `getOrganization(id)`
+- **Functions**: `getOrganizations()`, `getOrganization(id)`, `createOrganization(name)`
 - **Note**: Organization endpoints exist in `api.yaml`, but Certly tenants still map to Projects.
 
 ### Projects

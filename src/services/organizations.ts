@@ -19,3 +19,15 @@ export async function getOrganization(id: string): Promise<Organization> {
     const data = unwrapData(response);
     return mapOrganizationResponse(data);
 }
+
+/**
+ * Create a new organization
+ */
+export async function createOrganization(name: string): Promise<Organization> {
+    const response = await apiFetch<ApiResponse<ApiOrganization>>('/organizations', {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+    });
+    const data = unwrapData(response);
+    return mapOrganizationResponse(data);
+}
