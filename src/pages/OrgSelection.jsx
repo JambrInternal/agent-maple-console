@@ -123,10 +123,10 @@ const OrgSelection = () => {
                         }}
                         onClick={openCreateModal}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <div style={{
-                                width: '44px',
-                                height: '44px',
+                                width: '48px',
+                                height: '48px',
                                 backgroundColor: 'var(--am-bg-0)',
                                 color: 'var(--am-accent)',
                                 borderRadius: 'var(--radius-md)',
@@ -135,7 +135,7 @@ const OrgSelection = () => {
                                 justifyContent: 'center',
                                 border: '1px dashed var(--am-border)'
                             }}>
-                                <Plus size={20} />
+                                <Plus size={24} />
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h3 className="am-text-1" style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>
@@ -145,6 +145,7 @@ const OrgSelection = () => {
                                     You don&apos;t belong to any organizations yet.
                                 </p>
                             </div>
+                            <ArrowRight size={20} className="am-text-2" />
                         </div>
                     </button>
                 )}
@@ -201,32 +202,37 @@ const OrgSelection = () => {
                             <h2 className="am-modal-title" id="create-org-title">
                                 Create Organization
                             </h2>
-                            <button type="button" className="am-icon-button" onClick={closeCreateModal}>
+                            <button type="button" className="am-icon-button" onClick={closeCreateModal} aria-label="Close">
                                 ×
                             </button>
                         </div>
                         <form onSubmit={handleCreate}>
-                            <div className="am-modal-body">
-                                {createError && (
-                                    <div className="am-text-2" style={{ color: '#ef4444', marginBottom: '0.75rem' }}>
-                                        {createError}
-                                    </div>
-                                )}
-                                <label className="am-label" htmlFor="org-name">
-                                    Organization Name
-                                </label>
-                                <input
-                                    id="org-name"
-                                    className="am-input"
-                                    type="text"
-                                    placeholder="Enter organization name"
-                                    value={createName}
-                                    onChange={(event) => setCreateName(event.target.value)}
-                                    disabled={isCreating}
-                                    required
-                                />
+                            <div className="am-text-2" style={{ marginBottom: '1rem' }}>
+                                Create a new organization to start managing projects.
                             </div>
-                            <div className="am-modal-actions">
+                            {createError && (
+                                <div className="am-text-2" style={{ color: '#ef4444', marginBottom: '0.75rem' }}>
+                                    {createError}
+                                </div>
+                            )}
+                            <div className="am-form">
+                                <div className="am-form-field">
+                                    <label className="am-label" htmlFor="org-name">
+                                        Organization Name
+                                    </label>
+                                    <input
+                                        id="org-name"
+                                        className="am-input"
+                                        type="text"
+                                        placeholder="Enter organization name"
+                                        value={createName}
+                                        onChange={(event) => setCreateName(event.target.value)}
+                                        disabled={isCreating}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="am-modal-footer">
                                 <button type="button" className="am-btn-secondary" onClick={closeCreateModal} disabled={isCreating}>
                                     Cancel
                                 </button>
