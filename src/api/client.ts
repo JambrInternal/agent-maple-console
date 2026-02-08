@@ -19,7 +19,18 @@ export class ApiError extends Error {
 export const getErrorStatus = (error: unknown): number | null => {
     if (!error || typeof error !== 'object') return null;
     const status = (error as { status?: unknown }).status;
-    return typeof status === 'number' ? status : null;
+    if (typeof status === 'number') return status;
+
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') {
+        const match = message.match(/(?:Status\s+|API Error:\s+)(\d{3})\b/);
+        if (match) {
+            const parsed = Number(match[1]);
+            if (Number.isFinite(parsed)) return parsed;
+        }
+    }
+
+    return null;
 };
 
 /**
