@@ -46,6 +46,7 @@ export type ApiProject = {
 export type ApiThread = {
     id?: string | number | null;
     project_id?: string | number | null;
+    user_id?: string | number | null;
     contact_id?: string | number | null;
     issue_id?: string | number | null;
     status?: ThreadStatus | string | null;
@@ -71,15 +72,14 @@ export type ApiUserResponse = {
     username?: string | null;
     email?: string | null;
     created_at?: string | null;
-};
-
-export type ApiUserRecord = {
-    id?: string | null;
-    username?: string | null;
-    email?: string | null;
-    created_at?: string | null;
+    updated_at?: string | null;
+    is_disabled?: boolean | null;
+    is_supervisor?: boolean | null;
     organization_id?: string | number | null;
     organization_role?: string | null;
+    thread_count?: number | null;
+    reports_to_id?: string | null;
+    reports_to?: unknown | null;
 };
 
 export type ApiTenantUser = {
@@ -90,7 +90,10 @@ export type ApiTenantUser = {
     email?: string | null;
     phone_number?: string | null;
     role?: string | null;
+    organization_role?: string | null;
+    is_supervisor?: boolean | null;
     created_at?: string | null;
+    updated_at?: string | null;
     company?: string | null;
 };
 
@@ -108,6 +111,11 @@ export type ApiDatasource = {
     embedding_status?: string | null;
     created_at?: string | null;
     updated_at?: string | null;
+    file_hash?: string | null;
+    file_size?: number | null;
+    s3_url?: string | null;
+    extra_metadata?: Record<string, any> | null;
+    user_id?: string | null;
 };
 
 const toStringId = (value: unknown): string => {
@@ -236,11 +244,12 @@ export function mapThreadResponse(thread: ApiThread): Thread {
     const lastMessageAt = toIsoString(thread.last_activity_at)
         || toIsoString(thread.updated_at)
         || toIsoString(thread.created_at);
+    const contactId = toStringId(thread.user_id) || toStringId(thread.contact_id);
 
     return {
         id: toStringId(thread.id),
         projectId: toStringId(thread.project_id),
-        contactId: toStringId(thread.contact_id),
+        contactId,
         issueId: toStringId(thread.issue_id),
         status: toThreadStatus(thread.status),
         subject: thread.subject || 'Untitled Thread',
@@ -311,7 +320,7 @@ export function mapTenantUserToConsoleUser(user: ApiTenantUser): User {
     };
 }
 
-export function mapUserRecordResponse(user: ApiUserRecord, fallback?: User): User {
+export function mapUserRecordResponse(user: ApiUserResponse, fallback?: User): User {
     const name = user.username || user.email || fallback?.name || fallback?.email || 'Unknown User';
     const role = user.organization_role
         ? toConsoleRole(user.organization_role)

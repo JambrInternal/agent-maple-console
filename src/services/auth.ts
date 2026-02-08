@@ -1,7 +1,7 @@
 import * as authApi from '../api/auth';
 import { apiFetch } from '../api/client';
 import type { User } from '../api/types';
-import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserRecord } from '../api/mappers';
+import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserResponse } from '../api/mappers';
 
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
@@ -14,7 +14,7 @@ const ensureUserIds = (user: User): User => ({
 export async function syncUser(currentUser?: User): Promise<User | null> {
     const token = localStorage.getItem('am_auth_token');
     if (!token) return null;
-    const response = await apiFetch<ApiResponse<ApiUserRecord>>('/user/sync', { method: 'POST' });
+    const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
     const data = unwrapData(response);
     const mapped = mapUserRecordResponse(data, currentUser);
     return ensureUserIds(mapped);

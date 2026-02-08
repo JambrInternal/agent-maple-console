@@ -49,7 +49,7 @@ describe('issues service', () => {
                     {
                         id: 'thread_1',
                         project_id: 'proj_2',
-                        contact_id: 'contact_2',
+                        user_id: 'user_2',
                         issue_id: 'issue_2',
                         status: 'open',
                         subject: 'Thread B',

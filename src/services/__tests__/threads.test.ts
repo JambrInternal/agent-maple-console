@@ -18,7 +18,7 @@ describe('threads service', () => {
                 {
                     id: 'thread_1',
                     project_id: 'proj_1',
-                    contact_id: 'contact_1',
+                    user_id: 'user_1',
                     issue_id: 'issue_1',
                     status: 'open',
                     subject: 'Question',
@@ -32,15 +32,16 @@ describe('threads service', () => {
         const result = await getThreads('proj_1', {
             status: 'open',
             issueId: 'issue_1',
-            contactId: 'contact_1',
+            contactId: 'user_1',
         });
 
         expect(apiFetch).toHaveBeenCalledWith(
-            '/projects/proj_1/threads?status=open&issue_id=issue_1&contact_id=contact_1',
+            '/projects/proj_1/threads?status=open&issue_id=issue_1&user_id=user_1',
             { headers: { 'x-tenant-id': 'proj_1' } }
         );
         expect(result[0].id).toBe('thread_1');
         expect(result[0].projectId).toBe('proj_1');
+        expect(result[0].contactId).toBe('user_1');
     });
 
     it('gets a thread with details', async () => {
@@ -48,7 +49,7 @@ describe('threads service', () => {
             data: {
                 id: 'thread_2',
                 project_id: 'proj_2',
-                contact_id: 'contact_2',
+                user_id: 'user_2',
                 issue_id: 'issue_2',
                 status: 'open',
                 subject: 'Details',
@@ -56,7 +57,7 @@ describe('threads service', () => {
                 updated_at: '2026-02-02T00:00:00Z',
                 last_activity_at: '2026-02-02T00:00:00Z',
                 contact: {
-                    id: 'contact_2',
+                    id: 'user_2',
                     username: 'Alex Carter',
                     email: 'alex@site.com',
                     created_at: '2026-02-01T00:00:00Z',
@@ -76,6 +77,7 @@ describe('threads service', () => {
         expect(apiFetch).toHaveBeenCalledWith('/threads/thread_2');
         expect(result.contact.name).toBe('Alex Carter');
         expect(result.issue.title).toBe('Gate Access');
+        expect(result.contactId).toBe('user_2');
     });
 
     it('lists threads by issue', async () => {
@@ -94,7 +96,7 @@ describe('threads service', () => {
                     {
                         id: 'thread_3',
                         project_id: 'proj_3',
-                        contact_id: 'contact_3',
+                        user_id: 'user_3',
                         issue_id: 'issue_3',
                         status: 'waiting',
                         subject: 'Follow up',

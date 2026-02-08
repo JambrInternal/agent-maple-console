@@ -13,7 +13,7 @@ export async function getThreads(
     const params = new URLSearchParams();
     if (filters?.status) params.set('status', filters.status);
     if (filters?.issueId) params.set('issue_id', filters.issueId);
-    if (filters?.contactId) params.set('contact_id', filters.contactId);
+    if (filters?.contactId) params.set('user_id', filters.contactId);
     const query = params.toString();
 
     const response = await apiFetch<ApiResponse<ApiThread[]>>(
