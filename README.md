@@ -23,6 +23,14 @@ npm install
 npm run dev
 ```
 
+### Environment
+
+Set the API base URL at build time:
+
+```bash
+VITE_API_URL=https://api.stage.certly.jambr.ca
+```
+
 ### Build
 
 ```bash
