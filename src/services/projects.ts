@@ -13,6 +13,24 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
 }
 
 /**
+ * Create a new project for an organization
+ */
+export async function createProject(
+    organizationId: string,
+    name: string
+): Promise<Project> {
+    const response = await apiFetch<ApiResponse<ApiProject>>(
+        `/organizations/${organizationId}/projects`,
+        {
+            method: 'POST',
+            body: JSON.stringify({ name }),
+        }
+    );
+    const data = unwrapData(response);
+    return mapProjectResponse(data);
+}
+
+/**
  * Get a single project by ID
  */
 export async function getProject(id: string): Promise<Project> {

@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
+import { getOrganizations } from '../services/organizations'
+import { getProjects } from '../services/projects'
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -11,6 +13,7 @@ const Login = () => {
     const { login, user, loading } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
+    const loginInProgressRef = useRef(false)
 
     const redirectTo = (() => {
         const from = location.state?.from
@@ -34,22 +37,66 @@ const Login = () => {
     }
 
     useEffect(() => {
-        if (!loading && user) {
+        if (!loading && user && !loginInProgressRef.current) {
             navigate(redirectTo, { replace: true })
         }
     }, [loading, user, navigate, redirectTo])
+
+    const resolvePostLoginRoute = async (loggedInUser) => {
+        if (redirectTo !== '/') {
+            return redirectTo
+        }
+
+        try {
+            const orgId = loggedInUser?.organizationId
+            if (orgId) {
+                try {
+                    const projects = await getProjects(orgId)
+                    if (projects.length === 1) {
+                        return `/${orgId}/${projects[0].id}`
+                    }
+                } catch (projectError) {
+                    console.warn('Post-login project lookup failed:', projectError)
+                }
+                return `/${orgId}/projects`
+            }
+
+            const orgs = await getOrganizations()
+            if (orgs.length !== 1) {
+                return '/'
+            }
+
+            const fallbackOrgId = orgs[0].id
+            try {
+                const projects = await getProjects(fallbackOrgId)
+                if (projects.length === 1) {
+                    return `/${fallbackOrgId}/${projects[0].id}`
+                }
+            } catch (projectError) {
+                console.warn('Post-login project lookup failed:', projectError)
+            }
+
+            return `/${fallbackOrgId}/projects`
+        } catch (orgError) {
+            console.warn('Post-login organization lookup failed:', orgError)
+            return '/'
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
         setIsSubmitting(true)
+        loginInProgressRef.current = true
 
         try {
-            await login(email, password)
-            navigate(redirectTo, { replace: true })
+            const loggedInUser = await login(email, password)
+            const targetRoute = await resolvePostLoginRoute(loggedInUser)
+            navigate(targetRoute, { replace: true })
         } catch (err) {
             setError(getErrorMessage(err))
         } finally {
+            loginInProgressRef.current = false
             setIsSubmitting(false)
         }
     }

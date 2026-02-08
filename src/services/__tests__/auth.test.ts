@@ -28,18 +28,28 @@ describe('auth service', () => {
             email: 'test@example.com',
             name: 'Test User',
             role: 'admin',
+            organizationId: null,
+            tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-04T00:00:00Z',
         };
 
         vi.mocked(authApi.login).mockResolvedValue({ user, token: 'token-123' });
-        vi.mocked(apiFetch).mockResolvedValue({});
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'u1',
+                email: 'test@example.com',
+                organization_id: 'org_1',
+                organization_role: 'ADMIN',
+                created_at: '2026-02-04T00:00:00Z',
+            },
+        });
 
         const result = await authService.login('test@example.com', 'password');
 
-        expect(result).toEqual(user);
+        expect(result.organizationId).toBe('org_1');
         expect(localStorage.getItem('am_auth_token')).toBe('token-123');
-        expect(localStorage.getItem('am_user')).toBe(JSON.stringify(user));
+        expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
@@ -54,6 +64,8 @@ describe('auth service', () => {
             email: 'restore@example.com',
             name: 'Restore User',
             role: 'member',
+            organizationId: null,
+            tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-04T00:00:00Z',
         };
@@ -62,12 +74,20 @@ describe('auth service', () => {
             localStorage.setItem('am_auth_token', 'token-restore');
             return user;
         });
-        vi.mocked(apiFetch).mockResolvedValue({});
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'u2',
+                email: 'restore@example.com',
+                organization_id: 'org_2',
+                organization_role: 'INSTRUCTOR',
+                created_at: '2026-02-04T00:00:00Z',
+            },
+        });
 
         const result = await authService.getCurrentUser();
 
-        expect(result).toEqual(user);
-        expect(localStorage.getItem('am_user')).toBe(JSON.stringify(user));
+        expect(result?.organizationId).toBe('org_2');
+        expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
@@ -77,6 +97,8 @@ describe('auth service', () => {
             email: 'cached@example.com',
             name: 'Cached User',
             role: 'viewer',
+            organizationId: null,
+            tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-04T00:00:00Z',
         };
@@ -96,6 +118,8 @@ describe('auth service', () => {
             email: 'warn@example.com',
             name: 'Warn User',
             role: 'admin',
+            organizationId: null,
+            tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-04T00:00:00Z',
         };

@@ -73,6 +73,8 @@ describe('people service', () => {
         const result = await getUsers('3');
 
         expect(result[0].role).toBe('admin');
+        expect(result[0].tenantId).toBe('3');
+        expect(result[0].organizationId).toBeNull();
     });
 
     it('throws when user is missing', async () => {

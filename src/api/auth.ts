@@ -21,6 +21,8 @@ export async function login(email: string, password: string): Promise<AuthSessio
                 email: email, // Email isn't in standard getCurrentUser, usually in attributes
                 name: email,
                 role: 'admin', // Default role for now
+                organizationId: null,
+                tenantId: null,
                 mfaEnabled: false,
                 createdAt: new Date().toISOString()
             },
@@ -49,6 +51,8 @@ export async function getSessionUser(): Promise<User | null> {
             email: cognitoUser.username,
             name: cognitoUser.username,
             role: 'admin',
+            organizationId: null,
+            tenantId: null,
             mfaEnabled: false,
             createdAt: new Date().toISOString()
         };

@@ -4,19 +4,19 @@
 
 ## Before Any Work
 
-1. **Read docs**: Start with `docs/product/PRD.md` for requirements
-2. **Check terminology**: Use `docs/product/CORE_CONCEPTS.md` for domain terms
-3. **Review constraints**: See `docs/contributing/AGENT_RULES.md`
-4. **Review testing**: See `docs/contributing/TESTING.md`
+1. **Read docs**: Start with `agent_docs/product/PRD.md` for requirements
+2. **Check terminology**: Use `agent_docs/product/CORE_CONCEPTS.md` for domain terms
+3. **Review constraints**: See `agent_docs/contributing/AGENT_RULES.md`
+4. **Review testing**: See `agent_docs/contributing/TESTING.md`
 5. **Tooling**: Use `mise` and `.tool-versions` to align Node versioning
-6. **Review and Update** `docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
+6. **Review and Update** `agent_docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
 
 ## During Work
 
 - Use correct terminology (Thread, Issue, Contact, Project, Organization)
-- Follow the Industrial Navy design system (`docs/product/BRAND.md`)
-- Reference API contracts in `docs/architecture/BACKEND.md`
-- Add or update tests using Vitest (`docs/contributing/TESTING.md`) when behavior changes
+- Follow the Industrial Navy design system (`agent_docs/product/BRAND.md`)
+- Reference API contracts in `agent_docs/architecture/BACKEND.md`
+- Add or update tests using Vitest (`agent_docs/contributing/TESTING.md`) when behavior changes
 
 ## After Work (REQUIRED)
 
@@ -25,15 +25,16 @@
 1. Did I learn something that should be documented?
 2. Did I make a change that affects the PRD or architecture?
 3. Are there outdated docs that contradict what I just did?
-4. Update `docs/task.md`. Every time a task is completed, ask for a human review on the task.
-5. If any docs were updated, ask for a human review on the docs changes.
+4. Always be refactoring content in agent_docs when there is an opportunity.
+5. Update `agent_docs/task.md`. Every time a task is completed, ask for a human review on the task.
+6. If any docs were updated, ask for a human review on the docs changes.
 
 If yes to any, **update the relevant doc**.
 
 ## Docs Structure
 
 ```
-docs/
+agent_docs/
 ├── product/           # WHAT we're building
 │   ├── PRD.md         # Requirements (source of truth)
 │   ├── CORE_CONCEPTS.md

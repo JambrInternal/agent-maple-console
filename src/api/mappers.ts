@@ -73,6 +73,15 @@ export type ApiUserResponse = {
     created_at?: string | null;
 };
 
+export type ApiUserRecord = {
+    id?: string | null;
+    username?: string | null;
+    email?: string | null;
+    created_at?: string | null;
+    organization_id?: string | number | null;
+    organization_role?: string | null;
+};
+
 export type ApiTenantUser = {
     tenant_id?: number | string | null;
     user_id?: string | null;
@@ -295,8 +304,31 @@ export function mapTenantUserToConsoleUser(user: ApiTenantUser): User {
         email: user.email || '',
         name,
         role: toConsoleRole(user.role),
+        organizationId: null,
+        tenantId: toStringId(user.tenant_id) || null,
         mfaEnabled: false,
         createdAt: toIsoString(user.created_at),
+    };
+}
+
+export function mapUserRecordResponse(user: ApiUserRecord, fallback?: User): User {
+    const name = user.username || user.email || fallback?.name || fallback?.email || 'Unknown User';
+    const role = user.organization_role
+        ? toConsoleRole(user.organization_role)
+        : (fallback?.role || 'viewer');
+    const organizationId = toStringId(user.organization_id) || fallback?.organizationId || null;
+    const createdAt = toIsoString(user.created_at) || fallback?.createdAt || '';
+
+    return {
+        id: toStringId(user.id) || fallback?.id || '',
+        email: user.email || fallback?.email || '',
+        name,
+        role,
+        organizationId,
+        tenantId: fallback?.tenantId || null,
+        avatarUrl: fallback?.avatarUrl,
+        mfaEnabled: fallback?.mfaEnabled ?? false,
+        createdAt,
     };
 }
 

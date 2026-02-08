@@ -1,0 +1,124 @@
+import React from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
+import Login from '../Login'
+import { getOrganizations } from '../../services/organizations'
+import { getProjects } from '../../services/projects'
+
+const mockLogin = vi.fn()
+const mockNavigate = vi.fn()
+
+vi.mock('../../contexts/AuthContext', () => ({
+    useAuth: () => ({
+        login: mockLogin,
+        user: null,
+        loading: false,
+    }),
+}))
+
+vi.mock('../../services/organizations', () => ({
+    getOrganizations: vi.fn(),
+}))
+
+vi.mock('../../services/projects', () => ({
+    getProjects: vi.fn(),
+}))
+
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom')
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+    }
+})
+
+describe('Login', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('auto-navigates to the only project after login', async () => {
+        mockLogin.mockResolvedValue({
+            id: 'user_1',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'admin',
+            organizationId: 'org_1',
+            tenantId: null,
+            mfaEnabled: false,
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+        vi.mocked(getOrganizations).mockResolvedValue([
+            {
+                id: 'org_1',
+                name: 'Solo Org',
+                projectCount: 1,
+                createdAt: '2026-02-01T00:00:00Z',
+            },
+        ])
+        vi.mocked(getProjects).mockResolvedValue([
+            {
+                id: 'proj_1',
+                organizationId: 'org_1',
+                name: 'Solo Project',
+                agentStatus: 'offline',
+                threadCount: 0,
+                issueCount: 0,
+                lastActivityAt: '2026-02-05T08:00:00Z',
+                createdAt: '2026-02-05T08:00:00Z',
+            },
+        ])
+
+        const user = userEvent.setup()
+
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'test@example.com')
+        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
+        await user.click(screen.getByRole('button', { name: 'Sign In' }))
+
+        expect(getOrganizations).not.toHaveBeenCalled()
+        expect(getProjects).toHaveBeenCalledWith('org_1')
+        expect(mockNavigate).toHaveBeenCalledWith('/org_1/proj_1', { replace: true })
+    })
+
+    it('respects redirectTo when coming from a protected route', async () => {
+        mockLogin.mockResolvedValue({
+            id: 'user_2',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'admin',
+            organizationId: 'org_1',
+            tenantId: null,
+            mfaEnabled: false,
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+
+        const user = userEvent.setup()
+        render(
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: '/login',
+                        state: { from: { pathname: '/org_1/projects' } },
+                    },
+                ]}
+            >
+                <Login />
+            </MemoryRouter>
+        )
+
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'test@example.com')
+        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
+        await user.click(screen.getByRole('button', { name: 'Sign In' }))
+
+        expect(getOrganizations).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith('/org_1/projects', { replace: true })
+    })
+})

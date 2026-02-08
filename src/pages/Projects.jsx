@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
-import { getProjects } from '../services/projects'
+import { createProject, getProjects } from '../services/projects'
 
 const STATUS_OPTIONS = [
     { key: 'all', label: 'All' },
@@ -34,6 +34,10 @@ const Projects = () => {
     const [error, setError] = useState('')
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
+    const [isCreateOpen, setIsCreateOpen] = useState(false)
+    const [createName, setCreateName] = useState('')
+    const [createError, setCreateError] = useState('')
+    const [isCreating, setIsCreating] = useState(false)
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -53,6 +57,39 @@ const Projects = () => {
         fetchProjects()
     }, [orgId])
 
+    const openCreateModal = () => {
+        setCreateName('')
+        setCreateError('')
+        setIsCreateOpen(true)
+    }
+
+    const closeCreateModal = () => {
+        if (isCreating) return
+        setIsCreateOpen(false)
+    }
+
+    const handleCreate = async (event) => {
+        event.preventDefault()
+        if (!orgId) return
+        const trimmed = createName.trim()
+        if (!trimmed) {
+            setCreateError('Project name is required.')
+            return
+        }
+        setCreateError('')
+        setIsCreating(true)
+        try {
+            const project = await createProject(orgId, trimmed)
+            setProjects((prev) => [project, ...prev])
+            setIsCreateOpen(false)
+        } catch (err) {
+            console.error('Failed to create project:', err)
+            setCreateError('Project could not be created. Try again.')
+        } finally {
+            setIsCreating(false)
+        }
+    }
+
     const filteredProjects = useMemo(() => {
         return projects.filter((project) => {
             const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -68,7 +105,7 @@ const Projects = () => {
                     <h1 className="am-page-title">Projects</h1>
                     <p className="am-page-subtitle">Monitor agent status and site activity</p>
                 </div>
-                <button className="am-btn-primary" type="button">
+                <button className="am-btn-primary" type="button" onClick={openCreateModal}>
                     <Plus size={16} />
                     <span>Launch Project</span>
                 </button>
@@ -156,6 +193,62 @@ const Projects = () => {
                             No projects match your filters.
                         </div>
                     )}
+                </div>
+            )}
+
+            {isCreateOpen && (
+                <div className="am-modal-backdrop" role="presentation" onClick={closeCreateModal}>
+                    <div
+                        className="am-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="create-project-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="am-modal-header">
+                            <h2 className="am-modal-title" id="create-project-title">
+                                Create Project
+                            </h2>
+                            <button type="button" className="am-icon-button" onClick={closeCreateModal} aria-label="Close">
+                                ×
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreate}>
+                            <div className="am-text-2" style={{ marginBottom: '1rem' }}>
+                                Create a new project to start configuring an agent.
+                            </div>
+                            {createError && (
+                                <div className="am-text-2" style={{ color: '#ef4444', marginBottom: '0.75rem' }}>
+                                    {createError}
+                                </div>
+                            )}
+                            <div className="am-form">
+                                <div className="am-form-field">
+                                    <label className="am-label" htmlFor="project-name">
+                                        Project Name
+                                    </label>
+                                    <input
+                                        id="project-name"
+                                        className="am-input"
+                                        type="text"
+                                        placeholder="Enter project name"
+                                        value={createName}
+                                        onChange={(event) => setCreateName(event.target.value)}
+                                        disabled={isCreating}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="am-modal-footer">
+                                <button type="button" className="am-btn-secondary" onClick={closeCreateModal} disabled={isCreating}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="am-btn-primary" disabled={isCreating}>
+                                    {isCreating ? 'Creating...' : 'Create Project'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

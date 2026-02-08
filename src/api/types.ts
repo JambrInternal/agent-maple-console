@@ -22,6 +22,8 @@ export interface User {
     email: string;
     name: string;
     role: UserRole;
+    organizationId: string | null;
+    tenantId: string | null;
     avatarUrl?: string;
     mfaEnabled: boolean;
     createdAt: string;

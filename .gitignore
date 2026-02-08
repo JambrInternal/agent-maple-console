@@ -32,3 +32,5 @@ Thumbs.db
 *.pem
 *.tsbuildinfo
 .eslintcache
+
+agent_docs/

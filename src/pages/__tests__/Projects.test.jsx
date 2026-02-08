@@ -4,9 +4,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Projects from '../Projects'
-import { getProjects } from '../../services/projects'
+import { createProject, getProjects } from '../../services/projects'
 
 vi.mock('../../services/projects', () => ({
+    createProject: vi.fn(),
     getProjects: vi.fn(),
     updateProjectStatus: vi.fn(),
 }))
@@ -61,5 +62,28 @@ describe('Projects page', () => {
 
         expect(screen.queryByText('Site A')).not.toBeInTheDocument()
         expect(screen.getByText('Site B')).toBeInTheDocument()
+    })
+
+    it('creates a project from the modal', async () => {
+        const user = userEvent.setup()
+        vi.mocked(createProject).mockResolvedValue({
+            id: 'proj_3',
+            organizationId: 'org_1',
+            name: 'New Project',
+            agentStatus: 'offline',
+            threadCount: 0,
+            issueCount: 0,
+            lastActivityAt: '2026-02-06T08:00:00Z',
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+
+        await renderWithRoute()
+        await screen.findByText('Site A')
+
+        await user.click(screen.getByRole('button', { name: 'Launch Project' }))
+        await user.type(screen.getByLabelText('Project Name'), 'New Project')
+        await user.click(screen.getByRole('button', { name: 'Create Project' }))
+
+        expect(createProject).toHaveBeenCalledWith('org_1', 'New Project')
     })
 })
