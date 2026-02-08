@@ -39,15 +39,13 @@ describe('auth service', () => {
             data: {
                 id: 'u1',
                 email: 'test@example.com',
-                organization_id: 'org_1',
-                organization_role: 'ADMIN',
                 created_at: '2026-02-04T00:00:00Z',
             },
         });
 
         const result = await authService.login('test@example.com', 'password');
 
-        expect(result.organizationId).toBe('org_1');
+        expect(result.organizationId).toBeNull();
         expect(localStorage.getItem('am_auth_token')).toBe('token-123');
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
@@ -78,15 +76,13 @@ describe('auth service', () => {
             data: {
                 id: 'u2',
                 email: 'restore@example.com',
-                organization_id: 'org_2',
-                organization_role: 'INSTRUCTOR',
                 created_at: '2026-02-04T00:00:00Z',
             },
         });
 
         const result = await authService.getCurrentUser();
 
-        expect(result?.organizationId).toBe('org_2');
+        expect(result?.organizationId).toBeNull();
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });

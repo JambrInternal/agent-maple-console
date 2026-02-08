@@ -17,12 +17,7 @@ export async function getThreads(
     const query = params.toString();
 
     const response = await apiFetch<ApiResponse<ApiThread[]>>(
-        `/projects/${projectId}/threads${query ? `?${query}` : ''}`,
-        {
-            headers: {
-                'x-tenant-id': projectId,
-            },
-        }
+        `/projects/${projectId}/threads${query ? `?${query}` : ''}`
     );
     const data = unwrapData(response, []);
     return data.map(mapThreadResponse);

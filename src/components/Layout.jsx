@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Breadcrumbs from './Breadcrumbs'
 import { useAuth } from '../contexts/AuthContext'
+import { getAdminMode } from '../utils/admin'
 
 const Layout = () => {
     const { orgId } = useParams()
@@ -11,6 +12,7 @@ const Layout = () => {
     const navigate = useNavigate()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef(null)
+    const isAdminMode = getAdminMode()
 
     const getInitials = (value) => {
         if (!value) return 'AM'
@@ -31,6 +33,12 @@ const Layout = () => {
         }
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [menuOpen])
+
+    useEffect(() => {
+        if (orgId) {
+            localStorage.setItem('am_tenant_id', orgId)
+        }
+    }, [orgId])
 
     const handleLogout = async () => {
         await logout()
@@ -72,6 +80,11 @@ const Layout = () => {
                     </div>
                 </main>
             </div>
+            {isAdminMode && (
+                <div className="am-admin-banner" role="status" aria-live="polite">
+                    SUPER ADMIN MODE
+                </div>
+            )}
         </div>
     )
 }

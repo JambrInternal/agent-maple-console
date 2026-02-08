@@ -5,18 +5,18 @@ import { getKnowledgeSources } from '../services/knowledge'
 import { withStatus } from '../utils/errors'
 
 const Knowledge = () => {
-    const { projId } = useParams()
+    const { orgId, projId } = useParams()
     const [sources, setSources] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
     useEffect(() => {
-        if (!projId) return
+        if (!orgId || !projId) return
         const fetchSources = async () => {
             setLoading(true)
             setError('')
             try {
-                const data = await getKnowledgeSources(projId)
+                const data = await getKnowledgeSources(orgId)
                 setSources(data)
             } catch (err) {
                 console.error('Failed to fetch knowledge sources:', err)
@@ -26,7 +26,7 @@ const Knowledge = () => {
             }
         }
         fetchSources()
-    }, [projId])
+    }, [orgId, projId])
 
     const statusLabels = {
         pending: 'Pending',

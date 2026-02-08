@@ -15,7 +15,7 @@ describe('api mappers', () => {
     it('maps project agent status from nested agent', () => {
         const project = mapProjectResponse({
             id: 'proj_1',
-            organization_id: 'org_1',
+            tenant_id: 12,
             name: 'Site A',
             agent: { status: 'online' },
             thread_count: 3,
@@ -26,6 +26,7 @@ describe('api mappers', () => {
 
         expect(project.agentStatus).toBe('online');
         expect(project.threadCount).toBe(3);
+        expect(project.organizationId).toBe('12');
     });
 
     it('maps issue status including in_progress', () => {

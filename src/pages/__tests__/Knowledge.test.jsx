@@ -21,6 +21,7 @@ describe('Knowledge page', () => {
             </MemoryRouter>
         )
 
+        expect(getKnowledgeSources).toHaveBeenCalledWith('org_1')
         expect(screen.getByRole('heading', { name: 'Knowledge Base' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Upload File' })).toBeDisabled()
 

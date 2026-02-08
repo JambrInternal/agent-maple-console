@@ -51,14 +51,15 @@ export async function apiFetch<T>(
     const tenantId = getTenantId();
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
 
-    const headers: Record<string, string> = {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-        ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
-        ...(options.headers as Record<string, string> || {}),
-    };
-
-    if (!isFormData && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
+    const headers = new Headers(options.headers as HeadersInit);
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (tenantId) {
+        headers.set('x-tenant-id', tenantId);
+    }
+    if (!isFormData && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
     }
 
     const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {

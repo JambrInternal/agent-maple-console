@@ -36,8 +36,7 @@ describe('threads service', () => {
         });
 
         expect(apiFetch).toHaveBeenCalledWith(
-            '/projects/proj_1/threads?status=open&issue_id=issue_1&user_id=user_1',
-            { headers: { 'x-tenant-id': 'proj_1' } }
+            '/projects/proj_1/threads?status=open&issue_id=issue_1&user_id=user_1'
         );
         expect(result[0].id).toBe('thread_1');
         expect(result[0].projectId).toBe('proj_1');
@@ -111,8 +110,7 @@ describe('threads service', () => {
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/issues/issue_3');
         expect(apiFetch).toHaveBeenNthCalledWith(
             2,
-            '/projects/proj_3/threads?issue_id=issue_3',
-            { headers: { 'x-tenant-id': 'proj_3' } }
+            '/projects/proj_3/threads?issue_id=issue_3'
         );
         expect(result[0].issueId).toBe('issue_3');
     });

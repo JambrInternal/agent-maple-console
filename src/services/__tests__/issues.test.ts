@@ -27,9 +27,7 @@ describe('issues service', () => {
 
         const result = await getIssues('proj_1');
 
-        expect(apiFetch).toHaveBeenCalledWith('/projects/proj_1/issues', {
-            headers: { 'x-tenant-id': 'proj_1' },
-        });
+        expect(apiFetch).toHaveBeenCalledWith('/projects/proj_1/issues');
         expect(result[0].title).toBe('Issue A');
     });
 
@@ -64,8 +62,7 @@ describe('issues service', () => {
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/issues/issue_2');
         expect(apiFetch).toHaveBeenNthCalledWith(
             2,
-            '/projects/proj_2/threads?issue_id=issue_2',
-            { headers: { 'x-tenant-id': 'proj_2' } }
+            '/projects/proj_2/threads?issue_id=issue_2'
         );
         expect(result.threads[0].id).toBe('thread_1');
     });

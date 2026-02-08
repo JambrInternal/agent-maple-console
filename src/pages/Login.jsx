@@ -1,14 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
 import { getOrganizations } from '../services/organizations'
 import { getProjects } from '../services/projects'
+import { getErrorStatus } from '../api/client'
+import { getAdminMode } from '../utils/admin'
+import { setTheme } from '../utils/theme'
 
 const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    const [debugEvents, setDebugEvents] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { login, user, loading } = useAuth()
     const navigate = useNavigate()
@@ -23,6 +27,35 @@ const Login = () => {
         return `${from.pathname}${search}${hash}`
     })()
 
+    const debugEnabled = useMemo(() => {
+        if (import.meta.env.VITE_DEBUG_AUTH === 'true') return true
+        if (localStorage.getItem('am_debug_auth') === 'true') return true
+        const params = new URLSearchParams(location.search || '')
+        return params.get('debug') === 'auth'
+    }, [location.search])
+
+    const formatDebugError = (err) => {
+        if (!err) return 'Unknown error'
+        if (typeof err === 'string') return err
+        if (typeof err === 'object' && 'message' in err) {
+            const message = String(err.message || '')
+            return message || String(err)
+        }
+        try {
+            return JSON.stringify(err)
+        } catch (jsonError) {
+            return String(err)
+        }
+    }
+
+    const pushDebug = (label, err) => {
+        if (!debugEnabled) return
+        const status = getErrorStatus(err)
+        const detail = formatDebugError(err)
+        const prefix = status ? `${label} (Status ${status})` : label
+        setDebugEvents((prev) => [...prev, `${prefix}: ${detail}`])
+    }
+
     const getErrorMessage = (err) => {
         if (err && typeof err === 'object' && 'message' in err) {
             const message = String(err.message).toLowerCase()
@@ -30,7 +63,7 @@ const Login = () => {
                 return 'Sign in failed. Check your email and password and try again.'
             }
             if (message.includes('confirmed')) {
-                return 'Your account needs confirmation. Contact your administrator.'
+                return 'Your account is not active yet. Contact your administrator.'
             }
         }
         return 'Sign in failed. Try again or contact support.'
@@ -42,44 +75,41 @@ const Login = () => {
         }
     }, [loading, user, navigate, redirectTo])
 
-    const resolvePostLoginRoute = async (loggedInUser) => {
-        if (redirectTo !== '/') {
-            return redirectTo
-        }
-
+    const resolvePostLoginRoute = async () => {
         try {
-            const orgId = loggedInUser?.organizationId
-            if (orgId) {
-                try {
-                    const projects = await getProjects(orgId)
-                    if (projects.length === 1) {
-                        return `/${orgId}/${projects[0].id}`
-                    }
-                } catch (projectError) {
-                    console.warn('Post-login project lookup failed:', projectError)
-                }
-                return `/${orgId}/projects`
+            const orgs = await getOrganizations({ includeProjectCounts: false })
+            const isAdmin = getAdminMode()
+            setTheme(isAdmin ? 'light' : 'dark')
+
+            if (isAdmin) {
+                return '/'
             }
 
-            const orgs = await getOrganizations()
+            if (redirectTo !== '/') {
+                return redirectTo
+            }
+
             if (orgs.length !== 1) {
                 return '/'
             }
 
-            const fallbackOrgId = orgs[0].id
+            const orgId = orgs[0].id
             try {
-                const projects = await getProjects(fallbackOrgId)
+                const projects = await getProjects(orgId)
                 if (projects.length === 1) {
-                    return `/${fallbackOrgId}/${projects[0].id}`
+                    return `/${orgId}/${projects[0].id}`
                 }
             } catch (projectError) {
                 console.warn('Post-login project lookup failed:', projectError)
+                pushDebug('Post-login project lookup failed', projectError)
             }
 
-            return `/${fallbackOrgId}/projects`
+            return `/${orgId}/projects`
         } catch (orgError) {
             console.warn('Post-login organization lookup failed:', orgError)
-            return '/'
+            pushDebug('Post-login organization lookup failed', orgError)
+            setTheme('dark')
+            return redirectTo !== '/' ? redirectTo : '/'
         }
     }
 
@@ -90,11 +120,12 @@ const Login = () => {
         loginInProgressRef.current = true
 
         try {
-            const loggedInUser = await login(email, password)
-            const targetRoute = await resolvePostLoginRoute(loggedInUser)
+            await login(email, password)
+            const targetRoute = await resolvePostLoginRoute()
             navigate(targetRoute, { replace: true })
         } catch (err) {
             setError(getErrorMessage(err))
+            pushDebug('Login failed', err)
         } finally {
             loginInProgressRef.current = false
             setIsSubmitting(false)
@@ -141,6 +172,22 @@ const Login = () => {
                             }}>
                                 <AlertCircle size={18} flexShrink={0} />
                                 <span>{error}</span>
+                            </div>
+                        )}
+                        {debugEnabled && debugEvents.length > 0 && (
+                            <div
+                                style={{
+                                    padding: '0.75rem',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                                    border: '1px solid rgba(148, 163, 184, 0.3)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: 'var(--am-text-2)',
+                                    fontSize: '0.75rem',
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                }}
+                            >
+                                {debugEvents.join('\n')}
                             </div>
                         )}
 
@@ -194,7 +241,7 @@ const Login = () => {
                 </div>
 
                 <p className="am-text-2" style={{ marginTop: '2rem', fontSize: '0.875rem' }}>
-                    Don't have an account? <span style={{ color: 'var(--am-accent)' }}>Contact support</span>
+                    Need help? <span style={{ color: 'var(--am-accent)' }}>Contact support</span>
                 </p>
             </div>
         </div>

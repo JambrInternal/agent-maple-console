@@ -9,20 +9,20 @@ import {
     type ApiTenantUser,
 } from '../api/mappers';
 
-const listTenantUsers = async (projectId?: string): Promise<ApiTenantUser[]> => {
+const listTenantUsers = async (tenantId?: string): Promise<ApiTenantUser[]> => {
     const response = await apiFetch<ApiResponse<ApiTenantUser[]>>('/tenants/users', {
-        headers: projectId ? { 'x-tenant-id': projectId } : undefined,
+        headers: tenantId ? { 'x-tenant-id': tenantId } : undefined,
     });
     return unwrapData(response, []);
 };
 
-export async function getContacts(projectId: string): Promise<Contact[]> {
-    const data = await listTenantUsers(projectId);
+export async function getContacts(tenantId: string): Promise<Contact[]> {
+    const data = await listTenantUsers(tenantId);
     return data.map(mapTenantUserToContact);
 }
 
-export async function getContact(id: string, projectId?: string): Promise<Contact> {
-    const data = await listTenantUsers(projectId);
+export async function getContact(id: string, tenantId?: string): Promise<Contact> {
+    const data = await listTenantUsers(tenantId);
     const contact = data.map(mapTenantUserToContact).find((item) => item.id === id);
 
     if (!contact) {
@@ -32,13 +32,13 @@ export async function getContact(id: string, projectId?: string): Promise<Contac
     return contact;
 }
 
-export async function getUsers(projectId?: string): Promise<User[]> {
-    const data = await listTenantUsers(projectId);
+export async function getUsers(tenantId?: string): Promise<User[]> {
+    const data = await listTenantUsers(tenantId);
     return data.map(mapTenantUserToConsoleUser);
 }
 
-export async function getUser(id: string, projectId?: string): Promise<User> {
-    const data = await listTenantUsers(projectId);
+export async function getUser(id: string, tenantId?: string): Promise<User> {
+    const data = await listTenantUsers(tenantId);
     const user = data.map(mapTenantUserToConsoleUser).find((item) => item.id === id);
 
     if (!user) {

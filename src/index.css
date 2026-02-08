@@ -36,6 +36,15 @@
     --am-dur-3: 240ms;
 }
 
+:root[data-theme="light"] {
+    --am-bg-0: #f8fafc;
+    --am-bg-1: #ffffff;
+    --am-border: #e2e8f0;
+    --am-text-1: #0f172a;
+    --am-text-2: #475569;
+    --shadow-subtle: 0 6px 16px -6px rgba(15, 23, 42, 0.18);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -175,6 +184,22 @@ button {
     opacity: 0.6;
     pointer-events: none;
     font-family: var(--font-mono);
+}
+
+.am-admin-banner {
+    position: fixed;
+    right: 16px;
+    bottom: 46px;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background-color: var(--am-accent);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.6);
+    z-index: 80;
 }
 
 /* Navigation Panel (Inner Left) */

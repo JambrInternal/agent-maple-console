@@ -83,6 +83,7 @@ const Projects = () => {
             const project = await createProject(orgId, trimmed)
             setProjects((prev) => [project, ...prev])
             setIsCreateOpen(false)
+            navigate(`/${orgId}/projects`)
         } catch (err) {
             console.error('Failed to create project:', err)
             setCreateError(withStatus('Project could not be created. Try again.', err))
@@ -156,7 +157,9 @@ const Projects = () => {
                             className="am-card am-project-card"
                             role="button"
                             tabIndex={0}
-                            onClick={() => navigate(`/${orgId}/${project.id}/contacts`)}
+                            onClick={() => {
+                                navigate(`/${orgId}/${project.id}/contacts`)
+                            }}
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter') {
                                     navigate(`/${orgId}/${project.id}/contacts`)

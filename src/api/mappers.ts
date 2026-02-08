@@ -32,15 +32,27 @@ export type ApiOrganization = {
 
 export type ApiProject = {
     id?: string | number | null;
+    tenant_id?: string | number | null;
     organization_id?: string | number | null;
     name?: string | null;
     thread_count?: number | null;
     issue_count?: number | null;
     last_activity_at?: string | null;
     created_at?: string | null;
+    agent_status?: AgentStatus | string | null;
     agent?: {
         status?: AgentStatus | string | null;
     } | null;
+};
+
+export type ApiTenant = {
+    id?: string | number | null;
+    name?: string | null;
+    description?: string | null;
+    twilio_number?: string | null;
+    is_disabled?: boolean | null;
+    created_at?: string | null;
+    updated_at?: string | null;
 };
 
 export type ApiThread = {
@@ -75,8 +87,6 @@ export type ApiUserResponse = {
     updated_at?: string | null;
     is_disabled?: boolean | null;
     is_supervisor?: boolean | null;
-    organization_id?: string | number | null;
-    organization_role?: string | null;
     thread_count?: number | null;
     reports_to_id?: string | null;
     reports_to?: unknown | null;
@@ -227,16 +237,45 @@ export function mapOrganizationResponse(org: ApiOrganization): Organization {
     };
 }
 
+export function mapTenantToOrganization(tenant: ApiTenant): Organization {
+    const id = toStringId(tenant.id);
+    return {
+        id,
+        name: tenant.name || 'Unnamed Organization',
+        projectCount: 0,
+        memberCount: undefined,
+        createdAt: toIsoString(tenant.created_at),
+    };
+}
+
 export function mapProjectResponse(project: ApiProject): Project {
+    const status = project.agent?.status ?? project.agent_status;
     return {
         id: toStringId(project.id),
-        organizationId: toStringId(project.organization_id),
+        organizationId: toStringId(project.tenant_id) || toStringId(project.organization_id),
         name: project.name || 'Unnamed Project',
-        agentStatus: toAgentStatus(project.agent?.status),
+        agentStatus: toAgentStatus(status),
         threadCount: typeof project.thread_count === 'number' ? project.thread_count : 0,
         issueCount: typeof project.issue_count === 'number' ? project.issue_count : 0,
         lastActivityAt: toIsoString(project.last_activity_at),
         createdAt: toIsoString(project.created_at),
+    };
+}
+
+export function mapTenantToProject(tenant: ApiTenant): Project {
+    const id = toStringId(tenant.id);
+    const createdAt = toIsoString(tenant.created_at);
+    const lastActivityAt = toIsoString(tenant.updated_at) || createdAt;
+
+    return {
+        id,
+        organizationId: id,
+        name: tenant.name || 'Unnamed Project',
+        agentStatus: tenant.is_disabled ? 'offline' : 'online',
+        threadCount: 0,
+        issueCount: 0,
+        lastActivityAt,
+        createdAt,
     };
 }
 
@@ -322,10 +361,8 @@ export function mapTenantUserToConsoleUser(user: ApiTenantUser): User {
 
 export function mapUserRecordResponse(user: ApiUserResponse, fallback?: User): User {
     const name = user.username || user.email || fallback?.name || fallback?.email || 'Unknown User';
-    const role = user.organization_role
-        ? toConsoleRole(user.organization_role)
-        : (fallback?.role || 'viewer');
-    const organizationId = toStringId(user.organization_id) || fallback?.organizationId || null;
+    const role = fallback?.role || 'viewer';
+    const organizationId = fallback?.organizationId || fallback?.tenantId || null;
     const createdAt = toIsoString(user.created_at) || fallback?.createdAt || '';
 
     return {

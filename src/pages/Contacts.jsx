@@ -16,18 +16,18 @@ const formatDate = (value) => {
 }
 
 const Contacts = () => {
-    const { projId } = useParams()
+    const { orgId, projId } = useParams()
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
     useEffect(() => {
-        if (!projId) return
+        if (!orgId || !projId) return
         const fetchContacts = async () => {
             setLoading(true)
             setError('')
             try {
-                const data = await getContacts(projId)
+                const data = await getContacts(orgId)
                 setContacts(data)
             } catch (err) {
                 console.error('Failed to fetch contacts:', err)
@@ -37,7 +37,7 @@ const Contacts = () => {
             }
         }
         fetchContacts()
-    }, [projId])
+    }, [orgId, projId])
 
     return (
         <div className="am-page-content">

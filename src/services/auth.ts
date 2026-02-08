@@ -2,6 +2,8 @@ import * as authApi from '../api/auth';
 import { apiFetch } from '../api/client';
 import type { User } from '../api/types';
 import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserResponse } from '../api/mappers';
+import { clearAdminMode } from '../utils/admin';
+import { clearTheme } from '../utils/theme';
 
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
@@ -45,6 +47,8 @@ export async function logout(): Promise<void> {
     localStorage.removeItem('am_auth_token');
     localStorage.removeItem('am_user');
     localStorage.removeItem('am_tenant_id'); // Clear organization selection on logout
+    clearAdminMode();
+    clearTheme();
 }
 
 export async function getCurrentUser(): Promise<User | null> {

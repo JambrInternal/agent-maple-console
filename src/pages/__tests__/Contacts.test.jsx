@@ -31,6 +31,7 @@ describe('Contacts page', () => {
             </MemoryRouter>
         )
 
+        expect(getContacts).toHaveBeenCalledWith('org_1')
         expect(await screen.findByRole('heading', { name: 'Contacts' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Add Contact' })).toBeDisabled()
 

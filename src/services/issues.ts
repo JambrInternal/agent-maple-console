@@ -8,11 +8,7 @@ import { getThreads } from './threads';
  * Get all issues for a project
  */
 export async function getIssues(projectId: string): Promise<Issue[]> {
-    const response = await apiFetch<ApiResponse<ApiIssue[]>>(`/projects/${projectId}/issues`, {
-        headers: {
-            'x-tenant-id': projectId,
-        },
-    });
+    const response = await apiFetch<ApiResponse<ApiIssue[]>>(`/projects/${projectId}/issues`);
     const data = unwrapData(response, []);
     return data.map(mapIssueResponse);
 }

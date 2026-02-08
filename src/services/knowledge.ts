@@ -4,12 +4,12 @@ import type { KnowledgeSource } from '../api/types';
 import { mapDatasourceResponse, unwrapData, type ApiDatasource, type ApiResponse } from '../api/mappers';
 
 /**
- * Get all knowledge sources for a project
+ * Get all knowledge sources for a tenant
  */
-export async function getKnowledgeSources(projectId: string): Promise<KnowledgeSource[]> {
+export async function getKnowledgeSources(tenantId: string): Promise<KnowledgeSource[]> {
     const response = await apiFetch<ApiResponse<ApiDatasource[]>>('/datasources', {
         headers: {
-            'x-tenant-id': projectId,
+            'x-tenant-id': tenantId,
         },
     });
     const data = unwrapData(response, []);
@@ -29,7 +29,7 @@ export async function getKnowledgeSource(id: string): Promise<KnowledgeSource> {
  * Simulates uploading a new knowledge source
  */
 export async function uploadKnowledgeSource(
-    projectId: string,
+    tenantId: string,
     file: File,
     metadata?: Record<string, any>
 ): Promise<KnowledgeSource> {
@@ -42,7 +42,7 @@ export async function uploadKnowledgeSource(
     const response = await apiFetch<ApiResponse<ApiDatasource>>('/datasources/upload', {
         method: 'POST',
         headers: {
-            'x-tenant-id': projectId,
+            'x-tenant-id': tenantId,
         },
         body: formData,
     });

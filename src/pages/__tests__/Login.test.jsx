@@ -36,6 +36,7 @@ vi.mock('react-router-dom', async () => {
 
 describe('Login', () => {
     beforeEach(() => {
+        localStorage.clear()
         vi.clearAllMocks()
     })
 
@@ -45,7 +46,7 @@ describe('Login', () => {
             email: 'test@example.com',
             name: 'Test User',
             role: 'admin',
-            organizationId: 'org_1',
+            organizationId: null,
             tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-06T08:00:00Z',
@@ -83,7 +84,7 @@ describe('Login', () => {
         await user.type(screen.getByPlaceholderText('••••••••'), 'password')
         await user.click(screen.getByRole('button', { name: 'Sign In' }))
 
-        expect(getOrganizations).not.toHaveBeenCalled()
+        expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
         expect(getProjects).toHaveBeenCalledWith('org_1')
         expect(mockNavigate).toHaveBeenCalledWith('/org_1/proj_1', { replace: true })
     })
@@ -94,11 +95,13 @@ describe('Login', () => {
             email: 'test@example.com',
             name: 'Test User',
             role: 'admin',
-            organizationId: 'org_1',
+            organizationId: null,
             tenantId: null,
             mfaEnabled: false,
             createdAt: '2026-02-06T08:00:00Z',
         })
+
+        vi.mocked(getOrganizations).mockResolvedValue([])
 
         const user = userEvent.setup()
         render(
@@ -118,7 +121,48 @@ describe('Login', () => {
         await user.type(screen.getByPlaceholderText('••••••••'), 'password')
         await user.click(screen.getByRole('button', { name: 'Sign In' }))
 
-        expect(getOrganizations).not.toHaveBeenCalled()
+        expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
+        expect(getProjects).not.toHaveBeenCalled()
         expect(mockNavigate).toHaveBeenCalledWith('/org_1/projects', { replace: true })
+    })
+
+    it('routes admin users to the org selector with light theme', async () => {
+        mockLogin.mockResolvedValue({
+            id: 'user_admin',
+            email: 'admin@example.com',
+            name: 'Admin User',
+            role: 'admin',
+            organizationId: null,
+            tenantId: null,
+            mfaEnabled: false,
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+        vi.mocked(getOrganizations).mockImplementation(async () => {
+            localStorage.setItem('am_admin_mode', 'true')
+            return [
+                {
+                    id: 'org_admin_1',
+                    name: 'Org A',
+                    projectCount: 0,
+                    createdAt: '2026-02-01T00:00:00Z',
+                },
+            ]
+        })
+
+        const user = userEvent.setup()
+
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'admin@example.com')
+        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
+        await user.click(screen.getByRole('button', { name: 'Sign In' }))
+
+        expect(getProjects).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+        expect(document.documentElement.dataset.theme).toBe('light')
     })
 })
