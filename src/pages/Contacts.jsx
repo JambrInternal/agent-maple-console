@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { getContacts } from '../services/people'
+import { withStatus } from '../utils/errors'
 
 const formatDate = (value) => {
     if (!value) return '—'
@@ -30,7 +31,7 @@ const Contacts = () => {
                 setContacts(data)
             } catch (err) {
                 console.error('Failed to fetch contacts:', err)
-                setError('Contacts could not be loaded. Try again.')
+                setError(withStatus('Contacts could not be loaded. Try again.', err))
             } finally {
                 setLoading(false)
             }

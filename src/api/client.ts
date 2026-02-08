@@ -2,6 +2,26 @@ export const API_CONFIG = {
     baseUrl: import.meta.env.VITE_API_URL || 'https://api.stage.certly.jambr.ca/stage',
 };
 
+export class ApiError extends Error {
+    status: number;
+    statusText: string;
+    details?: unknown;
+
+    constructor(status: number, statusText: string, message: string, details?: unknown) {
+        super(message);
+        this.name = 'ApiError';
+        this.status = status;
+        this.statusText = statusText;
+        this.details = details;
+    }
+}
+
+export const getErrorStatus = (error: unknown): number | null => {
+    if (!error || typeof error !== 'object') return null;
+    const status = (error as { status?: unknown }).status;
+    return typeof status === 'number' ? status : null;
+};
+
 /**
  * Gets the current auth token from storage
  */
@@ -37,7 +57,8 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+        const message = errorData.message || `API Error: ${response.status} ${response.statusText}`;
+        throw new ApiError(response.status, response.statusText, message, errorData);
     }
 
     return response.json();

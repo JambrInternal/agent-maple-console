@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building2, Search, ArrowRight, Plus } from 'lucide-react'
 import { createOrganization, getOrganizations } from '../services/organizations'
+import { withStatus } from '../utils/errors'
 
 const OrgSelection = () => {
     const [orgs, setOrgs] = useState([])
@@ -62,7 +63,7 @@ const OrgSelection = () => {
             navigate(`/${org.id}/projects`)
         } catch (error) {
             console.error('Failed to create organization:', error)
-            setCreateError('Organization could not be created. Try again.')
+            setCreateError(withStatus('Organization could not be created. Try again.', error))
         } finally {
             setIsCreating(false)
         }

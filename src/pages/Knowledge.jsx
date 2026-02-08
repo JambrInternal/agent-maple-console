@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { FileText, UploadCloud } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { getKnowledgeSources } from '../services/knowledge'
+import { withStatus } from '../utils/errors'
 
 const Knowledge = () => {
     const { projId } = useParams()
@@ -19,7 +20,7 @@ const Knowledge = () => {
                 setSources(data)
             } catch (err) {
                 console.error('Failed to fetch knowledge sources:', err)
-                setError('Knowledge sources could not be loaded. Try again.')
+                setError(withStatus('Knowledge sources could not be loaded. Try again.', err))
             } finally {
                 setLoading(false)
             }

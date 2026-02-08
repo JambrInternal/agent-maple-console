@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
 import { createProject, getProjects } from '../services/projects'
+import { withStatus } from '../utils/errors'
 
 const STATUS_OPTIONS = [
     { key: 'all', label: 'All' },
@@ -49,7 +50,7 @@ const Projects = () => {
                 setProjects(data)
             } catch (err) {
                 console.error('Failed to fetch projects:', err)
-                setError('Projects could not be loaded. Try again.')
+                setError(withStatus('Projects could not be loaded. Try again.', err))
             } finally {
                 setLoading(false)
             }
@@ -84,7 +85,7 @@ const Projects = () => {
             setIsCreateOpen(false)
         } catch (err) {
             console.error('Failed to create project:', err)
-            setCreateError('Project could not be created. Try again.')
+            setCreateError(withStatus('Project could not be created. Try again.', err))
         } finally {
             setIsCreating(false)
         }
