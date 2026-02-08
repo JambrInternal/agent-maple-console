@@ -59,7 +59,7 @@ describe('projects service', () => {
             .mockResolvedValueOnce({
                 data: [
                     {
-                        id: 'tenant_2',
+                        id: 'proj_2',
                         name: 'Warehouse',
                         created_at: '2026-02-02T00:00:00Z',
                         is_disabled: true,
