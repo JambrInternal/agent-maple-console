@@ -7,6 +7,7 @@
     "build": "vite build",
     "test": "vitest",
     "test:ci": "vitest run",
+    "test:api": "node scripts/api-smoke.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

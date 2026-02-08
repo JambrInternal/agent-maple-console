@@ -47,6 +47,10 @@ npm test
 npm run test:ci
 ```
 
+```bash
+npm run test:api
+```
+
 ## Features
 - **Dashboard**: Overview of agent activity.
 - **Contacts**: Manage user contacts.
