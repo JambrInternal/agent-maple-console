@@ -5,11 +5,12 @@ import { apiFetch } from '../../api/client';
 vi.mock('../../api/client', () => ({
     API_CONFIG: { baseUrl: '' },
     apiFetch: vi.fn(),
+    getErrorStatus: (error: { status?: number } | null) => (error?.status ?? null),
 }));
 
 describe('projects service', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
     });
 
     it('lists projects for an organization', async () => {

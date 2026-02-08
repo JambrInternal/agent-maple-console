@@ -5,12 +5,13 @@ import { apiFetch } from '../../api/client';
 vi.mock('../../api/client', () => ({
     API_CONFIG: { baseUrl: '' },
     apiFetch: vi.fn(),
+    getErrorStatus: (error: { status?: number } | null) => (error?.status ?? null),
 }));
 
 describe('organizations service', () => {
     beforeEach(() => {
         localStorage.clear();
-        vi.clearAllMocks();
+        vi.resetAllMocks();
     });
 
     it('lists organizations and maps fields', async () => {
