@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
 import { getOrganizations } from '../services/organizations'
 import { getProjects } from '../services/projects'
 import { getErrorStatus } from '../api/client'
+import { getAmplifyAuthConfig } from '../amplify-config'
 import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
@@ -27,11 +28,20 @@ const Login = () => {
         return `${from.pathname}${search}${hash}`
     })()
 
-    const debugEnabled = useMemo(() => {
+    const [debugEnabled, setDebugEnabled] = useState(() => {
         if (import.meta.env.VITE_DEBUG_AUTH === 'true') return true
-        if (localStorage.getItem('am_debug_auth') === 'true') return true
+        const stored = localStorage.getItem('am_debug_auth')
+        if (stored === 'true') return true
+        if (stored === 'false') return false
         const params = new URLSearchParams(location.search || '')
         return params.get('debug') === 'auth'
+    })
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search || '')
+        if (params.get('debug') !== 'auth') return
+        if (localStorage.getItem('am_debug_auth') === 'false') return
+        setDebugEnabled(true)
     }, [location.search])
 
     const formatDebugError = (err) => {
@@ -132,6 +142,15 @@ const Login = () => {
         }
     }
 
+    const toggleDebug = () => {
+        setDebugEvents([])
+        setDebugEnabled((prev) => {
+            const next = !prev
+            localStorage.setItem('am_debug_auth', String(next))
+            return next
+        })
+    }
+
     return (
         <div className="am-app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
@@ -174,7 +193,7 @@ const Login = () => {
                                 <span>{error}</span>
                             </div>
                         )}
-                        {debugEnabled && debugEvents.length > 0 && (
+                        {debugEnabled && (
                             <div
                                 style={{
                                     padding: '0.75rem',
@@ -187,7 +206,18 @@ const Login = () => {
                                     wordBreak: 'break-word',
                                 }}
                             >
-                                {debugEvents.join('\n')}
+                                {(() => {
+                                    const config = getAmplifyAuthConfig()
+                                    const lines = [
+                                        `Cognito region: ${config.region}`,
+                                        `Cognito user pool: ${config.userPoolId}`,
+                                        `Cognito app client: ${config.userPoolClientId}`,
+                                    ]
+                                    if (debugEvents.length > 0) {
+                                        lines.push('', ...debugEvents)
+                                    }
+                                    return lines.join('\n')
+                                })()}
                             </div>
                         )}
 
@@ -243,6 +273,25 @@ const Login = () => {
                 <p className="am-text-2" style={{ marginTop: '2rem', fontSize: '0.875rem' }}>
                     Need help? <span style={{ color: 'var(--am-accent)' }}>Contact support</span>
                 </p>
+                <button
+                    type="button"
+                    onClick={toggleDebug}
+                    className="am-text-2"
+                    style={{
+                        marginTop: '0.75rem',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                        background: 'none',
+                        border: '1px solid transparent',
+                        padding: '0.35rem 0.6rem',
+                        borderRadius: '999px',
+                        cursor: 'pointer',
+                        color: debugEnabled ? 'var(--am-accent)' : 'var(--am-text-2)',
+                    }}
+                >
+                    {debugEnabled ? 'Disable Debug' : 'Enable Debug'}
+                </button>
             </div>
         </div>
     )

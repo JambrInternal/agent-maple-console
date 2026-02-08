@@ -165,4 +165,35 @@ describe('Login', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
         expect(document.documentElement.dataset.theme).toBe('light')
     })
+
+    it('shows Cognito config in debug mode', () => {
+        render(
+            <MemoryRouter initialEntries={['/login?debug=auth']}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        expect(screen.getByText(/Cognito region/i)).toBeInTheDocument()
+        expect(screen.getByText(/Cognito user pool/i)).toBeInTheDocument()
+        expect(screen.getByText(/Cognito app client/i)).toBeInTheDocument()
+    })
+
+    it('toggles debug mode on and off', async () => {
+        const user = userEvent.setup()
+        render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        expect(screen.queryByText(/Cognito region/i)).toBeNull()
+
+        await user.click(screen.getByRole('button', { name: 'Enable Debug' }))
+        expect(screen.getByText(/Cognito region/i)).toBeInTheDocument()
+        expect(localStorage.getItem('am_debug_auth')).toBe('true')
+
+        await user.click(screen.getByRole('button', { name: 'Disable Debug' }))
+        expect(screen.queryByText(/Cognito region/i)).toBeNull()
+        expect(localStorage.getItem('am_debug_auth')).toBe('false')
+    })
 })

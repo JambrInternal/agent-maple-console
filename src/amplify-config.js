@@ -15,3 +15,9 @@ export const configureAmplify = () => {
         }
     });
 };
+
+export const getAmplifyAuthConfig = () => ({
+    region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
+    userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || 'us-east-1_dDp9djoZz',
+    userPoolClientId: import.meta.env.VITE_COGNITO_APP_CLIENT_ID || '2j77g0duot54vs8461u4tbbenp',
+});
