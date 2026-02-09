@@ -30,12 +30,10 @@ describe('API client endpoint error handling', () => {
       statusText: 'Not Found',
       json: async () => ({ message: 'Not Found' }),
     }) as any;
-    try {
-      await apiFetch('/not-an-endpoint');
-    } catch (err: any) {
-      expect(err.status).toBe(404);
-      expect(err.name).toBe('ApiError');
-    }
+    await expect(client.apiFetch('/not-an-endpoint')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 404,
+    });
   });
 });
 
@@ -43,7 +41,7 @@ describe('API client endpoint error handling', () => {
 
 describe('API client 401 redirect', () => {
   it('redirects to /login only once on 401', async () => {
-    vi.spyOn(client, 'redirectToLogin').mockImplementation(() => {});
+    vi.spyOn(client.navigation, 'toLogin').mockImplementation(() => {});
     globalThis.fetch = vi.fn(async () => ({
       ok: false,
       status: 401,
@@ -51,6 +49,6 @@ describe('API client 401 redirect', () => {
       json: async () => ({ message: 'Unauthorized' }),
     })) as any;
     await expect(client.apiFetch('/user/sync')).rejects.toMatchObject({ status: 401 });
-    expect(client.redirectToLogin).toHaveBeenCalledTimes(1);
+    expect(client.navigation.toLogin).toHaveBeenCalledTimes(1);
   });
 });

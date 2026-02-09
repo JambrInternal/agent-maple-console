@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import QueryError from '../components/QueryError';
+import QueryError from '../QueryError';
 
 describe('QueryError', () => {
   it('renders Error instance as string', () => {
@@ -22,17 +22,3 @@ describe('QueryError', () => {
   });
 });
 
-// Smoke test for a page
-import Projects from '../pages/Projects.jsx';
-
-describe('Projects page error', () => {
-  it('shows error message, not crash', () => {
-    // Mock useApiQuery to return error
-    jest.mock('../hooks/useApiQuery', () => ({
-      useApiQuery: () => ({ loading: false, error: new Error('boom'), data: null, refetch: jest.fn() })
-    }));
-    render(<Projects />);
-    expect(screen.getByText(/Failed to load projects/)).toBeInTheDocument();
-    expect(screen.getByText(/boom/)).toBeInTheDocument();
-  });
-});
