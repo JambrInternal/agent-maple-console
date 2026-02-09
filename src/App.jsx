@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import logger from './utils/verboseLogger'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import AuthGuard from './components/AuthGuard'
@@ -15,6 +16,14 @@ import Voice from './pages/Voice'
 import ComingSoon from './pages/ComingSoon'
 
 function App() {
+    useEffect(() => {
+        logger.info('App mounted');
+        return () => {
+            logger.info('App unmounted');
+        };
+    }, []);
+
+    logger.debug('App render start');
     return (
         <AuthProvider>
             <Router>
@@ -33,22 +42,10 @@ function App() {
 
                                 {/* Org Level Pages */}
                                 <Route path="projects" element={<Projects />} />
-                                <Route
-                                    path="team"
-                                    element={<ComingSoon title="Team" />}
-                                />
-                                <Route
-                                    path="billing"
-                                    element={<ComingSoon title="Billing" />}
-                                />
-                                <Route
-                                    path="usage"
-                                    element={<ComingSoon title="Usage" />}
-                                />
-                                <Route
-                                    path="settings"
-                                    element={<ComingSoon title="Organization Settings" />}
-                                />
+                                <Route path="team" element={<ComingSoon title="Team" />} />
+                                <Route path="billing" element={<ComingSoon title="Billing" />} />
+                                <Route path="usage" element={<ComingSoon title="Usage" />} />
+                                <Route path="settings" element={<ComingSoon title="Organization Settings" />} />
 
                                 {/* Project Context */}
                                 <Route path=":projId">
@@ -73,7 +70,7 @@ function App() {
                 </>
             </Router>
         </AuthProvider>
-    )
+    );
 }
 
 export default App

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
 import { createProject, getProjects } from '../services/projects'
+import logger from '../utils/verboseLogger'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
@@ -51,6 +52,7 @@ const Projects = () => {
 
 
     const openCreateModal = () => {
+        logger.info('Opening create project modal');
         setCreateName('')
         setCreateError('')
         setIsCreateOpen(true)
@@ -58,26 +60,33 @@ const Projects = () => {
 
     const closeCreateModal = () => {
         if (isCreating) return
+        logger.info('Closing create project modal');
         setIsCreateOpen(false)
     }
 
     const handleCreate = async (event) => {
         event.preventDefault()
-        if (!orgId) return
+        if (!orgId) {
+            logger.error('No orgId present for project creation');
+            return
+        }
         const trimmed = createName.trim()
         if (!trimmed) {
+            logger.warn('Project name is required (empty input)');
             setCreateError('Project name is required.')
             return
         }
         setCreateError('')
         setIsCreating(true)
+        logger.info('Creating project', { orgId, name: trimmed })
         try {
             await createProject(orgId, trimmed)
+            logger.info('Project created successfully', { orgId, name: trimmed })
             setIsCreateOpen(false)
             refetch()
             navigate(`/${orgId}/projects`)
         } catch (err) {
-            console.error('Failed to create project:', err)
+            logger.error('Failed to create project', err)
             setCreateError(withStatus('Project could not be created. Try again.', err))
         } finally {
             setIsCreating(false)
@@ -85,11 +94,13 @@ const Projects = () => {
     }
 
     const filteredProjects = useMemo(() => {
-        return projects.filter((project) => {
+        const filtered = projects.filter((project) => {
             const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase())
             const matchesStatus = statusFilter === 'all' || project.agentStatus === statusFilter
             return matchesSearch && matchesStatus
         })
+        logger.debug('Filtered projects', { count: filtered.length, searchTerm, statusFilter })
+        return filtered
     }, [projects, searchTerm, statusFilter])
 
     return (
