@@ -79,31 +79,36 @@ export async function getCurrentUser(): Promise<User | null> {
     logger.info('Fetching current user from session');
     // Hydrate token from Amplify session if missing/expired
     const { getFreshToken, clearToken } = await import('./token');
+    const user = await authApi.getSessionUser();
+    if (!user) {
+        logger.warn('No session user, treating as logged out');
+        clearToken();
+        return null;
+    }
     const token = await getFreshToken();
     if (!token) {
         logger.warn('Token hydration failed, treating as logged out');
         clearToken();
         return null;
     }
-    const user = await authApi.getSessionUser();
-    if (user) {
-        const baseUser = ensureUserIds(user);
-        localStorage.setItem('am_user', JSON.stringify(baseUser));
-        try {
-            const syncedUser = await syncUser(baseUser);
-            if (syncedUser) {
-                localStorage.setItem('am_user', JSON.stringify(syncedUser));
-                logger.info('Current user sync successful', { userId: syncedUser.id });
-                return syncedUser;
-            }
-        } catch (error) {
-            logger.error('User sync failed in getCurrentUser', error);
+    const baseUser = ensureUserIds(user);
+    localStorage.setItem('am_user', JSON.stringify(baseUser));
+    try {
+        const syncedUser = await syncUser(baseUser);
+        if (syncedUser) {
+            localStorage.setItem('am_user', JSON.stringify(syncedUser));
+            logger.info('Current user sync successful', { userId: syncedUser.id });
+            return syncedUser;
         }
-        logger.info('Current user fallback to baseUser', { userId: baseUser.id });
-        return baseUser;
+        // If /user/sync returns 401, treat as logged out
+        logger.warn('User sync failed or unauthorized, treating as logged out');
+        clearToken();
+        return null;
+    } catch (error) {
+        logger.error('User sync failed in getCurrentUser', error);
+        clearToken();
+        return null;
     }
-
-    // Fallback to local storage if offline or session check fails but we have a user
     const userStr = localStorage.getItem('am_user');
     if (userStr) {
         try {

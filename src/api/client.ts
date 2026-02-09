@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-    baseUrl: import.meta.env.VITE_API_URL || 'https://api.stage.certly.jambr.ca',
+    baseUrl: 'https://api.dev.agentmaple.ca/',
 };
 
 export class ApiError extends Error {
@@ -69,18 +69,21 @@ export async function apiFetch<T>(
         headers,
     });
 
+    // Idempotent 401 redirect guard
+    let redirectingToLogin = false;
     if (!response.ok) {
         if (response.status === 401) {
-            // token invalid/expired → force re-auth
             clearToken();
             localStorage.removeItem('am_user');
             // Optionally clear tenant selection
             // localStorage.removeItem('am_tenant_id');
-            // Redirect to login
-            window.location.assign('/login');
-            // Log event: 401-triggered logout
+            // Only redirect if not already on /login and not already redirecting
             const logger = (await import('../utils/verboseLogger')).default;
             logger.warn('[API] 401 response, user logged out');
+            if (!redirectingToLogin && window.location.pathname !== '/login') {
+                redirectingToLogin = true;
+                window.location.assign('/login');
+            }
             // Optionally: metrics hook
         }
         const errorData = await response.json().catch(() => ({}));

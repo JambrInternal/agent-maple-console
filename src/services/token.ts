@@ -6,7 +6,7 @@ import logger from '../utils/verboseLogger';
 
 const TOKEN_KEY = 'am_auth_token';
 const EXP_KEY = 'am_auth_token_exp';
-const TOKEN_TYPE = 'access'; // Change to 'id' if backend requires ID Token
+const TOKEN_TYPE = 'id'; // Always use Cognito ID token for API auth
 
 let inFlightPromise: Promise<string | null> | null = null;
 
