@@ -1,4 +1,5 @@
 import * as authApi from '../api/auth';
+import { getErrorStatus } from '../api/client';
 import { apiFetch } from '../api/client';
 import type { User } from '../api/types';
 import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserResponse } from '../api/mappers';
@@ -76,6 +77,14 @@ export async function logout(): Promise<void> {
 
 export async function getCurrentUser(): Promise<User | null> {
     logger.info('Fetching current user from session');
+    // Hydrate token from Amplify session if missing/expired
+    const { getFreshToken, clearToken } = await import('./token');
+    const token = await getFreshToken();
+    if (!token) {
+        logger.warn('Token hydration failed, treating as logged out');
+        clearToken();
+        return null;
+    }
     const user = await authApi.getSessionUser();
     if (user) {
         const baseUser = ensureUserIds(user);

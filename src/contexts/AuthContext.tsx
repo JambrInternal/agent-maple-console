@@ -16,6 +16,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Setup Amplify auth event listeners for token hydration/clearing
+        import('../services/authEvents').then(({ setupAuthEventListeners }) => {
+            setupAuthEventListeners();
+        });
         const initAuth = async () => {
             try {
                 const currentUser = await authService.getCurrentUser();
@@ -27,6 +31,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         };
         initAuth();
+
+        // Multi-tab token consistency: listen for storage events
+        const handleStorage = (e: StorageEvent) => {
+            if (e.key === 'am_auth_token' || e.key === 'am_auth_token_exp') {
+                // Rehydrate user if token changes in another tab
+                initAuth();
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => {
+            window.removeEventListener('storage', handleStorage);
+        };
     }, []);
 
     const login = async (email: string, password: string) => {

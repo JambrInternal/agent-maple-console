@@ -8,6 +8,7 @@ import { mapProjectResponse, mapTenantToProject, unwrapData, type ApiResponse, t
  * Get all projects for an organization.
  * Note: Uses the tenant-scoped projects list endpoint.
  */
+export async function getProjects(organizationId: string): Promise<Project[]> {
     if (!organizationId) {
         logger.error('getProjects called without organizationId');
         return [];

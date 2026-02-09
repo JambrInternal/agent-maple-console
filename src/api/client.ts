@@ -47,7 +47,9 @@ export async function apiFetch<T>(
     endpoint: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const token = getAuthToken();
+    // Use token provider for freshest token
+    const { getFreshToken, clearToken } = await import('../services/token');
+    const token = await getFreshToken();
     const tenantId = getTenantId();
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
 
@@ -70,10 +72,16 @@ export async function apiFetch<T>(
     if (!response.ok) {
         if (response.status === 401) {
             // token invalid/expired → force re-auth
-            localStorage.removeItem('am_auth_token');
+            clearToken();
             localStorage.removeItem('am_user');
-            // optionally keep tenant selection; or clear if it causes confusion
+            // Optionally clear tenant selection
             // localStorage.removeItem('am_tenant_id');
+            // Redirect to login
+            window.location.assign('/login');
+            // Log event: 401-triggered logout
+            const logger = (await import('../utils/verboseLogger')).default;
+            logger.warn('[API] 401 response, user logged out');
+            // Optionally: metrics hook
         }
         const errorData = await response.json().catch(() => ({}));
         const message = errorData.message || `API Error: ${response.status} ${response.statusText}`;
