@@ -43,7 +43,6 @@ describe('API client endpoint error handling', () => {
 
 describe('API client 401 redirect', () => {
   it('redirects to /login only once on 401', async () => {
-    let redirectCount = 0;
     // Mock fetch to return 401
     globalThis.fetch = async () => ({
       ok: false,
@@ -51,15 +50,15 @@ describe('API client 401 redirect', () => {
       statusText: 'Unauthorized',
       json: async () => ({ message: 'Unauthorized' }),
     }) as any;
-    // Mock window.location.assign
-    const originalAssign = window.location.assign;
-    window.location.assign = () => { redirectCount++; };
+    // Spy on window.location.assign
+    const assignSpy = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
     try {
       await apiFetch('/user/sync');
     } catch (err: any) {
       expect(err.status).toBe(401);
-      expect(redirectCount).toBe(1);
+      expect(assignSpy).toHaveBeenCalledWith('/login');
+      expect(assignSpy).toHaveBeenCalledTimes(1);
     }
-    window.location.assign = originalAssign;
+    assignSpy.mockRestore();
   });
 });

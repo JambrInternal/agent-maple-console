@@ -22,23 +22,23 @@ export async function syncUser(currentUser?: User): Promise<User | null> {
         return null;
     }
     logger.info('Syncing user with API', { currentUser });
-        try {
-            const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
-            logger.debug('Raw /user/sync response', response);
-            const data = unwrapData(response);
-            const mapped = mapUserRecordResponse(data, currentUser);
-            logger.info('User sync successful', { userId: mapped?.id });
-            return ensureUserIds(mapped);
-        } catch (error) {
-            const status = getErrorStatus(error);
-            if (status === 401) {
-                // session is invalid; caller should treat as logged out
-                localStorage.removeItem('am_auth_token');
-                localStorage.removeItem('am_user');
-                return null;
-            }
-            logger.error('User sync failed', error);
-            throw error;
+    try {
+        const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
+        logger.debug('Raw /user/sync response', response);
+        const data = unwrapData(response);
+        const mapped = mapUserRecordResponse(data, currentUser);
+        logger.info('User sync successful', { userId: mapped?.id });
+        return ensureUserIds(mapped);
+    } catch (error) {
+        const status = getErrorStatus(error);
+        if (status === 401) {
+            // session is invalid; caller should treat as logged out
+            localStorage.removeItem('am_auth_token');
+            localStorage.removeItem('am_user');
+            return null;
+        }
+        logger.error('User sync failed', error);
+        return null;
     }
 }
 

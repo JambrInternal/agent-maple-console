@@ -1,3 +1,6 @@
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(),
+}));
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as tokenService from '../token';
 
@@ -41,7 +44,8 @@ describe('tokenService', () => {
     it('refreshes token if expired', async () => {
       localStorageMock.setItem(TOKEN_KEY, 'old-token');
       localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
-      vi.stubGlobal('fetchAuthSession', vi.fn(async () => ({
+      const { fetchAuthSession } = await import('aws-amplify/auth');
+      vi.mocked(fetchAuthSession).mockResolvedValue({
         accessToken: {
           toString: () => 'new-access-token',
           payload: { exp: Math.floor(Date.now() / 1000) + 300 },
@@ -50,7 +54,7 @@ describe('tokenService', () => {
           toString: () => 'id-token',
           payload: { exp: Math.floor(Date.now() / 1000) + 300 },
         },
-      })));
+      });
       const token = await tokenService.getFreshToken();
       expect(token).toBe('id-token');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');
@@ -59,7 +63,8 @@ describe('tokenService', () => {
   it('handles refresh failure', async () => {
     localStorageMock.setItem(TOKEN_KEY, 'old-token');
     localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
-    vi.stubGlobal('fetchAuthSession', vi.fn(async () => { throw new Error('fail'); }));
+    const { fetchAuthSession } = await import('aws-amplify/auth');
+    vi.mocked(fetchAuthSession).mockRejectedValue(new Error('fail'));
     const token = await tokenService.getFreshToken();
     expect(token).toBeNull();
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
