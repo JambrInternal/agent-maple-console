@@ -1,32 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { FileText, UploadCloud } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { getKnowledgeSources } from '../services/knowledge'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
 const Knowledge = () => {
     const { orgId, projId } = useParams()
-    const [sources, setSources] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
 
-    useEffect(() => {
-        if (!orgId || !projId) return
-        const fetchSources = async () => {
-            setLoading(true)
-            setError('')
-            try {
-                const data = await getKnowledgeSources(orgId)
-                setSources(data)
-            } catch (err) {
-                console.error('Failed to fetch knowledge sources:', err)
-                setError(withStatus('Knowledge sources could not be loaded. Try again.', err))
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchSources()
-    }, [orgId, projId])
+    const {
+        data: sources = [],
+        isLoading: loading,
+        error,
+        refetch
+    } = useApiQuery(
+        orgId ? ['knowledgeSources', orgId] : ['knowledgeSources', 'none'],
+        () => orgId ? getKnowledgeSources(orgId) : Promise.resolve([]),
+        { enabled: !!orgId }
+    )
+
+
 
     const statusLabels = {
         pending: 'Pending',

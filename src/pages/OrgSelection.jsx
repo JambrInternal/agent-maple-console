@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building2, Search, ArrowRight, Plus } from 'lucide-react'
 import { createOrganization, getOrganizations } from '../services/organizations'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
 const OrgSelection = () => {
-    const [orgs, setOrgs] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [orgs, setOrgs] = useState([]) // Will be removed after refactor
+    const {
+        data: orgsData = [],
+        isLoading: loading,
+        error: orgsError,
+        refetch: refetchOrgs
+    } = useApiQuery('organizations', getOrganizations)
     const [searchTerm, setSearchTerm] = useState('')
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [createName, setCreateName] = useState('')
@@ -14,24 +20,13 @@ const OrgSelection = () => {
     const [isCreating, setIsCreating] = useState(false)
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const fetchOrgs = async () => {
-            try {
-                const data = await getOrganizations()
-                setOrgs(data)
-            } catch (error) {
-                console.error('Failed to fetch organizations:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchOrgs()
-    }, [])
 
-    const filteredOrgs = orgs.filter(org =>
+
+
+    const filteredOrgs = orgsData.filter(org =>
         org.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    const hasOrganizations = orgs.length > 0
+    const hasOrganizations = orgsData.length > 0
     const showCreateTile = !hasOrganizations
     const showNoMatches = hasOrganizations && filteredOrgs.length === 0
 

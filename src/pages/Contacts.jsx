@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { getContacts } from '../services/people'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
 const formatDate = (value) => {
@@ -17,27 +18,19 @@ const formatDate = (value) => {
 
 const Contacts = () => {
     const { orgId, projId } = useParams()
-    const [contacts, setContacts] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
 
-    useEffect(() => {
-        if (!orgId || !projId) return
-        const fetchContacts = async () => {
-            setLoading(true)
-            setError('')
-            try {
-                const data = await getContacts(orgId)
-                setContacts(data)
-            } catch (err) {
-                console.error('Failed to fetch contacts:', err)
-                setError(withStatus('Contacts could not be loaded. Try again.', err))
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchContacts()
-    }, [orgId, projId])
+    const {
+        data: contacts = [],
+        isLoading: loading,
+        error,
+        refetch
+    } = useApiQuery(
+        orgId ? ['contacts', orgId] : ['contacts', 'none'],
+        () => orgId ? getContacts(orgId) : Promise.resolve([]),
+        { enabled: !!orgId }
+    )
+
+
 
     return (
         <div className="am-page-content">

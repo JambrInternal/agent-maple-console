@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
 import { createProject, getProjects } from '../services/projects'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
 const STATUS_OPTIONS = [
@@ -30,9 +31,16 @@ const formatTimestamp = (value) => {
 const Projects = () => {
     const { orgId } = useParams()
     const navigate = useNavigate()
-    const [projects, setProjects] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
+    const {
+        data: projects = [],
+        isLoading: loading,
+        error,
+        refetch
+    } = useApiQuery(
+        orgId ? ['projects', orgId] : ['projects', 'none'],
+        () => orgId ? getProjects(orgId) : Promise.resolve([]),
+        { enabled: !!orgId }
+    )
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
     const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -40,23 +48,7 @@ const Projects = () => {
     const [createError, setCreateError] = useState('')
     const [isCreating, setIsCreating] = useState(false)
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            if (!orgId) return
-            setLoading(true)
-            setError('')
-            try {
-                const data = await getProjects(orgId)
-                setProjects(data)
-            } catch (err) {
-                console.error('Failed to fetch projects:', err)
-                setError(withStatus('Projects could not be loaded. Try again.', err))
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchProjects()
-    }, [orgId])
+
 
     const openCreateModal = () => {
         setCreateName('')
@@ -80,9 +72,9 @@ const Projects = () => {
         setCreateError('')
         setIsCreating(true)
         try {
-            const project = await createProject(orgId, trimmed)
-            setProjects((prev) => [project, ...prev])
+            await createProject(orgId, trimmed)
             setIsCreateOpen(false)
+            refetch()
             navigate(`/${orgId}/projects`)
         } catch (err) {
             console.error('Failed to create project:', err)
