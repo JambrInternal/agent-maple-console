@@ -1,7 +1,7 @@
 // Token provider for Amplify/Cognito session
 // Responsibilities: hydrate, refresh, clear token; memoize in-flight requests
 
-import { fetchAuthSession } from '@aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import logger from '../utils/verboseLogger';
 
 const TOKEN_KEY = 'am_auth_token';

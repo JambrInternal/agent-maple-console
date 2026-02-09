@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { API_CONFIG, apiFetch } from '../client';
+import * as client from '../client';
 
 // URL normalization regression test
 
@@ -43,22 +43,14 @@ describe('API client endpoint error handling', () => {
 
 describe('API client 401 redirect', () => {
   it('redirects to /login only once on 401', async () => {
-    // Mock fetch to return 401
-    globalThis.fetch = async () => ({
+    vi.spyOn(client, 'redirectToLogin').mockImplementation(() => {});
+    globalThis.fetch = vi.fn(async () => ({
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
       json: async () => ({ message: 'Unauthorized' }),
-    }) as any;
-    // Spy on window.location.assign
-    const assignSpy = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
-    try {
-      await apiFetch('/user/sync');
-    } catch (err: any) {
-      expect(err.status).toBe(401);
-      expect(assignSpy).toHaveBeenCalledWith('/login');
-      expect(assignSpy).toHaveBeenCalledTimes(1);
-    }
-    assignSpy.mockRestore();
+    })) as any;
+    await expect(client.apiFetch('/user/sync')).rejects.toMatchObject({ status: 401 });
+    expect(client.redirectToLogin).toHaveBeenCalledTimes(1);
   });
 });
