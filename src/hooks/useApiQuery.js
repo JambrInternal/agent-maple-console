@@ -14,8 +14,8 @@ export function useApiQuery(key, fetcher, options = {}) {
     queryFn: fetcher,
     staleTime: options.staleTime ?? 60 * 1000, // 1 minute default
     cacheTime: options.cacheTime ?? 5 * 60 * 1000, // 5 minutes default
-    retry: options.retry ?? 2, // Retry failed requests twice by default
     refetchOnWindowFocus: options.refetchOnWindowFocus ?? false,
     ...options,
+    // retry is now handled by QueryClient config unless overridden
   });
 }

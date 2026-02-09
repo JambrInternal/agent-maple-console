@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { getKnowledgeSources } from '../services/knowledge'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
+import QueryError from '../components/QueryError';
 
 const Knowledge = () => {
     const { orgId, projId } = useParams()
@@ -72,7 +73,7 @@ const Knowledge = () => {
 
                 {!loading && error && (
                     <div className="am-text-2" style={{ padding: '2rem 0', color: '#ef4444' }}>
-                        {error}
+                        <QueryError message="Failed to load knowledge." error={error} onRetry={refetch} />
                     </div>
                 )}
 

@@ -68,6 +68,13 @@ export async function apiFetch<T>(
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            // token invalid/expired → force re-auth
+            localStorage.removeItem('am_auth_token');
+            localStorage.removeItem('am_user');
+            // optionally keep tenant selection; or clear if it causes confusion
+            // localStorage.removeItem('am_tenant_id');
+        }
         const errorData = await response.json().catch(() => ({}));
         const message = errorData.message || `API Error: ${response.status} ${response.statusText}`;
         throw new ApiError(response.status, response.statusText, message, errorData);

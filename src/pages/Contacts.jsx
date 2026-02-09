@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { getContacts } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
+import QueryError from '../components/QueryError';
 
 const formatDate = (value) => {
     if (!value) return '—'
@@ -56,7 +57,7 @@ const Contacts = () => {
 
                 {!loading && error && (
                     <div className="am-text-2" style={{ padding: '2rem 0', color: '#ef4444' }}>
-                        {error}
+                        <QueryError message="Failed to load contacts." error={error} onRetry={refetch} />
                     </div>
                 )}
 

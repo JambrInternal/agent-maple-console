@@ -4,6 +4,7 @@ import { Search, Plus } from 'lucide-react'
 import { createProject, getProjects } from '../services/projects'
 import logger from '../utils/verboseLogger'
 import { useApiQuery } from '../hooks/useApiQuery'
+import QueryError from '../components/QueryError';
 import { withStatus } from '../utils/errors'
 
 const STATUS_OPTIONS = [
@@ -148,7 +149,7 @@ const Projects = () => {
 
             {!loading && error && (
                 <div className="am-text-2" style={{ padding: '2rem 0', color: '#ef4444' }}>
-                    {error}
+                    <QueryError message="Failed to load projects." error={error} onRetry={refetch} />
                 </div>
             )}
 

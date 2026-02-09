@@ -1,6 +1,19 @@
 import { QueryClient } from '@tanstack/react-query';
 
 // Singleton QueryClient instance for the app
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			retry: (failureCount, error) => {
+				const status = getErrorStatus(error);
+				if (status === 401 || status === 403 || status === 404) return false;
+				return failureCount < 2;
+			},
+			refetchOnWindowFocus: false,
+			staleTime: 60_000,
+			gcTime: 5 * 60_000,
+		},
+	},
+});
 
 export default queryClient;
