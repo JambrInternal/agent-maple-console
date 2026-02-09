@@ -1,6 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Projects from '../Projects'
@@ -37,12 +38,15 @@ const mockProjects = [
 
 const renderWithRoute = async (initialEntry = '/org_1/projects') => {
     vi.mocked(getProjects).mockResolvedValue(mockProjects)
+    const queryClient = new QueryClient()
     render(
-        <MemoryRouter initialEntries={[initialEntry]}>
-            <Routes>
-                <Route path="/:orgId/projects" element={<Projects />} />
-            </Routes>
-        </MemoryRouter>
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={[initialEntry]}>
+                <Routes>
+                    <Route path="/:orgId/projects" element={<Projects />} />
+                </Routes>
+            </MemoryRouter>
+        </QueryClientProvider>
     )
 }
 

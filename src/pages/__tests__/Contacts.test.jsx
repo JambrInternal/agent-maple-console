@@ -1,6 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Contacts from '../Contacts'
 import { getContacts } from '../../services/people'
@@ -23,12 +24,15 @@ describe('Contacts page', () => {
             },
         ])
 
+        const queryClient = new QueryClient()
         render(
-            <MemoryRouter initialEntries={["/org_1/proj_1/contacts"]}>
-                <Routes>
-                    <Route path="/:orgId/:projId/contacts" element={<Contacts />} />
-                </Routes>
-            </MemoryRouter>
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={["/org_1/proj_1/contacts"]}>
+                    <Routes>
+                        <Route path="/:orgId/:projId/contacts" element={<Contacts />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
         )
 
         expect(getContacts).toHaveBeenCalledWith('org_1')

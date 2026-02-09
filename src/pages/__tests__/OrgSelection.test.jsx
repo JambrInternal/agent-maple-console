@@ -1,6 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import OrgSelection from '../OrgSelection'
@@ -31,10 +32,13 @@ describe('OrgSelection', () => {
 
         const user = userEvent.setup()
 
+        const queryClient = new QueryClient()
         render(
-            <MemoryRouter>
-                <OrgSelection />
-            </MemoryRouter>
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <OrgSelection />
+                </MemoryRouter>
+            </QueryClientProvider>
         )
 
         expect(await screen.findByText('Create a New Organization')).toBeInTheDocument()

@@ -1,6 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Knowledge from '../Knowledge'
 import { getKnowledgeSources } from '../../services/knowledge'
@@ -13,12 +14,15 @@ describe('Knowledge page', () => {
     it('renders table headers', async () => {
         vi.mocked(getKnowledgeSources).mockResolvedValue([])
 
+        const queryClient = new QueryClient()
         render(
-            <MemoryRouter initialEntries={['/org_1/proj_1/knowledge']}>
-                <Routes>
-                    <Route path="/:orgId/:projId/knowledge" element={<Knowledge />} />
-                </Routes>
-            </MemoryRouter>
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/proj_1/knowledge']}>
+                    <Routes>
+                        <Route path="/:orgId/:projId/knowledge" element={<Knowledge />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
         )
 
         expect(getKnowledgeSources).toHaveBeenCalledWith('org_1')
