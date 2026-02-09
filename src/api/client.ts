@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-    baseUrl: 'https://api.dev.agentmaple.ca/',
+    baseUrl: 'https://api.dev.agentmaple.ca',
 };
 
 export class ApiError extends Error {
