@@ -1,5 +1,11 @@
 # pnpm lockfile
 pnpm-lock.yaml
+
+# Other package manager lockfiles and artifacts
+yarn.lock
+.pnpm-debug.log
+.pnpmfile.cjs
+shrinkwrap.yaml
 # Dependencies
 node_modules/
 .pnp/
