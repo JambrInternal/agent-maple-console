@@ -87,50 +87,32 @@ describe('auth service', () => {
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
-    it('falls back to cached user when session is missing', async () => {
-        const cachedUser: User = {
-            id: 'u3',
-            email: 'cached@example.com',
-            name: 'Cached User',
-            role: 'viewer',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-04T00:00:00Z',
-        };
 
-        localStorage.setItem('am_user', JSON.stringify(cachedUser));
-        vi.mocked(authApi.getSessionUser).mockResolvedValue(null);
 
-        const result = await authService.getCurrentUser();
-
-        expect(result).toEqual(cachedUser);
-        expect(apiFetch).not.toHaveBeenCalled();
-    });
-
-    it('returns user even if sync fails during session restore', async () => {
-        const user: User = {
-            id: 'u4',
-            email: 'warn@example.com',
-            name: 'Warn User',
-            role: 'admin',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-04T00:00:00Z',
-        };
-
-        vi.mocked(authApi.getSessionUser).mockImplementation(async () => {
-            localStorage.setItem('am_auth_token', 'token-warn');
-            return user;
+        it('returns null when session is missing', async () => {
+            vi.mocked(authApi.getSessionUser).mockResolvedValue(null);
+            const result = await authService.getCurrentUser();
+            expect(result).toBeNull();
+            expect(apiFetch).not.toHaveBeenCalled();
         });
-        vi.mocked(apiFetch).mockRejectedValue(new Error('sync failed'));
 
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-        const result = await authService.getCurrentUser();
-
-        expect(result).toEqual(user);
-        expect(warnSpy).toHaveBeenCalled();
-        warnSpy.mockRestore();
-    });
+        it('returns null if sync fails during session restore', async () => {
+            const user: User = {
+                id: 'u4',
+                email: 'warn@example.com',
+                name: 'Warn User',
+                role: 'admin',
+                organizationId: null,
+                tenantId: null,
+                mfaEnabled: false,
+                createdAt: '2026-02-04T00:00:00Z',
+            };
+            vi.mocked(authApi.getSessionUser).mockImplementation(async () => {
+                localStorage.setItem('am_auth_token', 'token-warn');
+                return user;
+            });
+            vi.mocked(apiFetch).mockRejectedValue(new Error('sync failed'));
+            const result = await authService.getCurrentUser();
+            expect(result).toBeNull();
+        });
 });

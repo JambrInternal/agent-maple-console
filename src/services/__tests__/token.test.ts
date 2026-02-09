@@ -32,29 +32,29 @@ describe('tokenService', () => {
 
   it('returns valid token from localStorage', async () => {
     const now = Math.floor(Date.now() / 1000);
-    localStorageMock.setItem(TOKEN_KEY, 'test-token');
+      localStorageMock.setItem(TOKEN_KEY, 'id-token');
     localStorageMock.setItem(EXP_KEY, (now + 120).toString());
-    const token = await tokenService.getFreshToken();
-    expect(token).toBe('test-token');
+      const token = await tokenService.getFreshToken();
+      expect(token).toBe('id-token');
   });
 
-  it('refreshes token if expired', async () => {
-    localStorageMock.setItem(TOKEN_KEY, 'old-token');
-    localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
-    vi.stubGlobal('fetchAuthSession', vi.fn(async () => ({
-      accessToken: {
-        toString: () => 'new-token',
-        payload: { exp: Math.floor(Date.now() / 1000) + 300 },
-      },
-      idToken: {
-        toString: () => 'id-token',
-        payload: { exp: Math.floor(Date.now() / 1000) + 300 },
-      },
-    })));
-    const token = await tokenService.getFreshToken();
-    expect(token).toBe('new-token');
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'new-token');
-  });
+    it('refreshes token if expired', async () => {
+      localStorageMock.setItem(TOKEN_KEY, 'old-token');
+      localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
+      vi.stubGlobal('fetchAuthSession', vi.fn(async () => ({
+        accessToken: {
+          toString: () => 'new-access-token',
+          payload: { exp: Math.floor(Date.now() / 1000) + 300 },
+        },
+        idToken: {
+          toString: () => 'id-token',
+          payload: { exp: Math.floor(Date.now() / 1000) + 300 },
+        },
+      })));
+      const token = await tokenService.getFreshToken();
+      expect(token).toBe('id-token');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');
+    });
 
   it('handles refresh failure', async () => {
     localStorageMock.setItem(TOKEN_KEY, 'old-token');

@@ -1,3 +1,4 @@
+let redirectingToLogin = false;
 export const API_CONFIG = {
     baseUrl: 'https://api.dev.agentmaple.ca',
 };
@@ -64,13 +65,12 @@ export async function apiFetch<T>(
         headers.set('Content-Type', 'application/json');
     }
 
-    const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+    const url = new URL(endpoint, API_CONFIG.baseUrl).toString();
+    const response = await fetch(url, {
         ...options,
         headers,
     });
 
-    // Idempotent 401 redirect guard
-    let redirectingToLogin = false;
     if (!response.ok) {
         if (response.status === 401) {
             clearToken();
@@ -86,6 +86,7 @@ export async function apiFetch<T>(
             }
             // Optionally: metrics hook
         }
+        // 404 is treated as endpoint error, not auth failure
         const errorData = await response.json().catch(() => ({}));
         const message = errorData.message || `API Error: ${response.status} ${response.statusText}`;
         throw new ApiError(response.status, response.statusText, message, errorData);

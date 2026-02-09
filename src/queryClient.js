@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { getErrorStatus } from './api/client';
 
 // Singleton QueryClient instance for the app
 const queryClient = new QueryClient({

@@ -109,16 +109,5 @@ export async function getCurrentUser(): Promise<User | null> {
         clearToken();
         return null;
     }
-    const userStr = localStorage.getItem('am_user');
-    if (userStr) {
-        try {
-            const parsed = JSON.parse(userStr) as User;
-            logger.info('Returning user from localStorage', { userId: parsed.id });
-            return ensureUserIds(parsed);
-        } catch (err) {
-            logger.error('Failed to parse user from localStorage', err);
-            return null;
-        }
-    }
     return null;
 }
