@@ -1,8 +1,11 @@
+
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import * as tokenService from '../token';
+
 vi.mock('aws-amplify/auth', () => ({
   fetchAuthSession: vi.fn(),
 }));
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import * as tokenService from '../token';
 
 const TOKEN_KEY = 'am_auth_token';
 const EXP_KEY = 'am_auth_token_exp';

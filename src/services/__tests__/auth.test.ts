@@ -1,3 +1,8 @@
+vi.mock('../token', () => ({
+    getFreshToken: vi.fn(),
+    clearToken: vi.fn(),
+}));
+import { getFreshToken } from '../token';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../api/auth', () => ({
@@ -80,9 +85,10 @@ describe('auth service', () => {
             },
         });
 
+        vi.mocked(getFreshToken).mockResolvedValue('id-token');
         const result = await authService.getCurrentUser();
-
-        expect(result?.organizationId).toBeNull();
+        expect(result).not.toBeNull();
+        expect(result!.organizationId).toBeNull();
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });

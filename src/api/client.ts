@@ -1,3 +1,6 @@
+export const navigation = {
+    toLogin: () => window.location.assign('/login'),
+};
 let redirectingToLogin = false;
 export const API_CONFIG = {
     baseUrl: 'https://api.dev.agentmaple.ca',
@@ -82,7 +85,7 @@ export async function apiFetch<T>(
             logger.warn('[API] 401 response, user logged out');
             if (!redirectingToLogin && window.location.pathname !== '/login') {
                 redirectingToLogin = true;
-                window.location.assign('/login');
+                navigation.toLogin();
             }
             // Optionally: metrics hook
         }
