@@ -46,15 +46,13 @@ describe('tokenService', () => {
       localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
       const { fetchAuthSession } = await import('aws-amplify/auth');
       vi.mocked(fetchAuthSession).mockResolvedValue({
-        accessToken: {
-          toString: () => 'new-access-token',
-          payload: { exp: Math.floor(Date.now() / 1000) + 300 },
+        tokens: {
+          idToken: {
+            toString: () => 'id-token',
+            payload: { exp: Math.floor(Date.now() / 1000) + 300 },
+          },
         },
-        idToken: {
-          toString: () => 'id-token',
-          payload: { exp: Math.floor(Date.now() / 1000) + 300 },
-        },
-      });
+      } as any);
       const token = await tokenService.getFreshToken();
       expect(token).toBe('id-token');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');

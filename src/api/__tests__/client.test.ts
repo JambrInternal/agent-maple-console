@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { API_CONFIG, apiFetch } from '../client';
 
 // URL normalization regression test
