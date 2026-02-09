@@ -4,6 +4,7 @@ import type { User } from '../api/types';
 import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserResponse } from '../api/mappers';
 import { clearAdminMode } from '../utils/admin';
 import { clearTheme } from '../utils/theme';
+import logger from '../utils/verboseLogger';
 
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
@@ -15,14 +16,26 @@ const ensureUserIds = (user: User): User => ({
 
 export async function syncUser(currentUser?: User): Promise<User | null> {
     const token = localStorage.getItem('am_auth_token');
-    if (!token) return null;
-    const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
-    const data = unwrapData(response);
-    const mapped = mapUserRecordResponse(data, currentUser);
-    return ensureUserIds(mapped);
+    if (!token) {
+        logger.warn('syncUser called with no auth token');
+        return null;
+    }
+    logger.info('Syncing user with API', { currentUser });
+    try {
+        const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
+        logger.debug('Raw /user/sync response', response);
+        const data = unwrapData(response);
+        const mapped = mapUserRecordResponse(data, currentUser);
+        logger.info('User sync successful', { userId: mapped?.id });
+        return ensureUserIds(mapped);
+    } catch (error) {
+        logger.error('User sync failed', error);
+        throw error;
+    }
 }
 
 export async function login(email: string, password: string): Promise<User> {
+    logger.info('Attempting login', { email });
     const { user, token } = await authApi.login(email, password);
     if (token && user) {
         const baseUser = ensureUserIds(user);
@@ -32,13 +45,16 @@ export async function login(email: string, password: string): Promise<User> {
             const syncedUser = await syncUser(baseUser);
             if (syncedUser) {
                 localStorage.setItem('am_user', JSON.stringify(syncedUser));
+                logger.info('Login and user sync successful', { userId: syncedUser.id });
                 return syncedUser;
             }
         } catch (error) {
-            console.warn('User sync failed:', error);
+            logger.error('User sync failed after login', error);
         }
+        logger.info('Login successful, user sync skipped or failed', { userId: baseUser.id });
         return baseUser;
     }
+    logger.error('Authentication failed: Missing token or user data', { email });
     throw new Error('Authentication failed: Missing token or user data');
 }
 
@@ -52,6 +68,7 @@ export async function logout(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
+    logger.info('Fetching current user from session');
     const user = await authApi.getSessionUser();
     if (user) {
         const baseUser = ensureUserIds(user);
@@ -60,11 +77,13 @@ export async function getCurrentUser(): Promise<User | null> {
             const syncedUser = await syncUser(baseUser);
             if (syncedUser) {
                 localStorage.setItem('am_user', JSON.stringify(syncedUser));
+                logger.info('Current user sync successful', { userId: syncedUser.id });
                 return syncedUser;
             }
         } catch (error) {
-            console.warn('User sync failed:', error);
+            logger.error('User sync failed in getCurrentUser', error);
         }
+        logger.info('Current user fallback to baseUser', { userId: baseUser.id });
         return baseUser;
     }
 
@@ -73,8 +92,10 @@ export async function getCurrentUser(): Promise<User | null> {
     if (userStr) {
         try {
             const parsed = JSON.parse(userStr) as User;
+            logger.info('Returning user from localStorage', { userId: parsed.id });
             return ensureUserIds(parsed);
-        } catch {
+        } catch (err) {
+            logger.error('Failed to parse user from localStorage', err);
             return null;
         }
     }
