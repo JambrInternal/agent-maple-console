@@ -7,7 +7,10 @@
     "build": "vite build",
     "test": "vitest",
     "test:ci": "vitest run",
-    "test:api": "node scripts/api-smoke.mjs",
+    "test:api": "node scripts/api-smoke-all.mjs",
+    "test:api:min": "node scripts/api-smoke.mjs",
+    "generate:api": "node scripts/generate-openapi.mjs",
+    "check:api": "node scripts/generate-openapi.mjs --check",
     "lint": "eslint .",
     "preview": "vite preview"
   },
