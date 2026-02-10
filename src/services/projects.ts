@@ -16,7 +16,7 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
     logger.info('Fetching projects for organization', { organizationId });
     // Endpoint capability detection: probe
     try {
-        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${organizationId}`);
+        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/`);
         logger.debug('Raw projects response', response);
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
