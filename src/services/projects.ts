@@ -44,8 +44,11 @@ export async function createProject(
         throw new Error('Organization ID is required to create a project');
     }
     logger.info('Creating project via API', { organizationId, name });
-    const response = await apiFetch<ApiResponse<ApiProject>>(`/projects/tenant/${organizationId}`, {
+    const response = await apiFetch<ApiResponse<ApiProject>>('/projects/', {
         method: 'POST',
+        headers: {
+            'x-tenant-id': organizationId,
+        },
         body: JSON.stringify({ name }),
     });
     logger.debug('Raw createProject response', response);

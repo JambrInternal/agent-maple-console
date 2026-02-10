@@ -58,10 +58,10 @@ export async function apiFetch<T>(
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
 
     const headers = new Headers(options.headers as HeadersInit);
-    if (token) {
+    if (token && !headers.has('Authorization')) {
         headers.set('Authorization', `Bearer ${token}`);
     }
-    if (tenantId) {
+    if (tenantId && !headers.has('x-tenant-id')) {
         headers.set('x-tenant-id', tenantId);
     }
     if (!isFormData && !headers.has('Content-Type')) {
