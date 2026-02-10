@@ -141,7 +141,7 @@ const OrgSelection = () => {
                                     Create a New Organization
                                 </h3>
                                 <p className="am-text-2" style={{ fontSize: '0.875rem' }}>
-                                    You don&apos;t belong to any organizations yet.
+                                    Start a new organization or select one you already belong to.
                                 </p>
                             </div>
                             <ArrowRight size={20} className="am-text-2" />
