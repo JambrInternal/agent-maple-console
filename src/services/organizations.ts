@@ -75,13 +75,15 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
 /**
  * Get a single organization by ID
  */
-export async function getOrganization(id: string): Promise<Organization> {
+export async function getOrganization(id: string, options: OrganizationOptions = {}): Promise<Organization> {
+    const includeProjectCounts = options.includeProjectCounts ?? false;
     const isAdmin = getAdminMode();
     if (isAdmin) {
         try {
             const adminResponse = await apiFetch<ApiResponse<ApiTenant>>(`/admin/tenants/${id}`);
             const adminTenant = unwrapData(adminResponse);
             const org = mapTenantToOrganization(adminTenant);
+            if (!includeProjectCounts) return org;
             try {
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
                 const projects = unwrapData(projectsResponse, []);
@@ -104,6 +106,7 @@ export async function getOrganization(id: string): Promise<Organization> {
         throw new Error(`Organization not found: ${id}`);
     }
     const org = mapTenantToOrganization(tenant);
+    if (!includeProjectCounts) return org;
     try {
         const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
         const projects = unwrapData(projectsResponse, []);

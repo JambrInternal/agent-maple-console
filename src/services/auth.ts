@@ -1,46 +1,18 @@
+
 import * as authApi from '../api/auth';
-import { getErrorStatus } from '../api/client';
-import { apiFetch } from '../api/client';
-import type { User } from '../api/types';
-import { mapUserRecordResponse, unwrapData, type ApiResponse, type ApiUserResponse } from '../api/mappers';
 import { clearAdminMode } from '../utils/admin';
 import { clearTheme } from '../utils/theme';
 import logger from '../utils/verboseLogger';
 
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
+import type { User } from '../api/types';
+
 const ensureUserIds = (user: User): User => ({
     ...user,
     organizationId: user.organizationId ?? null,
     tenantId: user.tenantId ?? getStoredTenantId() ?? null,
 });
-
-export async function syncUser(currentUser?: User): Promise<User | null> {
-    // Token hydration is handled by apiFetch; no need to check localStorage here
-    logger.info('Syncing user with API', { currentUser });
-    try {
-        const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
-        logger.debug('Raw /user/sync response', response);
-        const data = unwrapData(response);
-        const mapped = mapUserRecordResponse(data, currentUser);
-        logger.info('User sync successful', { userId: mapped?.id });
-        return ensureUserIds(mapped);
-    } catch (error) {
-        const status = getErrorStatus(error);
-        if (status === 401) {
-            // session is invalid; caller should treat as logged out
-            try {
-                await authApi.logout(); // sign out of Cognito
-            } catch {}
-            localStorage.removeItem('am_auth_token');
-            localStorage.removeItem('am_auth_token_exp');
-            localStorage.removeItem('am_user');
-            return null;
-        }
-        logger.error('User sync failed', error);
-        return null;
-    }
-}
 
 export async function login(email: string, password: string): Promise<User> {
     logger.info('Attempting login', { email });
