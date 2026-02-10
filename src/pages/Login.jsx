@@ -9,9 +9,9 @@ import { getAmplifyAuthConfig } from '../amplify-config'
 import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
-// Logo assets
-const LOGO_LIGHT = '/agent-maple-lockup-mono-white.png';
-const LOGO_DARK = '/agent-maple-lockup-mono-dark.png';
+// Logo assets (one-liner)
+const LOGO_LIGHT = '/agent-maple-wordmark-1line-white-textHalf.png';
+const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png';
 
 const Login = () => {
     // Always set theme to dark mode on login page mount
