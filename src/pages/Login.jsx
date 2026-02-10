@@ -209,11 +209,8 @@ const Login = () => {
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                         }}
                     />
-                    <h1 className="am-text-1" style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                        Agent Maple
-                    </h1>
                     <p className="am-text-2" style={{ fontSize: '0.9375rem' }}>
-                        Management Console
+                        Console
                     </p>
                 </div>
 
