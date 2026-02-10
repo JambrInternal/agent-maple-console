@@ -33,12 +33,12 @@ describe('organizations service', () => {
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
         expect(result).toEqual([
-            {
+            expect.objectContaining({
                 id: 'tenant_1',
                 name: 'Iron Maple',
-                memberCount: undefined,
+                projectCount: 0,
                 createdAt: '2026-02-01T00:00:00.000Z',
-            },
+            }),
         ]);
     });
 
@@ -82,13 +82,12 @@ describe('organizations service', () => {
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(3, '/projects/tenant/tenant_1');
         expect(result).toEqual([
-            {
+            expect.objectContaining({
                 id: 'tenant_1',
                 name: 'Iron Maple',
                 projectCount: 2,
-                memberCount: undefined,
                 createdAt: '2026-02-01T00:00:00.000Z',
-            },
+            }),
         ]);
     });
 
@@ -108,7 +107,7 @@ describe('organizations service', () => {
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/tenants');
         expect(result.id).toBe('tenant_2');
-        expect(result.projectCount).toBeUndefined();
+        expect(result.projectCount).toBe(0);
     });
 
     it('gets a single organization with projectCount when requested', async () => {

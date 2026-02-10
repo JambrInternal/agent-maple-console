@@ -87,7 +87,7 @@ describe('projects service', () => {
 
         const result = await createProject('tenant_44', 'New Project');
 
-        expect(apiFetch).toHaveBeenCalledWith('/projects/', {
+        expect(apiFetch).toHaveBeenCalledWith('/projects/tenant/tenant_44', {
             method: 'POST',
             headers: {
                 'x-tenant-id': 'tenant_44',
