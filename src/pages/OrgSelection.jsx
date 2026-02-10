@@ -5,6 +5,8 @@ import { createOrganization, getOrganizations } from '../services/organizations'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
+import { getAdminMode } from '../utils/admin'
+
 const OrgSelection = () => {
     const [orgs, setOrgs] = useState([]) // Will be removed after refactor
     const {
@@ -27,7 +29,8 @@ const OrgSelection = () => {
         org.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
     const hasOrganizations = orgsData.length > 0
-    const showCreateTile = !hasOrganizations
+    const isSuperAdmin = getAdminMode()
+    const showCreateTile = isSuperAdmin || !hasOrganizations
     const showNoMatches = hasOrganizations && filteredOrgs.length === 0
 
     const openCreateModal = () => {

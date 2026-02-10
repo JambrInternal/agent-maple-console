@@ -82,7 +82,7 @@ const Layout = () => {
             </div>
             {isAdminMode && (
                 <div className="am-admin-banner" role="status" aria-live="polite">
-                    SUPER ADMIN MODE
+                    SUPER ADMIN
                 </div>
             )}
         </div>
