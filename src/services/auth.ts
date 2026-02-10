@@ -16,11 +16,7 @@ const ensureUserIds = (user: User): User => ({
 });
 
 export async function syncUser(currentUser?: User): Promise<User | null> {
-    const token = localStorage.getItem('am_auth_token');
-    if (!token) {
-        logger.warn('syncUser called with no auth token');
-        return null;
-    }
+    // Token hydration is handled by apiFetch; no need to check localStorage here
     logger.info('Syncing user with API', { currentUser });
     try {
         const response = await apiFetch<ApiResponse<ApiUserResponse>>('/user/sync', { method: 'POST' });
@@ -53,17 +49,7 @@ export async function login(email: string, password: string): Promise<User> {
         const baseUser = ensureUserIds(user);
         localStorage.setItem('am_auth_token', token);
         localStorage.setItem('am_user', JSON.stringify(baseUser));
-        try {
-            const syncedUser = await syncUser(baseUser);
-            if (syncedUser) {
-                localStorage.setItem('am_user', JSON.stringify(syncedUser));
-                logger.info('Login and user sync successful', { userId: syncedUser.id });
-                return syncedUser;
-            }
-        } catch (error) {
-            logger.error('User sync failed after login', error);
-        }
-        logger.info('Login successful, user sync skipped or failed', { userId: baseUser.id });
+        logger.info('Login successful', { userId: baseUser.id });
         return baseUser;
     }
     logger.error('Authentication failed: Missing token or user data', { email });
@@ -103,24 +89,6 @@ export async function getCurrentUser(): Promise<User | null> {
     }
     const baseUser = ensureUserIds(user);
     localStorage.setItem('am_user', JSON.stringify(baseUser));
-    try {
-        const syncedUser = await syncUser(baseUser);
-        if (syncedUser) {
-            localStorage.setItem('am_user', JSON.stringify(syncedUser));
-            logger.info('Current user sync successful', { userId: syncedUser.id });
-            return syncedUser;
-        }
-        // If /user/sync returns 401, treat as logged out
-        logger.warn('User sync failed or unauthorized, treating as logged out');
-        clearToken();
-        try {
-            await authApi.logout(); // sign out of Cognito
-        } catch {}
-        return null;
-    } catch (error) {
-        logger.error('User sync failed in getCurrentUser', error);
-        clearToken();
-        return null;
-    }
-    return null;
+    logger.info('Current user hydrated from session', { userId: baseUser.id });
+    return baseUser;
 }

@@ -27,7 +27,7 @@ describe('auth service', () => {
         vi.clearAllMocks();
     });
 
-    it('stores token and syncs user on login', async () => {
+    it('stores token and user on login (no sync)', async () => {
         const user: User = {
             id: 'u1',
             email: 'test@example.com',
@@ -40,20 +40,12 @@ describe('auth service', () => {
         };
 
         vi.mocked(authApi.login).mockResolvedValue({ user, token: 'token-123' });
-        vi.mocked(apiFetch).mockResolvedValue({
-            data: {
-                id: 'u1',
-                email: 'test@example.com',
-                created_at: '2026-02-04T00:00:00Z',
-            },
-        });
-
         const result = await authService.login('test@example.com', 'password');
 
         expect(result.organizationId).toBeNull();
         expect(localStorage.getItem('am_auth_token')).toBe('token-123');
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
-        expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
+        expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
     it('skips user sync when no token exists', async () => {
@@ -61,7 +53,7 @@ describe('auth service', () => {
         expect(apiFetch).not.toHaveBeenCalled();
     });
 
-    it('syncs and stores user on session restore', async () => {
+    it('hydrates user on session restore (no sync)', async () => {
         const user: User = {
             id: 'u2',
             email: 'restore@example.com',
@@ -77,19 +69,33 @@ describe('auth service', () => {
             localStorage.setItem('am_auth_token', 'token-restore');
             return user;
         });
-        vi.mocked(apiFetch).mockResolvedValue({
-            data: {
-                id: 'u2',
-                email: 'restore@example.com',
-                created_at: '2026-02-04T00:00:00Z',
-            },
-        });
-
         vi.mocked(getFreshToken).mockResolvedValue('id-token');
         const result = await authService.getCurrentUser();
         expect(result).not.toBeNull();
         expect(result!.organizationId).toBeNull();
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
+        expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
+    });
+    it('syncs user after registration/confirmation', async () => {
+        const user: User = {
+            id: 'u3',
+            email: 'register@example.com',
+            name: 'Register User',
+            role: 'member',
+            organizationId: null,
+            tenantId: null,
+            mfaEnabled: false,
+            createdAt: '2026-02-04T00:00:00Z',
+        };
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'u3',
+                email: 'register@example.com',
+                created_at: '2026-02-04T00:00:00Z',
+            },
+        });
+        const result = await authService.syncUser(user);
+        expect(result).not.toBeNull();
         expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 

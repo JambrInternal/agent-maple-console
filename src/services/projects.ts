@@ -14,11 +14,21 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         return [];
     }
     logger.info('Fetching projects for organization', { organizationId });
-    const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${organizationId}`);
-    logger.debug('Raw projects response', response);
-    const data = unwrapData(response, []);
-    logger.info('Projects fetched', { count: data.length });
-    return data.map(mapProjectResponse);
+    // Endpoint capability detection: probe
+    try {
+        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${organizationId}`);
+        logger.debug('Raw projects response', response);
+        const data = unwrapData(response, []);
+        logger.info('Projects fetched', { count: data.length });
+        return data.map(mapProjectResponse);
+    } catch (error) {
+        const status = getErrorStatus(error);
+        if (status === 404) {
+            logger.warn('Projects endpoint not supported, returning empty list');
+            return [];
+        }
+        throw error;
+    }
 }
 
 /**

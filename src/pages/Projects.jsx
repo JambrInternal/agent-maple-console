@@ -40,7 +40,11 @@ const Projects = () => {
         refetch
     } = useApiQuery(
         orgId ? ['projects', orgId] : ['projects', 'none'],
-        () => orgId ? getProjects(orgId) : Promise.resolve([]),
+        async () => {
+            if (!orgId) return [];
+            // Only show projects if endpoint is supported
+            return await getProjects(orgId);
+        },
         { enabled: !!orgId }
     )
     const [searchTerm, setSearchTerm] = useState('')
