@@ -10,6 +10,39 @@ import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
 const Login = () => {
+        // On mount, if Cognito session exists but user is null, force logout to clear stale session
+        useEffect(() => {
+            async function checkSessionAndLogout() {
+                // Only run if not loading and user is null
+                if (!loading && !user) {
+                    try {
+                        // Import Amplify getCurrentUser directly
+                        const { getCurrentUser } = await import('aws-amplify/auth');
+                        await getCurrentUser();
+                        // If Cognito session exists, force logout
+                        if (typeof login === 'function') {
+                            // Use logout from useAuth
+                            if (typeof window !== 'undefined') {
+                                // Use logout from useAuth context
+                                if (typeof window.useAuth === 'function') {
+                                    await window.useAuth().logout();
+                                } else {
+                                    // fallback: call logout from context
+                                    try {
+                                        await login.logout();
+                                    } catch {}
+                                }
+                            } else {
+                                try {
+                                    await login.logout();
+                                } catch {}
+                            }
+                        }
+                    } catch {}
+                }
+            }
+            checkSessionAndLogout();
+        }, [loading, user, login]);
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')

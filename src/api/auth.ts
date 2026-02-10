@@ -13,7 +13,20 @@ export interface AuthSession {
 
 export async function login(email: string, password: string): Promise<AuthSession> {
     // Real Cognito Login
-    const { isSignedIn, nextStep } = await signIn({ username: email, password });
+    let signInResult;
+    try {
+        signInResult = await signIn({ username: email, password });
+    } catch (e: any) {
+        const msg = String(e?.message || e);
+        if (msg.includes('already signed in user')) {
+            await signOut();
+            signInResult = await signIn({ username: email, password });
+        } else {
+            throw e;
+        }
+    }
+
+    const { isSignedIn, nextStep } = signInResult;
 
     if (isSignedIn) {
         const session = await fetchAuthSession();

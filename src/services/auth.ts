@@ -33,7 +33,11 @@ export async function syncUser(currentUser?: User): Promise<User | null> {
         const status = getErrorStatus(error);
         if (status === 401) {
             // session is invalid; caller should treat as logged out
+            try {
+                await authApi.logout(); // sign out of Cognito
+            } catch {}
             localStorage.removeItem('am_auth_token');
+            localStorage.removeItem('am_auth_token_exp');
             localStorage.removeItem('am_user');
             return null;
         }
@@ -83,12 +87,18 @@ export async function getCurrentUser(): Promise<User | null> {
     if (!user) {
         logger.warn('No session user, treating as logged out');
         clearToken();
+        try {
+            await authApi.logout(); // sign out of Cognito
+        } catch {}
         return null;
     }
     const token = await getFreshToken();
     if (!token) {
         logger.warn('Token hydration failed, treating as logged out');
         clearToken();
+        try {
+            await authApi.logout(); // sign out of Cognito
+        } catch {}
         return null;
     }
     const baseUser = ensureUserIds(user);
@@ -103,6 +113,9 @@ export async function getCurrentUser(): Promise<User | null> {
         // If /user/sync returns 401, treat as logged out
         logger.warn('User sync failed or unauthorized, treating as logged out');
         clearToken();
+        try {
+            await authApi.logout(); // sign out of Cognito
+        } catch {}
         return null;
     } catch (error) {
         logger.error('User sync failed in getCurrentUser', error);
