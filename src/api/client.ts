@@ -3,7 +3,7 @@ export const navigation = {
 };
 let redirectingToLogin = false;
 export const API_CONFIG = {
-    baseUrl: 'https://api.dev.agentmaple.ca',
+    baseUrl: 'http://localhost:8000',
 };
 
 export class ApiError extends Error {

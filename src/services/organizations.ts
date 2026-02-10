@@ -45,7 +45,8 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
     let endpointSupported = true;
     if (baseOrgs.length > 0 && baseOrgs[0].id) {
         try {
-            await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${baseOrgs[0].id}`);
+            // /projects/tenant/{tenantId} is only for ADMIN role
+            await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${baseOrgs[0].id}`); 
         } catch (error) {
             const status = getErrorStatus(error);
             if (status === 404) {
@@ -60,6 +61,7 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
         baseOrgs.map(async (org) => {
             if (!org.id) return org;
             try {
+                // /projects/tenant/{tenantId} is only for ADMIN role
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
@@ -83,6 +85,7 @@ export async function getOrganization(id: string): Promise<Organization> {
             const adminTenant = unwrapData(adminResponse);
             const org = mapTenantToOrganization(adminTenant);
             try {
+                // /projects/tenant/{tenantId} is only for ADMIN role
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
@@ -105,6 +108,7 @@ export async function getOrganization(id: string): Promise<Organization> {
     }
     const org = mapTenantToOrganization(tenant);
     try {
+        // /projects/tenant/{tenantId} is only for ADMIN role
         const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
         const projects = unwrapData(projectsResponse, []);
         return { ...org, projectCount: projects.length };
