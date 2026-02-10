@@ -10,6 +10,10 @@ import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
 const Login = () => {
+        // Always set theme to dark mode on login page mount
+        useEffect(() => {
+            setTheme('dark');
+        }, []);
     const { login, logout, user, loading } = useAuth();
 
     // On mount, if Cognito session exists but app user is null, force logout to clear stale session
