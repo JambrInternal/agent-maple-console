@@ -31,11 +31,20 @@ Set the API base URL at build time:
 VITE_API_URL=https://api.stage.certly.jambr.ca
 ```
 
+
 ### Build
 
 ```bash
 npm run build
 ```
+
+#### Build Commit Hash
+The build number shown in the UI is always accurate to the current Git commit. This is injected automatically at build time using Vite:
+
+- The current commit hash is available as `import.meta.env.VITE_GIT_COMMIT` in the app.
+- The `BuildTag` component displays this value in the UI.
+
+No manual steps are required; this is handled by the Vite config.
 
 ### Testing
 

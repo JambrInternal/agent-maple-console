@@ -1,12 +1,13 @@
 import React from 'react'
 
+
 const BuildTag = () => {
-    const commit = typeof window !== 'undefined' ? window.__APP_COMMIT__ : null
+    const commit = import.meta.env.VITE_GIT_COMMIT || 'dev';
     return (
         <div className="am-build-tag">
-            Build {commit || 'dev'}
+            Version {commit}
         </div>
-    )
+    );
 }
 
 export default BuildTag
