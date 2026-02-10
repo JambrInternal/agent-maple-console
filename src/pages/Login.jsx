@@ -194,24 +194,20 @@ const Login = () => {
         <div className="am-app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
                 <div style={{ marginBottom: '2.5rem' }}>
-                    {/* Dynamic Agent Maple Logo (light in dark theme, dark in light theme) */}
+                    {/* One-line Agent Maple Logo (light in dark theme, dark in light theme) */}
                     <img
-                        src={theme === 'light' ? LOGO_DARK : LOGO_LIGHT}
+                        src={theme === 'light'
+                            ? '/agent-maple-wordmark-1line-black-textHalf.png'
+                            : '/agent-maple-wordmark-1line-white-textHalf.png'}
                         alt="Agent Maple Logo"
                         style={{
-                            width: '120px',
+                            width: '220px',
                             height: 'auto',
-                            margin: '0 auto 1.5rem',
+                            margin: '0 auto 2.5rem',
                             display: 'block',
-                            borderRadius: '12px',
-                            background: 'none',
                             objectFit: 'contain',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                         }}
                     />
-                    <p className="am-text-2" style={{ fontSize: '0.9375rem' }}>
-                        Console
-                    </p>
                 </div>
 
                 <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>
