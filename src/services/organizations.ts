@@ -40,22 +40,6 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
     if (!includeProjectCounts) {
         return baseOrgs;
     }
-
-    // Endpoint capability detection: probe first org
-    let endpointSupported = true;
-    if (baseOrgs.length > 0 && baseOrgs[0].id) {
-        try {
-            await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${baseOrgs[0].id}`);
-        } catch (error) {
-            const status = getErrorStatus(error);
-            if (status === 404) {
-                endpointSupported = false;
-            }
-        }
-    }
-    if (!endpointSupported) {
-        return baseOrgs;
-    }
     const counts = await Promise.all(
         baseOrgs.map(async (org) => {
             if (!org.id) return org;
@@ -64,6 +48,11 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
             } catch (error) {
+                const status = getErrorStatus(error);
+                if (status === 404) {
+                    // Endpoint not supported, return org as-is (no projectCount)
+                    return org;
+                }
                 console.warn(`Failed to load projects for organization ${org.id}:`, error);
                 return org;
             }

@@ -176,7 +176,7 @@ describe('organizations service', () => {
                 data: [],
             });
 
-        const result = await getOrganizations();
+        const result = await getOrganizations({ includeProjectCounts: true });
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/tenant/tenant_admin');
