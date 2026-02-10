@@ -16,7 +16,7 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
     logger.info('Fetching projects for organization', { organizationId });
     // Endpoint capability detection: probe
     try {
-        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/`);
+        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${organizationId}`);
         logger.debug('Raw projects response', response);
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
@@ -44,7 +44,7 @@ export async function createProject(
         throw new Error('Organization ID is required to create a project');
     }
     logger.info('Creating project via API', { organizationId, name });
-    const response = await apiFetch<ApiResponse<ApiProject>>(`/projects/`, {
+    const response = await apiFetch<ApiResponse<ApiProject>>(`/projects/tenant/${organizationId}`, {
         method: 'POST',
         body: JSON.stringify({ name }),
     });
