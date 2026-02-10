@@ -1207,6 +1207,154 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/tenant/{tenant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Projects For Tenant
+         * @description List projects for the specified tenant for admin users
+         */
+        get: operations["list_projects_for_tenant_projects_tenant__tenant_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Projects For Current Tenant
+         * @description List projects for the current tenant
+         */
+        get: operations["list_projects_for_current_tenant_projects__get"];
+        put?: never;
+        /**
+         * Create Project For Tenant
+         * @description Create a new project for the current tenant
+         */
+        post: operations["create_project_for_tenant_projects__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Project
+         * @description Get a project by ID
+         */
+        get: operations["get_project_projects__project_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Project
+         * @description Update a project by ID
+         */
+        patch: operations["update_project_projects__project_id__patch"];
+        trace?: never;
+    };
+    "/projects/{project_id}/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Threads For Project
+         * @description List threads for a project
+         */
+        get: operations["list_threads_for_project_projects__project_id__threads_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Issues For Project
+         * @description List issues for a project
+         */
+        get: operations["list_issues_for_project_projects__project_id__issues_get"];
+        put?: never;
+        /**
+         * Create Issue For Project
+         * @description Create an issue for a project
+         */
+        post: operations["create_issue_for_project_projects__project_id__issues_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/threads/{thread_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Thread */
+        get: operations["get_thread_threads__thread_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Thread */
+        patch: operations["update_thread_threads__thread_id__patch"];
+        trace?: never;
+    };
+    "/issues/{issue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Issue */
+        get: operations["get_issue_issues__issue_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Issue */
+        patch: operations["update_issue_issues__issue_id__patch"];
+        trace?: never;
+    };
     "/realtime_chat": {
         parameters: {
             query?: never;
@@ -1420,6 +1568,17 @@ export interface components {
             /** Token */
             token: string;
         };
+        /** AgentResponse */
+        AgentResponse: {
+            /** Id */
+            id?: string | null;
+            status: components["schemas"]["AgentStatus"];
+        };
+        /**
+         * AgentStatus
+         * @enum {string}
+         */
+        AgentStatus: "online" | "offline";
         /**
          * AudioConversationListResponse
          * @description List of audio conversations.
@@ -1842,6 +2001,11 @@ export interface components {
              * @default false
              */
             is_supervisor: boolean | null;
+            /**
+             * Name
+             * @description Display name
+             */
+            name?: string | null;
         };
         /**
          * DatasourceDetailResponse
@@ -2155,6 +2319,25 @@ export interface components {
             message: string;
             data?: components["schemas"]["InvitationResponse"] | null;
         };
+        /** GenericResponse[IssueResponse] */
+        GenericResponse_IssueResponse_: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            data?: components["schemas"]["IssueResponse"] | null;
+        };
         /** GenericResponse[List[FileChunkEmbeddingResponse]] */
         GenericResponse_List_FileChunkEmbeddingResponse__: {
             /**
@@ -2273,6 +2456,25 @@ export interface components {
             message: string;
             data?: components["schemas"]["OAuth2TokenResponse"] | null;
         };
+        /** GenericResponse[ProjectResponse] */
+        GenericResponse_ProjectResponse_: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            data?: components["schemas"]["ProjectResponse"] | null;
+        };
         /** GenericResponse[SharePointSyncResponse] */
         GenericResponse_SharePointSyncResponse_: {
             /**
@@ -2329,6 +2531,44 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["TenantUserResponse"] | null;
+        };
+        /** GenericResponse[ThreadDetailResponse] */
+        GenericResponse_ThreadDetailResponse_: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            data?: components["schemas"]["ThreadDetailResponse"] | null;
+        };
+        /** GenericResponse[ThreadResponse] */
+        GenericResponse_ThreadResponse_: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            data?: components["schemas"]["ThreadResponse"] | null;
         };
         /** GenericResponse[UserResponse] */
         GenericResponse_UserResponse_: {
@@ -2451,6 +2691,46 @@ export interface components {
             /** Data */
             data?: components["schemas"]["GoogleDriveWatchConfigResponse"][] | null;
         };
+        /** GenericResponse[list[IssueResponse]] */
+        GenericResponse_list_IssueResponse__: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["IssueResponse"][] | null;
+        };
+        /** GenericResponse[list[ProjectResponse]] */
+        GenericResponse_list_ProjectResponse__: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["ProjectResponse"][] | null;
+        };
         /** GenericResponse[list[SharePointWatchConfigResponse]] */
         GenericResponse_list_SharePointWatchConfigResponse__: {
             /**
@@ -2470,6 +2750,26 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["SharePointWatchConfigResponse"][] | null;
+        };
+        /** GenericResponse[list[ThreadResponse]] */
+        GenericResponse_list_ThreadResponse__: {
+            /**
+             * Code
+             * @default 200
+             */
+            code: number;
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["ThreadResponse"][] | null;
         };
         /**
          * GoogleDriveFolderConfig
@@ -2570,14 +2870,77 @@ export interface components {
              */
             created_at: string;
         };
+        /** IssueCreateRequest */
+        IssueCreateRequest: {
+            /**
+             * Title
+             * @description Issue title
+             */
+            title: string;
+            /**
+             * Description
+             * @description Issue description
+             */
+            description: string;
+        };
+        /** IssueResponse */
+        IssueResponse: {
+            /** Id */
+            id: string;
+            /** Project Id */
+            project_id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            status: components["schemas"]["IssueStatus"];
+            /**
+             * Thread Count
+             * @default 0
+             */
+            thread_count: number;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * IssueStatus
+         * @enum {string}
+         */
+        IssueStatus: "open" | "in_progress" | "resolved";
+        /** IssueUpdateRequest */
+        IssueUpdateRequest: {
+            /** @description Issue status */
+            status?: components["schemas"]["IssueStatus"] | null;
+            /**
+             * Title
+             * @description Issue title
+             */
+            title?: string | null;
+            /**
+             * Description
+             * @description Issue description
+             */
+            description?: string | null;
+        };
         /**
          * OAuth2AuthorizeRequest
          * @description Request to get OAuth2 authorization URL
          */
         OAuth2AuthorizeRequest: {
-            /** Provider */
-            provider: string;
-            /** Redirect Uri */
+            /**
+             * Provider
+             * @enum {string}
+             */
+            provider: "google_drive" | "sharepoint";
+            /**
+             * Redirect Uri
+             * Format: uri
+             */
             redirect_uri: string;
         };
         /**
@@ -2595,11 +2958,17 @@ export interface components {
          * @description Request to exchange authorization code for tokens
          */
         OAuth2CallbackRequest: {
-            /** Provider */
-            provider: string;
+            /**
+             * Provider
+             * @enum {string}
+             */
+            provider: "google_drive" | "sharepoint";
             /** Code */
             code: string;
-            /** Redirect Uri */
+            /**
+             * Redirect Uri
+             * Format: uri
+             */
             redirect_uri: string;
         };
         /**
@@ -2644,6 +3013,49 @@ export interface components {
              * @description URL expiration time in seconds
              */
             expires_in: number;
+        };
+        /** ProjectCreateRequest */
+        ProjectCreateRequest: {
+            /**
+             * Name
+             * @description Project name
+             */
+            name: string;
+        };
+        /** ProjectResponse */
+        ProjectResponse: {
+            /** Id */
+            id: string;
+            /** Tenant Id */
+            tenant_id: number;
+            /** Name */
+            name: string;
+            /**
+             * Thread Count
+             * @default 0
+             */
+            thread_count: number;
+            /**
+             * Issue Count
+             * @default 0
+             */
+            issue_count: number;
+            /** Last Activity At */
+            last_activity_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            agent?: components["schemas"]["AgentResponse"] | null;
+        };
+        /** ProjectUpdateRequest */
+        ProjectUpdateRequest: {
+            /**
+             * Name
+             * @description Project name
+             */
+            name?: string | null;
         };
         /** ReprocessBatchRequest */
         ReprocessBatchRequest: {
@@ -2799,6 +3211,11 @@ export interface components {
             created_at?: string | null;
             /** Updated At */
             updated_at?: string | null;
+            /**
+             * Projects Count
+             * @default 0
+             */
+            projects_count: number;
         };
         /** TenantUserRequest */
         TenantUserRequest: {
@@ -2834,6 +3251,69 @@ export interface components {
             /** Updated At */
             updated_at?: string | null;
         };
+        /** ThreadDetailResponse */
+        ThreadDetailResponse: {
+            /** Id */
+            id: string;
+            /** Project Id */
+            project_id: string;
+            /** User Id */
+            user_id: string;
+            /** Issue Id */
+            issue_id: string;
+            status: components["schemas"]["ThreadStatus"];
+            /** Subject */
+            subject?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Last Activity At */
+            last_activity_at?: string | null;
+            contact?: components["schemas"]["UserResponse"] | null;
+            issue?: components["schemas"]["IssueResponse"] | null;
+        };
+        /** ThreadResponse */
+        ThreadResponse: {
+            /** Id */
+            id: string;
+            /** Project Id */
+            project_id: string;
+            /** User Id */
+            user_id: string;
+            /** Issue Id */
+            issue_id: string;
+            status: components["schemas"]["ThreadStatus"];
+            /** Subject */
+            subject?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Last Activity At */
+            last_activity_at?: string | null;
+        };
+        /**
+         * ThreadStatus
+         * @enum {string}
+         */
+        ThreadStatus: "open" | "needs_response" | "waiting" | "done";
+        /** ThreadUpdateRequest */
+        ThreadUpdateRequest: {
+            /** @description Thread status */
+            status?: components["schemas"]["ThreadStatus"] | null;
+            /**
+             * Issue Id
+             * @description Issue ID
+             */
+            issue_id?: string | null;
+        };
         /** UpdateUserRequest */
         UpdateUserRequest: {
             /** Given Name */
@@ -2846,6 +3326,8 @@ export interface components {
             phone_number?: string | null;
             /** Is Supervisor */
             is_supervisor?: boolean | null;
+            /** Reports To Id */
+            reports_to_id?: string | null;
         };
         /** UserPermissionResponse */
         UserPermissionResponse: {
@@ -2861,12 +3343,21 @@ export interface components {
             /** Updated At */
             updated_at?: string | null;
         };
+        /** UserRef */
+        UserRef: {
+            /** Id */
+            id: string;
+            /** Name */
+            name?: string | null;
+            /** Email */
+            email?: string | null;
+        };
         /** UserResponse */
         UserResponse: {
             /** Id */
             id: string;
             /** Username */
-            username: string;
+            username?: string | null;
             /** Email */
             email: string;
             /**
@@ -2883,6 +3374,14 @@ export interface components {
             created_at?: string | null;
             /** Updated At */
             updated_at?: string | null;
+            /**
+             * Thread Count
+             * @default 0
+             */
+            thread_count: number;
+            /** Reports To Id */
+            reports_to_id?: string | null;
+            reports_to?: components["schemas"]["UserRef"] | null;
         };
         /**
          * UserRole
@@ -2897,13 +3396,14 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
-    parameters: {
-        /** @description Tenant ID for multi-tenant operations */
-        TenantIdHeader: string;
-    };
+    parameters: never;
     requestBodies: never;
     headers: never;
     pathItems: never;
@@ -2913,10 +3413,7 @@ export interface operations {
     test_static_test_static_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -2937,8 +3434,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -2973,8 +3469,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3012,8 +3507,7 @@ export interface operations {
                 source?: string | null;
             };
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3044,8 +3538,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3061,14 +3554,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_list_SharePointWatchConfigResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_google_drive_config_datasources_google_drive_config_get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3084,14 +3585,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_list_GoogleDriveWatchConfigResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_datasource_datasources__datasource_id__get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 datasource_id: number;
@@ -3124,8 +3633,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 datasource_id: number;
@@ -3158,8 +3666,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 datasource_id: number;
@@ -3192,8 +3699,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 datasource_id: number;
@@ -3228,8 +3734,6 @@ export interface operations {
             header?: {
                 "x-goog-channel-id"?: string | null;
                 "x-goog-resource-state"?: string | null;
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
             };
             path?: never;
             cookie?: never;
@@ -3260,8 +3764,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3297,10 +3800,7 @@ export interface operations {
             query?: {
                 validationToken?: string | null;
             };
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3347,8 +3847,7 @@ export interface operations {
                 sort_order?: string | null;
             };
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3379,8 +3878,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 chunk_id: number;
@@ -3413,8 +3911,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3449,8 +3946,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3485,8 +3981,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 template_id: number;
@@ -3519,8 +4014,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 session_id: string;
@@ -3553,8 +4047,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 session_id: string;
@@ -3589,8 +4082,7 @@ export interface operations {
                 expires_in?: number;
             };
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 session_id: string;
@@ -3623,8 +4115,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -3657,8 +4148,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -3692,8 +4182,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -3726,8 +4215,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 session_id: string;
@@ -3760,8 +4248,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 session_id: string;
@@ -3793,10 +4280,7 @@ export interface operations {
     webhook_openai_webhook_post: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3834,8 +4318,7 @@ export interface operations {
                 conversation_parameter_template_id: number;
             };
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3866,8 +4349,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3883,14 +4365,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_list_ChatConversationParameterTemplateResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     create_conversation_parameter_template_chat_conversation_parameter_templates_post: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -3925,8 +4415,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 template_id: number;
@@ -3959,8 +4448,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 template_id: number;
@@ -3997,8 +4485,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 template_id: number;
@@ -4031,8 +4518,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 template_id: number;
@@ -4069,8 +4555,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4086,14 +4571,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_List_TenantUserResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     add_tenant_user_tenants_users_post: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4128,8 +4621,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -4162,8 +4654,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -4200,8 +4691,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -4238,8 +4728,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 user_id: string;
@@ -4276,8 +4765,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4312,8 +4800,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4348,8 +4835,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4369,14 +4855,33 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_OAuth2AuthorizeResponse_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
         };
     };
@@ -4384,8 +4889,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4405,14 +4909,33 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_OAuth2TokenResponse_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
         };
     };
@@ -4420,8 +4943,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4437,14 +4959,41 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_list_CloudStorageTokenInfo__"];
                 };
             };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     get_oauth_token_oauth2_tokens__provider__get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 provider: string;
@@ -4462,14 +5011,40 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_CloudStorageTokenInfo_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
         };
     };
@@ -4477,8 +5052,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 provider: string;
@@ -4496,14 +5070,40 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_dict_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
         };
     };
@@ -4511,8 +5111,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4528,14 +5127,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_UserResponse_"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_user_tenants_user_tenants_get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4551,14 +5158,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_List_TenantResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     create_tenant_with_instructor_permission_user_tenants_post: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4593,8 +5208,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4629,8 +5243,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4646,14 +5259,22 @@ export interface operations {
                     "application/json": components["schemas"]["GenericResponse_List_TenantResponse__"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     create_tenant_admin_tenants_post: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -4688,8 +5309,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4722,8 +5342,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4760,8 +5379,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4798,8 +5416,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4832,8 +5449,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4870,8 +5486,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4905,8 +5520,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4944,8 +5558,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
             path: {
                 tenant_id: number;
@@ -4979,13 +5592,663 @@ export interface operations {
             };
         };
     };
-    root_realtime_chat_get: {
+    list_projects_for_tenant_projects_tenant__tenant_id__get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
+                "x-tenant-id"?: string | null;
             };
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_list_ProjectResponse__"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_projects_for_current_tenant_projects__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_list_ProjectResponse__"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_project_for_tenant_projects__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_ProjectResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_project_projects__project_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_ProjectResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_project_projects__project_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_ProjectResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_threads_for_project_projects__project_id__threads_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ThreadStatus"] | null;
+                issue_id?: string | null;
+                user_id?: string | null;
+            };
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_list_ThreadResponse__"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_issues_for_project_projects__project_id__issues_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["IssueStatus"] | null;
+            };
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_list_IssueResponse__"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_issue_for_project_projects__project_id__issues_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_IssueResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_thread_threads__thread_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                thread_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_ThreadDetailResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_thread_threads__thread_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                thread_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThreadUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_ThreadResponse_"];
+                };
+            };
+            /** @description Invalid thread/issue relationship */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_issue_issues__issue_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                issue_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_IssueResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_issue_issues__issue_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-tenant-id"?: string | null;
+            };
+            path: {
+                issue_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericResponse_IssueResponse_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    root_realtime_chat_get: {
+        parameters: {
+            query?: never;
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5005,10 +6268,7 @@ export interface operations {
     twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path: {
                 tenant_id: number;
             };
@@ -5039,10 +6299,7 @@ export interface operations {
     twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path: {
                 tenant_id: number;
             };
@@ -5073,10 +6330,7 @@ export interface operations {
     incoming_call_realtime_chat_incoming_call_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5096,10 +6350,7 @@ export interface operations {
     incoming_call_realtime_chat_incoming_call_post: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5119,10 +6370,7 @@ export interface operations {
     incoming_call_gather_realtime_chat_incoming_call_gather_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5142,10 +6390,7 @@ export interface operations {
     incoming_call_gather_realtime_chat_incoming_call_gather_post: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5167,10 +6412,7 @@ export interface operations {
             query: {
                 session_id: string;
             };
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5201,10 +6443,7 @@ export interface operations {
             query: {
                 session_id: string;
             };
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5233,10 +6472,7 @@ export interface operations {
     sms_webhook_realtime_chat_sms_webhook_post: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5256,10 +6492,7 @@ export interface operations {
     trigger_error_debug_trigger_error_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5279,10 +6512,7 @@ export interface operations {
     trigger_warning_debug_trigger_warning_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5302,10 +6532,7 @@ export interface operations {
     trigger_exception_debug_trigger_exception_get: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Tenant ID for multi-tenant operations */
-                "x-tenant-id"?: components["parameters"]["TenantIdHeader"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };

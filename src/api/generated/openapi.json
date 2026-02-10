@@ -38,7 +38,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -98,7 +98,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -176,7 +176,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -226,7 +226,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -276,7 +276,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -335,7 +335,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -392,7 +392,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -451,7 +451,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -510,7 +510,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -624,7 +624,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -842,7 +842,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -901,7 +901,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -951,7 +951,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1011,7 +1011,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1080,7 +1080,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1139,7 +1139,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1196,7 +1196,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1265,7 +1265,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1324,7 +1324,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1392,7 +1392,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1451,7 +1451,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1514,7 +1514,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1571,7 +1571,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1671,7 +1671,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1721,7 +1721,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1779,7 +1779,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1838,7 +1838,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1895,7 +1895,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1962,7 +1962,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2029,7 +2029,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2078,7 +2078,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2135,7 +2135,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2193,7 +2193,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2249,7 +2249,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2317,7 +2317,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2383,7 +2383,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2443,7 +2443,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2503,7 +2503,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2563,7 +2563,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2625,7 +2625,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2687,7 +2687,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2748,7 +2748,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2812,7 +2812,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2867,7 +2867,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2917,7 +2917,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2965,7 +2965,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3025,7 +3025,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3084,7 +3084,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3100,7 +3100,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenericResponse_List_AdminTenantResponse__"
+                  "$ref": "#/components/schemas/GenericResponse_List_TenantResponse__"
                 }
               }
             }
@@ -3131,7 +3131,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3199,7 +3199,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3255,7 +3255,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3323,7 +3323,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3392,7 +3392,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3458,7 +3458,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3525,7 +3525,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3592,7 +3592,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3667,7 +3667,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3736,7 +3736,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3788,7 +3788,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3838,7 +3838,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3909,7 +3909,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -3968,7 +3968,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4087,7 +4087,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4164,7 +4164,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4223,7 +4223,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4293,7 +4293,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4351,7 +4351,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4424,7 +4424,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4482,7 +4482,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -4878,86 +4878,6 @@
           "token"
         ],
         "title": "AcceptInvitationRequest"
-      },
-      "AdminTenantResponse": {
-        "properties": {
-          "id": {
-            "type": "integer",
-            "title": "Id"
-          },
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
-          "twilio_number": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Twilio Number"
-          },
-          "is_disabled": {
-            "type": "boolean",
-            "title": "Is Disabled",
-            "default": false
-          },
-          "created_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Created At"
-          },
-          "updated_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Updated At"
-          },
-          "projects_count": {
-            "type": "integer",
-            "title": "Projects Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "projects_count"
-        ],
-        "title": "AdminTenantResponse"
       },
       "AgentResponse": {
         "properties": {
@@ -6448,41 +6368,6 @@
         },
         "type": "object",
         "title": "GenericResponse[IssueResponse]"
-      },
-      "GenericResponse_List_AdminTenantResponse__": {
-        "properties": {
-          "code": {
-            "type": "integer",
-            "title": "Code",
-            "default": 200
-          },
-          "success": {
-            "type": "boolean",
-            "title": "Success",
-            "default": true
-          },
-          "message": {
-            "type": "string",
-            "title": "Message",
-            "default": ""
-          },
-          "data": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/AdminTenantResponse"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Data"
-          }
-        },
-        "type": "object",
-        "title": "GenericResponse[List[AdminTenantResponse]]"
       },
       "GenericResponse_List_FileChunkEmbeddingResponse__": {
         "properties": {
@@ -8065,6 +7950,11 @@
               }
             ],
             "title": "Updated At"
+          },
+          "projects_count": {
+            "type": "integer",
+            "title": "Projects Count",
+            "default": 0
           }
         },
         "type": "object",
