@@ -231,7 +231,7 @@ export function mapOrganizationResponse(org: ApiOrganization): Organization {
     return {
         id: toStringId(org.id),
         name: org.name || 'Unnamed Organization',
-        projectCount: typeof org.project_count === 'number' ? org.project_count : undefined,
+        projectCount: typeof org.project_count === 'number' ? org.project_count : 0,
         memberCount: typeof org.member_count === 'number' ? org.member_count : undefined,
         createdAt: toIsoString(org.created_at),
     };
@@ -242,7 +242,7 @@ export function mapTenantToOrganization(tenant: ApiTenant): Organization {
     return {
         id,
         name: tenant.name || 'Unnamed Organization',
-        projectCount: undefined,
+        projectCount: 0,
         memberCount: undefined,
         createdAt: toIsoString(tenant.created_at),
     };

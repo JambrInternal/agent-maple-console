@@ -15,19 +15,24 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
     }
     logger.info('Fetching projects for organization', { organizationId });
     // Endpoint capability detection: probe
-    try {
-        const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/`);
-        logger.debug('Raw projects response', response);
-        const data = unwrapData(response, []);
-        logger.info('Projects fetched', { count: data.length });
-        return data.map(mapProjectResponse);
-    } catch (error) {
-        const status = getErrorStatus(error);
-        if (status === 404) {
-            logger.warn('Projects endpoint not supported, returning empty list');
-            return [];
-        }
-        throw error;
+        try {
+            // Preferred: tenant-scoped list
+            const response = await apiFetch<ApiResponse<ApiProject[]>>(
+                `/projects/tenant/${organizationId}`
+            );
+            logger.debug('Raw projects response', response);
+            const data = unwrapData(response, []);
+            logger.info('Projects fetched', { count: data.length });
+            return data.map(mapProjectResponse);
+        } catch (error) {
+            const status = getErrorStatus(error);
+            // Optional fallback: if tenant-scoped list isn't supported, try the generic list
+            if (status === 404) {
+                const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/`);
+                const data = unwrapData(response, []);
+                return data.map(mapProjectResponse);
+            }
+            throw error;
     }
 }
 
@@ -44,7 +49,7 @@ export async function createProject(
         throw new Error('Organization ID is required to create a project');
     }
     logger.info('Creating project via API', { organizationId, name });
-    const response = await apiFetch<ApiResponse<ApiProject>>('/projects/', {
+        const response = await apiFetch<ApiResponse<ApiProject>>(`/projects/tenant/${organizationId}`, {
         method: 'POST',
         headers: {
             'x-tenant-id': organizationId,
