@@ -13,14 +13,32 @@ const STATUS_HINTS: Record<number, string> = {
 };
 
 const getErrorDetail = (error: unknown): string | null => {
-    if (!error || typeof error !== 'object') return null;
+    if (!error) return null;
+
+    // Standard JS Error
+    if (error instanceof Error && error.message) return error.message;
+
+    if (typeof error !== 'object') return null;
+
+    // ApiError details (backend message body)
     if (error instanceof ApiError) {
         const details = error.details as { message?: string; detail?: Array<{ msg?: string }> } | undefined;
         if (details?.message) return details.message;
-        if (Array.isArray(details?.detail) && details.detail[0]?.msg) {
-            return details.detail[0].msg;
-        }
+        if (Array.isArray(details?.detail) && details.detail[0]?.msg) return details.detail[0].msg;
     }
+
+    // Generic object with message
+    const msg = (error as any).message;
+    if (typeof msg === 'string' && msg.trim()) return msg;
+
+    // Last resort: stringify unknown objects (bounded so UI doesn't explode)
+    try {
+        const s = JSON.stringify(error);
+        if (s && s !== '{}' && s !== '[]') return s.slice(0, 200);
+    } catch {
+        // ignore
+    }
+
     return null;
 };
 
