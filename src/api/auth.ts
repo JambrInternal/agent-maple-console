@@ -3,12 +3,42 @@ import {
     signOut,
     fetchAuthSession,
     getCurrentUser,
+    fetchUserAttributes,
 } from 'aws-amplify/auth';
-import type { User } from './types';
+import type { User, UserRole } from './types';
+import { apiFetch } from './client';
+import { clearAdminMode, setAdminMode } from '../utils/admin';
 
 export interface AuthSession {
     user: User | null;
     token: string | null;
+}
+
+async function determineRoleAndSetAdminMode(): Promise<UserRole> {
+    try {
+        const attributes = await fetchUserAttributes();
+        const cognitoRole = attributes['custom:role'];
+
+        if (cognitoRole === 'ADMIN') {
+            try {
+                // Verify admin status with backend
+                await apiFetch('/admin/tenants');
+                setAdminMode(true);
+                return 'admin';
+            } catch (error) {
+                console.warn('Failed to verify admin status, falling back to member mode', error);
+                setAdminMode(false);
+                return 'member';
+            }
+        }
+
+        setAdminMode(false);
+        return 'member';
+    } catch (error) {
+        console.warn('Failed to fetch user attributes', error);
+        setAdminMode(false);
+        return 'member';
+    }
 }
 
 export async function login(email: string, password: string): Promise<AuthSession> {
@@ -32,13 +62,14 @@ export async function login(email: string, password: string): Promise<AuthSessio
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
         const token = session.tokens?.idToken?.toString() || null;
+        const role = await determineRoleAndSetAdminMode();
 
         return {
             user: {
                 id: cognitoUser.userId,
-                email: email, // Email isn't in standard getCurrentUser, usually in attributes
+                email: email,
                 name: email,
-                role: 'admin', // Default role for now
+                role: role,
                 organizationId: null,
                 tenantId: null,
                 mfaEnabled: false,
@@ -53,6 +84,8 @@ export async function login(email: string, password: string): Promise<AuthSessio
 
 export async function logout(): Promise<void> {
     await signOut();
+    localStorage.removeItem('am_auth_token');
+    clearAdminMode();
 }
 
 export async function getSessionUser(): Promise<User | null> {
@@ -64,11 +97,15 @@ export async function getSessionUser(): Promise<User | null> {
             localStorage.setItem('am_auth_token', token);
         }
 
+        const role = await determineRoleAndSetAdminMode();
+        const attributes = await fetchUserAttributes();
+        const email = attributes.email || cognitoUser.username;
+
         return {
             id: cognitoUser.userId,
-            email: cognitoUser.username,
-            name: cognitoUser.username,
-            role: 'admin',
+            email: email,
+            name: email,
+            role: role,
             organizationId: null,
             tenantId: null,
             mfaEnabled: false,

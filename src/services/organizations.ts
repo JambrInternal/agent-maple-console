@@ -1,5 +1,5 @@
 import { apiFetch, getErrorStatus } from '../api/client';
-import type { Organization } from '../api/types';
+import type { CreateOrganizationRequest, Organization } from '../api/types';
 import { mapTenantToOrganization, unwrapData, type ApiResponse, type ApiProject, type ApiTenant } from '../api/mappers';
 import { getAdminMode, setAdminMode } from '../utils/admin';
 
@@ -10,9 +10,7 @@ type OrganizationOptions = {
 const listAdminTenants = async (): Promise<ApiTenant[] | null> => {
     try {
         const response = await apiFetch<ApiResponse<ApiTenant[]>>('/admin/tenants');
-        const data = unwrapData(response, []);
-        setAdminMode(true);
-        return data;
+        return unwrapData(response, []);
     } catch (error) {
         const status = getErrorStatus(error);
         if (status === 401 || status === 403) {
@@ -31,61 +29,33 @@ const listUserTenants = async (): Promise<ApiTenant[]> => {
 /**
  * Get all organizations for the current user
  */
-export async function getOrganizations(options: OrganizationOptions = {}): Promise<Organization[]> {
-    const includeProjectCounts = options.includeProjectCounts ?? false;
-    const adminTenants = await listAdminTenants();
-    const data = adminTenants ?? (await listUserTenants());
-    const baseOrgs = data.map(mapTenantToOrganization);
-
-    if (!includeProjectCounts) {
-        return baseOrgs;
+export async function getOrganizations(_options: OrganizationOptions = {}): Promise<Organization[]> {
+    if (getAdminMode()) {
+        const adminTenants = await listAdminTenants();
+        if (adminTenants !== null) {
+            return adminTenants.map(mapTenantToOrganization);
+        }
     }
-    const counts = await Promise.all(
-        baseOrgs.map(async (org) => {
-            if (!org.id) return org;
-            try {
-                // /projects/tenant/{tenantId} is only for ADMIN role
-                const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
-                const projects = unwrapData(projectsResponse, []);
-                return { ...org, projectCount: projects.length };
-            } catch (error) {
-                const status = getErrorStatus(error);
-                if (status === 404) {
-                    // Endpoint not supported, return org as-is (no projectCount)
-                    return org;
-                }
-                console.warn(`Failed to load projects for organization ${org.id}:`, error);
-                return org;
-            }
-        })
-    );
-    return counts;
+
+    const userTenants = await listUserTenants();
+    return userTenants.map(mapTenantToOrganization);
 }
 
 /**
  * Get a single organization by ID
  */
-export async function getOrganization(id: string, options: OrganizationOptions = {}): Promise<Organization> {
-    const includeProjectCounts = options.includeProjectCounts ?? false;
+export async function getOrganization(id: string): Promise<Organization> {
     const isAdmin = getAdminMode();
     if (isAdmin) {
         try {
             const adminResponse = await apiFetch<ApiResponse<ApiTenant>>(`/admin/tenants/${id}`);
             const adminTenant = unwrapData(adminResponse);
-            const org = mapTenantToOrganization(adminTenant);
-            if (!includeProjectCounts) return org;
-            try {
-                // /projects/tenant/{tenantId} is only for ADMIN role
-                const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
-                const projects = unwrapData(projectsResponse, []);
-                return { ...org, projectCount: projects.length };
-            } catch (error) {
-                console.warn(`Failed to load projects for organization ${org.id}:`, error);
-                return org;
-            }
+            return mapTenantToOrganization(adminTenant);
         } catch (error) {
             const status = getErrorStatus(error);
-            if (status !== 401 && status !== 403) {
+            if (status === 401 || status === 403) {
+                setAdminMode(false);
+            } else {
                 throw error;
             }
         }
@@ -96,27 +66,28 @@ export async function getOrganization(id: string, options: OrganizationOptions =
     if (!tenant) {
         throw new Error(`Organization not found: ${id}`);
     }
-    const org = mapTenantToOrganization(tenant);
-    if (!includeProjectCounts) return org;
-    try {
-        // /projects/tenant/{tenantId} is only for ADMIN role
-        const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
-        const projects = unwrapData(projectsResponse, []);
-        return { ...org, projectCount: projects.length };
-    } catch (error) {
-        console.warn(`Failed to load projects for organization ${org.id}:`, error);
-        return org;
-    }
+    return mapTenantToOrganization(tenant);
 }
 
 /**
  * Create a new organization
  */
-export async function createOrganization(name: string): Promise<Organization> {
-    const endpoint = getAdminMode() ? '/admin/tenants' : '/user/tenants';
+export async function createOrganization(request: CreateOrganizationRequest | string): Promise<Organization> {
+    const isAdmin = getAdminMode();
+    const endpoint = isAdmin ? '/admin/tenants' : '/user/tenants';
+
+    const body = typeof request === 'string'
+        ? { name: request }
+        : {
+            name: request.name,
+            description: request.description,
+            twilio_number: request.twilioNumber,
+            obtain_twilio_phone_number: request.obtainTwilioPhoneNumber,
+        };
+
     const response = await apiFetch<ApiResponse<ApiTenant>>(endpoint, {
         method: 'POST',
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(body),
     });
     const data = unwrapData(response);
     return mapTenantToOrganization(data);

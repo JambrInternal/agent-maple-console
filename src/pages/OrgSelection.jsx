@@ -18,6 +18,9 @@ const OrgSelection = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [createName, setCreateName] = useState('')
+    const [createDescription, setCreateDescription] = useState('')
+    const [createTwilioNumber, setCreateTwilioNumber] = useState('')
+    const [obtainTwilio, setObtainTwilio] = useState(false)
     const [createError, setCreateError] = useState('')
     const [isCreating, setIsCreating] = useState(false)
     const navigate = useNavigate()
@@ -35,6 +38,9 @@ const OrgSelection = () => {
 
     const openCreateModal = () => {
         setCreateName('')
+        setCreateDescription('')
+        setCreateTwilioNumber('')
+        setObtainTwilio(false)
         setCreateError('')
         setIsCreateOpen(true)
     }
@@ -54,7 +60,12 @@ const OrgSelection = () => {
         setCreateError('')
         setIsCreating(true)
         try {
-            const org = await createOrganization(trimmed)
+            const org = await createOrganization({
+                name: trimmed,
+                description: createDescription.trim() || undefined,
+                twilioNumber: createTwilioNumber.trim() || undefined,
+                obtainTwilioPhoneNumber: obtainTwilio
+            })
             setOrgs((prev) => [org, ...prev])
             localStorage.setItem('am_tenant_id', org.id)
             setIsCreateOpen(false)
@@ -174,7 +185,11 @@ const OrgSelection = () => {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <h3 className="am-text-1" style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>{org.name}</h3>
-                                <p className="am-text-2" style={{ fontSize: '0.875rem' }}>{org.projectCount} {org.projectCount === 1 ? 'Project' : 'Projects'}</p>
+                                {typeof org.projectCount === 'number' && (
+                                    <p className="am-text-2" style={{ fontSize: '0.875rem' }}>
+                                        {org.projectCount} {org.projectCount === 1 ? 'Project' : 'Projects'}
+                                    </p>
+                                )}
                             </div>
                             <ArrowRight size={20} className="am-text-2" />
                         </div>
@@ -229,6 +244,47 @@ const OrgSelection = () => {
                                         disabled={isCreating}
                                         required
                                     />
+                                </div>
+                                <div className="am-form-field">
+                                    <label className="am-label" htmlFor="org-description">
+                                        Description (Optional)
+                                    </label>
+                                    <textarea
+                                        id="org-description"
+                                        className="am-input"
+                                        placeholder="Enter organization description"
+                                        value={createDescription}
+                                        onChange={(event) => setCreateDescription(event.target.value)}
+                                        disabled={isCreating}
+                                        rows={3}
+                                        style={{ resize: 'vertical' }}
+                                    />
+                                </div>
+                                <div className="am-form-field">
+                                    <label className="am-label" htmlFor="org-twilio">
+                                        Twilio Phone Number (Optional)
+                                    </label>
+                                    <input
+                                        id="org-twilio"
+                                        className="am-input"
+                                        type="text"
+                                        placeholder="+1234567890"
+                                        value={createTwilioNumber}
+                                        onChange={(event) => setCreateTwilioNumber(event.target.value)}
+                                        disabled={isCreating || obtainTwilio}
+                                    />
+                                </div>
+                                <div className="am-form-field" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                    <input
+                                        id="org-obtain-twilio"
+                                        type="checkbox"
+                                        checked={obtainTwilio}
+                                        onChange={(event) => setObtainTwilio(event.target.checked)}
+                                        disabled={isCreating}
+                                    />
+                                    <label className="am-label" htmlFor="org-obtain-twilio" style={{ margin: 0, cursor: 'pointer' }}>
+                                        Automatically obtain a Twilio phone number
+                                    </label>
                                 </div>
                             </div>
                             <div className="am-modal-footer">

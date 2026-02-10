@@ -47,6 +47,6 @@ describe('OrgSelection', () => {
         await user.type(screen.getByLabelText('Organization Name'), 'New Org')
         await user.click(screen.getByRole('button', { name: 'Create Organization' }))
 
-        expect(createOrganization).toHaveBeenCalledWith('New Org')
+        expect(createOrganization).toHaveBeenCalledWith(expect.objectContaining({ name: 'New Org' }))
     })
 })
