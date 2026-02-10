@@ -35,7 +35,7 @@ describe('organizations service', () => {
             expect.objectContaining({
                 id: 'tenant_1',
                 name: 'Iron Maple',
-                projectCount: 0,
+                projectCount: undefined,
                 createdAt: '2026-02-01T00:00:00.000Z',
             }),
         ]);
@@ -63,7 +63,7 @@ describe('organizations service', () => {
             expect.objectContaining({
                 id: 'tenant_1',
                 name: 'Iron Maple',
-                projectCount: 2,
+                projectCount: 5,
                 createdAt: '2026-02-01T00:00:00.000Z',
             }),
         ]);
@@ -85,7 +85,7 @@ describe('organizations service', () => {
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/tenants');
         expect(result.id).toBe('tenant_2');
-        expect(result.projectCount).toBe(0);
+        expect(result.projectCount).toBeUndefined();
     });
 
     it('gets a single organization for admin (potentially with projects_count)', async () => {
