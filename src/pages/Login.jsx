@@ -196,9 +196,7 @@ const Login = () => {
                 <div style={{ marginBottom: '2.5rem' }}>
                     {/* One-line Agent Maple Logo (light in dark theme, dark in light theme) */}
                     <img
-                        src={theme === 'light'
-                            ? '/agent-maple-wordmark-1line-black-textHalf.png'
-                            : '/agent-maple-wordmark-1line-white-textHalf.png'}
+                        src={theme === 'dark' ? LOGO_LIGHT : LOGO_DARK}
                         alt="Agent Maple Logo"
                         style={{
                             width: '220px',

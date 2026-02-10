@@ -6,7 +6,6 @@ import logger from '../utils/verboseLogger';
 
 const TOKEN_KEY = 'am_auth_token';
 const EXP_KEY = 'am_auth_token_exp';
-const TOKEN_TYPE = 'id'; // Always use Cognito ID token for API auth
 
 let inFlightPromise: Promise<string | null> | null = null;
 
@@ -40,7 +39,7 @@ async function fetchAndStoreToken(): Promise<string | null> {
   try {
     const session = await fetchAuthSession();
     const tokens = (session as any).tokens || {};
-    const tokenObj = TOKEN_TYPE === 'access' ? tokens.accessToken : tokens.idToken;
+    const tokenObj = tokens.idToken;
     const token = tokenObj?.toString() || null;
     const exp = tokenObj?.payload?.exp || null;
     if (token && exp) {

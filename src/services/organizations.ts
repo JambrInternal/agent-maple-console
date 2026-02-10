@@ -44,6 +44,7 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
         baseOrgs.map(async (org) => {
             if (!org.id) return org;
             try {
+                // /projects/tenant/{tenantId} is only for ADMIN role
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
@@ -74,6 +75,7 @@ export async function getOrganization(id: string, options: OrganizationOptions =
             const org = mapTenantToOrganization(adminTenant);
             if (!includeProjectCounts) return org;
             try {
+                // /projects/tenant/{tenantId} is only for ADMIN role
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
@@ -97,6 +99,7 @@ export async function getOrganization(id: string, options: OrganizationOptions =
     const org = mapTenantToOrganization(tenant);
     if (!includeProjectCounts) return org;
     try {
+        // /projects/tenant/{tenantId} is only for ADMIN role
         const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
         const projects = unwrapData(projectsResponse, []);
         return { ...org, projectCount: projects.length };
