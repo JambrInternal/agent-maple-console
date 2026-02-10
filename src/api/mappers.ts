@@ -51,6 +51,7 @@ export type ApiTenant = {
     description?: string | null;
     twilio_number?: string | null;
     is_disabled?: boolean | null;
+    projects_count?: number | null;
     created_at?: string | null;
     updated_at?: string | null;
 };
@@ -242,7 +243,7 @@ export function mapTenantToOrganization(tenant: ApiTenant): Organization {
     return {
         id,
         name: tenant.name || 'Unnamed Organization',
-        projectCount: undefined,
+        projectCount: typeof tenant.projects_count === 'number' ? tenant.projects_count : undefined,
         memberCount: undefined,
         createdAt: toIsoString(tenant.created_at),
     };

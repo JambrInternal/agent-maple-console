@@ -32,7 +32,7 @@ export interface User {
 export interface Organization {
     id: string;
     name: string;
-    projectCount: number;
+    projectCount?: number;
     memberCount?: number;
     plan?: 'starter' | 'professional' | 'enterprise';
     createdAt: string;
@@ -173,6 +173,13 @@ export interface ThreadFilters {
     status?: ThreadStatus;
     issueId?: string;
     contactId?: string;
+}
+
+export interface CreateOrganizationRequest {
+    name: string;
+    description?: string;
+    twilioNumber?: string;
+    obtainTwilioPhoneNumber?: boolean;
 }
 
 export interface DateRange {

@@ -16,7 +16,6 @@ describe('organizations service', () => {
 
     it('lists organizations and maps fields (no projectCount by default)', async () => {
         vi.mocked(apiFetch)
-            .mockRejectedValueOnce({ status: 403 })
             .mockResolvedValueOnce({
                 data: [
                     {
@@ -30,8 +29,8 @@ describe('organizations service', () => {
 
         const result = await getOrganizations();
 
-        expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
-        expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
+        expect(apiFetch).toHaveBeenCalledOnce();
+        expect(apiFetch).toHaveBeenCalledWith('/user/tenants');
         expect(result).toEqual([
             {
                 id: 'tenant_1',
@@ -42,50 +41,29 @@ describe('organizations service', () => {
         ]);
     });
 
-    it('lists organizations with projectCount when requested', async () => {
+    it('lists organizations for admins with projectCount from response', async () => {
+        localStorage.setItem('am_admin_mode', 'true');
         vi.mocked(apiFetch)
-            .mockRejectedValueOnce({ status: 403 })
             .mockResolvedValueOnce({
                 data: [
                     {
                         id: 'tenant_1',
                         name: 'Iron Maple',
                         is_disabled: false,
-                        created_at: '2026-02-01T00:00:00Z',
-                    },
-                ],
-            })
-            .mockResolvedValueOnce({
-                data: [
-                    {
-                        id: 'proj_1',
-                        tenant_id: 1,
-                        name: 'Site A',
-                        thread_count: 0,
-                        issue_count: 0,
-                        created_at: '2026-02-01T00:00:00Z',
-                    },
-                    {
-                        id: 'proj_2',
-                        tenant_id: 1,
-                        name: 'Site B',
-                        thread_count: 0,
-                        issue_count: 0,
+                        projects_count: 5,
                         created_at: '2026-02-01T00:00:00Z',
                     },
                 ],
             });
 
-        const result = await getOrganizations({ includeProjectCounts: true });
+        const result = await getOrganizations();
 
-        expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
-        expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
-        expect(apiFetch).toHaveBeenNthCalledWith(3, '/projects/tenant/tenant_1');
+        expect(apiFetch).toHaveBeenCalledWith('/admin/tenants');
         expect(result).toEqual([
             {
                 id: 'tenant_1',
                 name: 'Iron Maple',
-                projectCount: 2,
+                projectCount: 5,
                 memberCount: undefined,
                 createdAt: '2026-02-01T00:00:00.000Z',
             },
@@ -111,36 +89,23 @@ describe('organizations service', () => {
         expect(result.projectCount).toBeUndefined();
     });
 
-    it('gets a single organization with projectCount when requested', async () => {
+    it('gets a single organization for admin (potentially with projects_count)', async () => {
         vi.mocked(apiFetch)
             .mockResolvedValueOnce({
-                data: [
-                    {
-                        id: 'tenant_2',
-                        name: 'Bushy Tailed',
-                        created_at: '2026-02-02T00:00:00Z',
-                    },
-                ],
-            })
-            .mockResolvedValueOnce({
-                data: [
-                    {
-                        id: 'proj_3',
-                        tenant_id: 2,
-                        name: 'Main Site',
-                        created_at: '2026-02-02T00:00:00Z',
-                        thread_count: 0,
-                        issue_count: 0,
-                    },
-                ],
+                data: {
+                    id: 'tenant_2',
+                    name: 'Bushy Tailed',
+                    projects_count: 3,
+                    created_at: '2026-02-02T00:00:00Z',
+                },
             });
 
-        const result = await getOrganization('tenant_2', { includeProjectCounts: true });
+        localStorage.setItem('am_admin_mode', 'true');
+        const result = await getOrganization('tenant_2');
 
-        expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/tenants');
-        expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/tenant/tenant_2');
+        expect(apiFetch).toHaveBeenCalledWith('/admin/tenants/tenant_2');
         expect(result.id).toBe('tenant_2');
-        expect(result.projectCount).toBe(1);
+        expect(result.projectCount).toBe(3);
     });
 
     it('creates an organization', async () => {
@@ -161,26 +126,55 @@ describe('organizations service', () => {
         expect(result.name).toBe('New Org');
     });
 
+    it('creates an organization with full payload', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'tenant_full',
+                name: 'Full Org',
+                description: 'A description',
+                twilio_number: '+1234',
+                created_at: '2026-02-03T00:00:00Z',
+            },
+        });
+
+        const result = await createOrganization({
+            name: 'Full Org',
+            description: 'A description',
+            twilioNumber: '+1234',
+            obtainTwilioPhoneNumber: true
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/user/tenants', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: 'Full Org',
+                description: 'A description',
+                twilio_number: '+1234',
+                obtain_twilio_phone_number: true
+            }),
+        });
+        expect(result.id).toBe('tenant_full');
+    });
+
     it('lists all organizations for admins', async () => {
+        localStorage.setItem('am_admin_mode', 'true');
         vi.mocked(apiFetch)
             .mockResolvedValueOnce({
                 data: [
                     {
                         id: 'tenant_admin',
                         name: 'Admin Org',
+                        projects_count: 1,
                         created_at: '2026-02-01T00:00:00Z',
                     },
                 ],
-            })
-            .mockResolvedValueOnce({
-                data: [],
             });
 
-        const result = await getOrganizations({ includeProjectCounts: true });
+        const result = await getOrganizations();
 
-        expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
-        expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/tenant/tenant_admin');
+        expect(apiFetch).toHaveBeenCalledWith('/admin/tenants');
         expect(result[0].id).toBe('tenant_admin');
+        expect(result[0].projectCount).toBe(1);
         expect(localStorage.getItem('am_admin_mode')).toBe('true');
     });
 
