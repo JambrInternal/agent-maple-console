@@ -1,24 +1,21 @@
-import React from 'react'
-
+import React, { useState } from 'react'
 
 const BuildTag = () => {
-    const commit = import.meta.env.VITE_GIT_COMMIT || 'dev';
-    const [debugEnabled, setDebugEnabled] = useState(false);
+    const commit = import.meta.env.VITE_GIT_COMMIT || 'dev'
+    const [debugEnabled, setDebugEnabled] = useState(() => {
+        if (typeof window === 'undefined') return false
+        return localStorage.getItem('am_debug_auth') === 'true'
+    })
+
+    const toggleDebug = () => {
+        if (typeof window === 'undefined') return
+        const next = !debugEnabled
+        localStorage.setItem('am_debug_auth', String(next))
+        setDebugEnabled(next)
+        window.dispatchEvent(new Event('am_debug_auth_changed'))
+    }
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {superAdmin && (
-                <div style={{
-                    background: '#ffb300',
-                    color: '#222',
-                    fontWeight: 'bold',
-                    borderRadius: '16px',
-                    padding: '2px 12px',
-                    marginBottom: '6px',
-                    fontSize: '12px',
-                }}>
-                    SUPER ADMIN MODE
-                </div>
-            )}
             {debugEnabled && (
                 <div style={{
                     background: '#e53935',
@@ -40,7 +37,7 @@ const BuildTag = () => {
                     userSelect: 'none',
                 }}
                 title="Build version"
-                onClick={() => setDebugEnabled(true)}
+                onClick={toggleDebug}
             >
                 Version {commit}
             </span>
