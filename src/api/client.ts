@@ -3,7 +3,7 @@ export const navigation = {
 };
 let redirectingToLogin = false;
 export const API_CONFIG = {
-    baseUrl: 'https://api.dev.agentmaple.ca',
+    baseUrl: import.meta.env.VITE_API_URL || 'https://api.dev.agentmaple.ca',
 };
 
 export class ApiError extends Error {
