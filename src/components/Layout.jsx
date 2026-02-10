@@ -14,6 +14,7 @@ const Layout = () => {
     const menuRef = useRef(null)
     const isAdminMode = getAdminMode()
 
+
     const getInitials = (value) => {
         if (!value) return 'AM'
         const parts = value.trim().split(/\s+/)
@@ -21,7 +22,11 @@ const Layout = () => {
         return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
     }
 
-    const initials = getInitials(user?.name || user?.email)
+    const [initials, setInitials] = useState(getInitials(user?.name || user?.email))
+
+    useEffect(() => {
+        setInitials(getInitials(user?.name || user?.email))
+    }, [user])
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -82,7 +87,7 @@ const Layout = () => {
             </div>
             {isAdminMode && (
                 <div className="am-admin-banner" role="status" aria-live="polite">
-                    SUPER ADMIN MODE
+                    SUPER ADMIN
                 </div>
             )}
         </div>

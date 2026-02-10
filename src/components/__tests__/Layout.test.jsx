@@ -38,6 +38,6 @@ describe('Layout', () => {
             </MemoryRouter>
         )
 
-        expect(screen.getByText('SUPER ADMIN MODE')).toBeInTheDocument()
+        expect(screen.getByText('SUPER ADMIN')).toBeInTheDocument()
     })
 })

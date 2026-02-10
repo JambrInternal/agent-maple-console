@@ -5,6 +5,8 @@ import { createOrganization, getOrganizations } from '../services/organizations'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 
+import { getAdminMode } from '../utils/admin'
+
 const OrgSelection = () => {
     const [orgs, setOrgs] = useState([]) // Will be removed after refactor
     const {
@@ -30,7 +32,8 @@ const OrgSelection = () => {
         org.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
     const hasOrganizations = orgsData.length > 0
-    const showCreateTile = !hasOrganizations
+    const isSuperAdmin = getAdminMode()
+    const showCreateTile = isSuperAdmin || !hasOrganizations
     const showNoMatches = hasOrganizations && filteredOrgs.length === 0
 
     const openCreateModal = () => {
@@ -149,7 +152,7 @@ const OrgSelection = () => {
                                     Create a New Organization
                                 </h3>
                                 <p className="am-text-2" style={{ fontSize: '0.875rem' }}>
-                                    You don&apos;t belong to any organizations yet.
+                                    Start a new organization or select one you already belong to.
                                 </p>
                             </div>
                             <ArrowRight size={20} className="am-text-2" />
