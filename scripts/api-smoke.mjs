@@ -1,7 +1,7 @@
 const rawBase =
     process.env.API_TEST_BASE_URL ||
     process.env.VITE_API_URL ||
-    'https://api.stage.certly.jambr.ca';
+    'https://api.dev.agentmaple.ca';
 
 const normalizeBase = (value) => {
     try {
