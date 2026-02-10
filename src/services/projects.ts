@@ -38,7 +38,7 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
 
 /**
  * Create a new project for an organization.
- * Note: Uses the tenant-scoped project create endpoint.
+ * Note: Uses the generic /projects/ create endpoint (current tenant).
  */
 export async function createProject(
     organizationId: string,
@@ -49,7 +49,7 @@ export async function createProject(
         throw new Error('Organization ID is required to create a project');
     }
     logger.info('Creating project via API', { organizationId, name });
-        const response = await apiFetch<ApiResponse<ApiProject>>(`/projects/tenant/${organizationId}`, {
+    const response = await apiFetch<ApiResponse<ApiProject>>('/projects/', {
         method: 'POST',
         headers: {
             'x-tenant-id': organizationId,
