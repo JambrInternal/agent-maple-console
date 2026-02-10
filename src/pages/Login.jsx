@@ -9,11 +9,30 @@ import { getAmplifyAuthConfig } from '../amplify-config'
 import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
+// Logo assets
+const LOGO_LIGHT = '/agent-maple-lockup-mono-white.png';
+const LOGO_DARK = '/agent-maple-lockup-mono-dark.png';
+
 const Login = () => {
-        // Always set theme to dark mode on login page mount
-        useEffect(() => {
-            setTheme('dark');
-        }, []);
+    // Always set theme to dark mode on login page mount
+    useEffect(() => {
+        setTheme('dark');
+    }, []);
+
+    // Track theme for dynamic logo
+    const [theme, setThemeState] = useState(() => {
+        if (typeof document !== 'undefined') {
+            return document.documentElement.dataset.theme || 'dark';
+        }
+        return 'dark';
+    });
+    useEffect(() => {
+        const observer = new MutationObserver(() => {
+            setThemeState(document.documentElement.dataset.theme || 'dark');
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        return () => observer.disconnect();
+    }, []);
     const { login, logout, user, loading } = useAuth();
 
     // On mount, if Cognito session exists but app user is null, force logout to clear stale session
@@ -175,25 +194,18 @@ const Login = () => {
         <div className="am-app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
                 <div style={{ marginBottom: '2.5rem' }}>
-                    {/* Placeholder for Logo */}
-                    <div style={{
-                        width: '48px',
-                        height: '48px',
-                        backgroundColor: 'var(--am-accent)',
-                        borderRadius: '12px',
-                        margin: '0 auto 1.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                        <div style={{ width: '24px', height: '24px', border: '3px solid white', borderRadius: '4px' }} />
-                    </div>
-                    <h1 className="am-text-1" style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                        Agent Maple
-                    </h1>
-                    <p className="am-text-2" style={{ fontSize: '0.9375rem' }}>
-                        Management Console
-                    </p>
+                    {/* One-line Agent Maple Logo (light in dark theme, dark in light theme) */}
+                    <img
+                        src={theme === 'dark' ? LOGO_LIGHT : LOGO_DARK}
+                        alt="Agent Maple Logo"
+                        style={{
+                            width: '220px',
+                            height: 'auto',
+                            margin: '0 auto 2.5rem',
+                            display: 'block',
+                            objectFit: 'contain',
+                        }}
+                    />
                 </div>
 
                 <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>

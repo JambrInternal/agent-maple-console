@@ -40,23 +40,6 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
     if (!includeProjectCounts) {
         return baseOrgs;
     }
-
-    // Endpoint capability detection: probe first org
-    let endpointSupported = true;
-    if (baseOrgs.length > 0 && baseOrgs[0].id) {
-        try {
-            // /projects/tenant/{tenantId} is only for ADMIN role
-            await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${baseOrgs[0].id}`); 
-        } catch (error) {
-            const status = getErrorStatus(error);
-            if (status === 404) {
-                endpointSupported = false;
-            }
-        }
-    }
-    if (!endpointSupported) {
-        return baseOrgs;
-    }
     const counts = await Promise.all(
         baseOrgs.map(async (org) => {
             if (!org.id) return org;
@@ -66,6 +49,11 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
                 const projects = unwrapData(projectsResponse, []);
                 return { ...org, projectCount: projects.length };
             } catch (error) {
+                const status = getErrorStatus(error);
+                if (status === 404) {
+                    // Endpoint not supported, return org as-is (no projectCount)
+                    return org;
+                }
                 console.warn(`Failed to load projects for organization ${org.id}:`, error);
                 return org;
             }
@@ -77,13 +65,15 @@ export async function getOrganizations(options: OrganizationOptions = {}): Promi
 /**
  * Get a single organization by ID
  */
-export async function getOrganization(id: string): Promise<Organization> {
+export async function getOrganization(id: string, options: OrganizationOptions = {}): Promise<Organization> {
+    const includeProjectCounts = options.includeProjectCounts ?? false;
     const isAdmin = getAdminMode();
     if (isAdmin) {
         try {
             const adminResponse = await apiFetch<ApiResponse<ApiTenant>>(`/admin/tenants/${id}`);
             const adminTenant = unwrapData(adminResponse);
             const org = mapTenantToOrganization(adminTenant);
+            if (!includeProjectCounts) return org;
             try {
                 // /projects/tenant/{tenantId} is only for ADMIN role
                 const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);
@@ -107,6 +97,7 @@ export async function getOrganization(id: string): Promise<Organization> {
         throw new Error(`Organization not found: ${id}`);
     }
     const org = mapTenantToOrganization(tenant);
+    if (!includeProjectCounts) return org;
     try {
         // /projects/tenant/{tenantId} is only for ADMIN role
         const projectsResponse = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/tenant/${org.id}`);

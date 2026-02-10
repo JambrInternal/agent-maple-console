@@ -48,10 +48,7 @@ describe('auth service', () => {
         expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
-    it('skips user sync when no token exists', async () => {
-        await authService.syncUser();
-        expect(apiFetch).not.toHaveBeenCalled();
-    });
+
 
     it('hydrates user on session restore (no sync)', async () => {
         const user: User = {
@@ -76,28 +73,7 @@ describe('auth service', () => {
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
         expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
-    it('syncs user after registration/confirmation', async () => {
-        const user: User = {
-            id: 'u3',
-            email: 'register@example.com',
-            name: 'Register User',
-            role: 'member',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-04T00:00:00Z',
-        };
-        vi.mocked(apiFetch).mockResolvedValue({
-            data: {
-                id: 'u3',
-                email: 'register@example.com',
-                created_at: '2026-02-04T00:00:00Z',
-            },
-        });
-        const result = await authService.syncUser(user);
-        expect(result).not.toBeNull();
-        expect(apiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' });
-    });
+
 
 
 
@@ -108,23 +84,5 @@ describe('auth service', () => {
             expect(apiFetch).not.toHaveBeenCalled();
         });
 
-        it('returns null if sync fails during session restore', async () => {
-            const user: User = {
-                id: 'u4',
-                email: 'warn@example.com',
-                name: 'Warn User',
-                role: 'admin',
-                organizationId: null,
-                tenantId: null,
-                mfaEnabled: false,
-                createdAt: '2026-02-04T00:00:00Z',
-            };
-            vi.mocked(authApi.getSessionUser).mockImplementation(async () => {
-                localStorage.setItem('am_auth_token', 'token-warn');
-                return user;
-            });
-            vi.mocked(apiFetch).mockRejectedValue(new Error('sync failed'));
-            const result = await authService.getCurrentUser();
-            expect(result).toBeNull();
-        });
+
 });

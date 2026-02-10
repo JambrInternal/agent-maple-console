@@ -14,7 +14,35 @@ describe('organizations service', () => {
         vi.resetAllMocks();
     });
 
-    it('lists organizations and maps fields', async () => {
+    it('lists organizations and maps fields (no projectCount by default)', async () => {
+        vi.mocked(apiFetch)
+            .mockRejectedValueOnce({ status: 403 })
+            .mockResolvedValueOnce({
+                data: [
+                    {
+                        id: 'tenant_1',
+                        name: 'Iron Maple',
+                        is_disabled: false,
+                        created_at: '2026-02-01T00:00:00Z',
+                    },
+                ],
+            });
+
+        const result = await getOrganizations();
+
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
+        expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
+        expect(result).toEqual([
+            {
+                id: 'tenant_1',
+                name: 'Iron Maple',
+                memberCount: undefined,
+                createdAt: '2026-02-01T00:00:00.000Z',
+            },
+        ]);
+    });
+
+    it('lists organizations with projectCount when requested', async () => {
         vi.mocked(apiFetch)
             .mockRejectedValueOnce({ status: 403 })
             .mockResolvedValueOnce({
@@ -48,7 +76,7 @@ describe('organizations service', () => {
                 ],
             });
 
-        const result = await getOrganizations();
+        const result = await getOrganizations({ includeProjectCounts: true });
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/tenants');
@@ -64,7 +92,26 @@ describe('organizations service', () => {
         ]);
     });
 
-    it('gets a single organization', async () => {
+    it('gets a single organization (no projectCount by default)', async () => {
+        vi.mocked(apiFetch)
+            .mockResolvedValueOnce({
+                data: [
+                    {
+                        id: 'tenant_2',
+                        name: 'Bushy Tailed',
+                        created_at: '2026-02-02T00:00:00Z',
+                    },
+                ],
+            });
+
+        const result = await getOrganization('tenant_2');
+
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/tenants');
+        expect(result.id).toBe('tenant_2');
+        expect(result.projectCount).toBeUndefined();
+    });
+
+    it('gets a single organization with projectCount when requested', async () => {
         vi.mocked(apiFetch)
             .mockResolvedValueOnce({
                 data: [
@@ -88,7 +135,7 @@ describe('organizations service', () => {
                 ],
             });
 
-        const result = await getOrganization('tenant_2');
+        const result = await getOrganization('tenant_2', { includeProjectCounts: true });
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/tenant/tenant_2');
@@ -129,7 +176,7 @@ describe('organizations service', () => {
                 data: [],
             });
 
-        const result = await getOrganizations();
+        const result = await getOrganizations({ includeProjectCounts: true });
 
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/admin/tenants');
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/tenant/tenant_admin');
