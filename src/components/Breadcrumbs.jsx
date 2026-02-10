@@ -9,6 +9,27 @@ const Breadcrumbs = () => {
     const { pathname } = useLocation()
     const [orgName, setOrgName] = useState('')
     const [projectName, setProjectName] = useState('')
+    const [theme, setTheme] = useState(() => {
+        if (typeof document !== 'undefined') {
+            return document.documentElement.dataset.theme || 'light';
+        }
+        return 'light';
+    });
+
+    useEffect(() => {
+        const handler = () => {
+            setTheme(document.documentElement.dataset.theme || 'light');
+        };
+        // Listen for theme changes (custom event)
+        window.addEventListener('am-theme-change', handler);
+        // Also listen for mutation of dataset.theme
+        const observer = new MutationObserver(() => handler());
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        return () => {
+            window.removeEventListener('am-theme-change', handler);
+            observer.disconnect();
+        };
+    }, []);
 
     // Format ID to Label (e.g., iron_maple -> Iron Maple)
     const formatLabel = (str) => {
@@ -107,10 +128,11 @@ const Breadcrumbs = () => {
     return (
         <nav className="am-breadcrumbs" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
             <Link to="/" className="am-text-2" style={{ display: 'flex', alignItems: 'center' }}>
-                <picture>
-                    <source media="(prefers-color-scheme: dark)" srcSet="/favicon-dark.svg" />
-                    <img src="/favicon-light.svg" alt="Agent Maple" className="am-brand-icon" />
-                </picture>
+                <img
+                    src={theme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg'}
+                    alt="Agent Maple"
+                    className="am-brand-icon"
+                />
             </Link>
 
             {orgId && (
