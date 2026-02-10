@@ -195,25 +195,7 @@ const Login = () => {
             <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
                 <div style={{ marginBottom: '2.5rem' }}>
                     {/* One-line Agent Maple Logo (light in dark theme, dark in light theme) */}
-                    <img
-                        src={theme === 'light'
-                            ? '/agent-maple-wordmark-1line-black-textHalf.png'
-                            : '/agent-maple-wordmark-1line-white-textHalf.png'}
-                        alt="Agent Maple Logo"
-                        style={{
-                            width: '220px',
-                            height: 'auto',
-                            margin: '0 auto 2.5rem',
-                            display: 'block',
-                            objectFit: 'contain',
-                        }}
-                    />
-                </div>
-
-                <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                        {error && (
-                            <div style={{
+                    {/* Debug toggle button removed. Debug mode is now triggered via BuildTag version click. */}
                                 display: 'flex',
                                 gap: '8px',
                                 padding: '0.75rem',
