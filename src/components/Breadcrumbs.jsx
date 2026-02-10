@@ -129,7 +129,7 @@ const Breadcrumbs = () => {
         <nav className="am-breadcrumbs" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
             <Link to="/" className="am-text-2" style={{ display: 'flex', alignItems: 'center' }}>
                 <img
-                    src={theme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg'}
+                    src={theme === 'dark' ? '/favicon/favicon-dark.svg' : '/favicon/favicon-light.svg'}
                     alt="Agent Maple"
                     className="am-brand-icon"
                 />
