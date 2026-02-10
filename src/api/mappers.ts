@@ -231,7 +231,7 @@ export function mapOrganizationResponse(org: ApiOrganization): Organization {
     return {
         id: toStringId(org.id),
         name: org.name || 'Unnamed Organization',
-        projectCount: typeof org.project_count === 'number' ? org.project_count : 0,
+        projectCount: org.project_count,
         memberCount: typeof org.member_count === 'number' ? org.member_count : undefined,
         createdAt: toIsoString(org.created_at),
     };
