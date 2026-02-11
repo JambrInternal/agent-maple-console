@@ -314,7 +314,7 @@ const OrgTeam = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {rows.map((member) => (
+                                {rows.map((member, rowIndex) => (
                                     <tr key={member.id}>
                                         <td className="am-contact-name">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -334,7 +334,10 @@ const OrgTeam = () => {
                                                     {getRoleLabel(member)}
                                                 </span>
                                                 {member.isInviteOnly && member.inviteStatus !== 'accepted' && (
-                                                    <div className="am-row-menu" data-invite-menu>
+                                                    <div
+                                                        className={`am-row-menu${openInviteMenuId === member.id ? ' is-open' : ''}`}
+                                                        data-invite-menu
+                                                    >
                                                         <button
                                                             type="button"
                                                             className="am-icon-button"
@@ -347,7 +350,10 @@ const OrgTeam = () => {
                                                             <MoreHorizontal size={16} />
                                                         </button>
                                                         {openInviteMenuId === member.id && (
-                                                            <div className="am-row-menu-dropdown" role="menu">
+                                                            <div
+                                                                className={`am-row-menu-dropdown${rowIndex >= rows.length - 2 ? ' is-up' : ''}`}
+                                                                role="menu"
+                                                            >
                                                                 <button
                                                                     type="button"
                                                                     className="am-row-menu-item"

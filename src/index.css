@@ -678,6 +678,11 @@ button {
     position: relative;
     display: inline-flex;
     align-items: center;
+    z-index: 1;
+}
+
+.am-row-menu.is-open {
+    z-index: 50;
 }
 
 .am-icon-button {
@@ -714,6 +719,12 @@ button {
     z-index: 20;
     transform-origin: top right;
     animation: am-fade-scale-in var(--am-dur-2) var(--am-ease-out);
+}
+
+.am-row-menu-dropdown.is-up {
+    top: auto;
+    bottom: calc(100% + 0.35rem);
+    transform-origin: bottom right;
 }
 
 .am-row-menu-item {
