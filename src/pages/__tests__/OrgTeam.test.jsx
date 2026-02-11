@@ -153,4 +153,79 @@ describe('OrgTeam', () => {
         expect(invitedRow).not.toBeNull()
         expect(within(invitedRow).getByText('Accepted')).toBeInTheDocument()
     })
+
+    it('prevents cross-org invite state leaks when orgId changes', async () => {
+        vi.mocked(getUsers).mockResolvedValue([])
+
+        // Set up invites for org_1
+        const org1Invite = {
+            id: 'invite_org1',
+            email: 'org1-user@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+            usedAt: null,
+        }
+        localStorage.setItem('am_pending_team_invites_org_1', JSON.stringify([org1Invite]))
+
+        // Set up invites for org_2
+        const org2Invite = {
+            id: 'invite_org2',
+            email: 'org2-user@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+            usedAt: null,
+        }
+        localStorage.setItem('am_pending_team_invites_org_2', JSON.stringify([org2Invite]))
+
+        const queryClient = new QueryClient()
+
+        // Render with org_1
+        const { unmount } = render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        // Verify org_1 invite is shown
+        await screen.findAllByText('org1-user@example.com')
+        expect(screen.queryByText('org2-user@example.com')).not.toBeInTheDocument()
+
+        // Unmount the component
+        unmount()
+
+        // Now render with org_2
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_2/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        // Verify org_2 invite is shown and org_1 invite is not
+        await screen.findAllByText('org2-user@example.com')
+        expect(screen.queryByText('org1-user@example.com')).not.toBeInTheDocument()
+
+        // Verify localStorage was not corrupted - org_2 should still have only its invite
+        const org2Storage = JSON.parse(localStorage.getItem('am_pending_team_invites_org_2'))
+        expect(org2Storage).toHaveLength(1)
+        expect(org2Storage[0].email).toBe('org2-user@example.com')
+
+        // Verify org_1 storage was not overwritten
+        const org1Storage = JSON.parse(localStorage.getItem('am_pending_team_invites_org_1'))
+        expect(org1Storage).toHaveLength(1)
+        expect(org1Storage[0].email).toBe('org1-user@example.com')
+    })
 })

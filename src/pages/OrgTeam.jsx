@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Plus, User as UserIcon, Shield, Trash2, X } from 'lucide-react'
 import { getUsers, inviteUser, removeUser } from '../services/people'
@@ -44,6 +44,7 @@ const OrgTeam = () => {
     const [inviteError, setInviteError] = useState('')
     const [isInviting, setIsInviting] = useState(false)
     const [pendingInvites, setPendingInvites] = useState(() => readPendingInvites(orgId))
+    const pendingInvitesOrgIdRef = useRef(orgId)
 
     const {
         data: members = [],
@@ -58,6 +59,7 @@ const OrgTeam = () => {
 
     useEffect(() => {
         setPendingInvites(readPendingInvites(orgId))
+        pendingInvitesOrgIdRef.current = orgId
     }, [orgId])
 
     const memberEmailSet = useMemo(
@@ -70,10 +72,12 @@ const OrgTeam = () => {
         const filtered = pendingInvites.filter((invite) => !memberEmailSet.has(normalizeEmail(invite.email)))
         if (filtered.length === pendingInvites.length) return
         setPendingInvites(filtered)
+        pendingInvitesOrgIdRef.current = orgId
     }, [memberEmailSet, orgId, pendingInvites])
 
     useEffect(() => {
         if (!orgId) return
+        if (pendingInvitesOrgIdRef.current !== orgId) return
         localStorage.setItem(pendingInvitesKey(orgId), JSON.stringify(pendingInvites))
     }, [orgId, pendingInvites])
 
@@ -113,6 +117,7 @@ const OrgTeam = () => {
                 const next = prev.filter((item) => normalizeEmail(item.email) !== normalizeEmail(invitation.email))
                 return [...next, invitation]
             })
+            pendingInvitesOrgIdRef.current = orgId
             setInviteEmail('')
             setIsInviteOpen(false)
             refetch()
