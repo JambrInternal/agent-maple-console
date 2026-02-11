@@ -7,7 +7,7 @@ import logger from '../utils/verboseLogger';
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
 import type { User } from '../api/types';
-import type { RegisterResult } from '../api/auth';
+import type { RegisterResult, ResetPasswordStartResult } from '../api/auth';
 
 const ensureUserIds = (user: User): User => ({
     ...user,
@@ -44,6 +44,27 @@ export async function confirmRegistration(email: string, confirmationCode: strin
     logger.info('Attempting registration confirmation', { email });
     await authApi.confirmRegistration(email, confirmationCode);
     logger.info('Registration confirmation complete', { email });
+}
+
+export async function forgotPassword(email: string): Promise<ResetPasswordStartResult> {
+    logger.info('Attempting forgot-password', { email });
+    const result = await authApi.forgotPassword(email);
+    logger.info('Forgot-password result received', {
+        email,
+        nextStep: result.nextStep,
+        codeDeliveryDestination: result.codeDeliveryDestination,
+    });
+    return result;
+}
+
+export async function confirmForgotPassword(
+    email: string,
+    confirmationCode: string,
+    newPassword: string
+): Promise<void> {
+    logger.info('Attempting forgot-password confirmation', { email });
+    await authApi.confirmForgotPassword(email, confirmationCode, newPassword);
+    logger.info('Forgot-password confirmation complete', { email });
 }
 
 export async function logout(): Promise<void> {

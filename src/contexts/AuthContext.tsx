@@ -8,6 +8,8 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<User>;
     register: (email: string, password: string) => ReturnType<typeof authService.register>;
     confirmRegistration: (email: string, confirmationCode: string) => Promise<void>;
+    forgotPassword: (email: string) => ReturnType<typeof authService.forgotPassword>;
+    confirmForgotPassword: (email: string, confirmationCode: string, newPassword: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -66,8 +68,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await authService.confirmRegistration(email, confirmationCode);
     };
 
+    const forgotPassword = async (email: string) => {
+        return authService.forgotPassword(email);
+    };
+
+    const confirmForgotPassword = async (email: string, confirmationCode: string, newPassword: string) => {
+        await authService.confirmForgotPassword(email, confirmationCode, newPassword);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, confirmRegistration, logout }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                loading,
+                login,
+                register,
+                confirmRegistration,
+                forgotPassword,
+                confirmForgotPassword,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

@@ -9,6 +9,8 @@ vi.mock('../../api/auth', () => ({
     login: vi.fn(),
     register: vi.fn(),
     confirmRegistration: vi.fn(),
+    forgotPassword: vi.fn(),
+    confirmForgotPassword: vi.fn(),
     logout: vi.fn(),
     getSessionUser: vi.fn(),
 }));
@@ -95,6 +97,31 @@ describe('auth service', () => {
         await authService.confirmRegistration('invitee@example.com', '123456');
 
         expect(authApi.confirmRegistration).toHaveBeenCalledWith('invitee@example.com', '123456');
+    });
+
+    it('starts forgot-password flow', async () => {
+        vi.mocked(authApi.forgotPassword).mockResolvedValue({
+            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
+            codeDeliveryDestination: 'j***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        });
+
+        const result = await authService.forgotPassword('reset.user@example.com');
+
+        expect(authApi.forgotPassword).toHaveBeenCalledWith('reset.user@example.com');
+        expect(result.nextStep).toBe('CONFIRM_RESET_PASSWORD_WITH_CODE');
+    });
+
+    it('confirms forgot-password reset', async () => {
+        vi.mocked(authApi.confirmForgotPassword).mockResolvedValue();
+
+        await authService.confirmForgotPassword('reset.user@example.com', '123456', 'NewPass123!');
+
+        expect(authApi.confirmForgotPassword).toHaveBeenCalledWith(
+            'reset.user@example.com',
+            '123456',
+            'NewPass123!'
+        );
     });
 
     it('returns null when session is missing', async () => {

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockSignUp = vi.fn()
+const mockResetPassword = vi.fn()
+const mockConfirmResetPassword = vi.fn()
 const mockSignIn = vi.fn()
 const mockFetchAuthSession = vi.fn()
 const mockGetCurrentUser = vi.fn()
@@ -10,6 +12,8 @@ const mockSetAdminMode = vi.fn()
 
 vi.mock('aws-amplify/auth', () => ({
     signUp: (...args: unknown[]) => mockSignUp(...args),
+    resetPassword: (...args: unknown[]) => mockResetPassword(...args),
+    confirmResetPassword: (...args: unknown[]) => mockConfirmResetPassword(...args),
     confirmSignUp: vi.fn(),
     signIn: (...args: unknown[]) => mockSignIn(...args),
     signOut: vi.fn(),
@@ -27,7 +31,7 @@ vi.mock('../../utils/admin', () => ({
     setAdminMode: (...args: unknown[]) => mockSetAdminMode(...args),
 }))
 
-import { getSessionUser, login, register } from '../auth'
+import { confirmForgotPassword, forgotPassword, getSessionUser, login, register } from '../auth'
 
 const buildSignedInResult = () => ({
     isSignedIn: true,
@@ -132,5 +136,40 @@ describe('api auth', () => {
         expect(user?.email).toBe('session-admin@example.com')
         expect(localStorage.getItem('am_auth_token')).toBe('session-id-token')
         expect(mockSetAdminMode).toHaveBeenCalledWith(true)
+    })
+
+    it('starts forgot-password flow and returns code delivery info', async () => {
+        mockResetPassword.mockResolvedValue({
+            nextStep: {
+                resetPasswordStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
+                codeDeliveryDetails: {
+                    destination: 'j***@example.com',
+                    deliveryMedium: 'EMAIL',
+                },
+            },
+        })
+
+        const result = await forgotPassword(' reset.user@example.com ')
+
+        expect(mockResetPassword).toHaveBeenCalledWith({
+            username: 'reset.user@example.com',
+        })
+        expect(result).toEqual({
+            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
+            codeDeliveryDestination: 'j***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+    })
+
+    it('confirms forgot-password reset with code and new password', async () => {
+        mockConfirmResetPassword.mockResolvedValue(undefined)
+
+        await confirmForgotPassword(' reset.user@example.com ', ' 123456 ', 'NewPass123!')
+
+        expect(mockConfirmResetPassword).toHaveBeenCalledWith({
+            username: 'reset.user@example.com',
+            confirmationCode: '123456',
+            newPassword: 'NewPass123!',
+        })
     })
 })

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
     buildDebugEvent,
     getConfirmationErrorMessage,
+    getForgotPasswordConfirmErrorMessage,
+    getForgotPasswordErrorMessage,
     getInitialDebugEnabled,
     getRedirectToFromLocation,
     getRegisterErrorMessage,
@@ -64,6 +66,10 @@ describe('loginUtils', () => {
             .toContain('already exists')
         expect(getConfirmationErrorMessage(new Error('Token expired')))
             .toContain('expired')
+        expect(getForgotPasswordErrorMessage(new Error('User not found')))
+            .toContain('No account exists')
+        expect(getForgotPasswordConfirmErrorMessage(new Error('Code mismatch')))
+            .toContain('Invalid reset code')
     })
 
     it('classifies sign-in error reasons for invite mode branching', () => {

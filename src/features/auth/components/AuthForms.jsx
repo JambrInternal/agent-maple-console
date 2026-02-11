@@ -174,10 +174,13 @@ export default function AuthForms({
     onSubmitSignIn,
     onSubmitRegister,
     onSubmitConfirm,
+    onSubmitResetRequest,
+    onSubmitResetConfirm,
     onEmailChange,
     onPasswordChange,
     onConfirmPasswordChange,
     onConfirmationCodeChange,
+    onForgotPassword,
     onBackToSignIn,
 }) {
     if (authMode === 'confirm') {
@@ -248,6 +251,65 @@ export default function AuthForms({
         )
     }
 
+    if (authMode === 'reset-request') {
+        return (
+            <form onSubmit={onSubmitResetRequest} style={formStyle}>
+                <EmailField value={email} onChange={onEmailChange} />
+
+                <SubmitButton isSubmitting={isSubmitting} label="Send Reset Code" />
+
+                <button
+                    type="button"
+                    className="am-btn-secondary"
+                    style={secondaryButtonStyle}
+                    onClick={onBackToSignIn}
+                    disabled={isSubmitting}
+                >
+                    Back To Sign In
+                </button>
+            </form>
+        )
+    }
+
+    if (authMode === 'reset-confirm') {
+        return (
+            <form onSubmit={onSubmitResetConfirm} style={formStyle}>
+                <EmailField value={email} onChange={onEmailChange} />
+
+                <ConfirmCodeField
+                    value={confirmationCode}
+                    onChange={onConfirmationCodeChange}
+                />
+
+                <PasswordField
+                    label="New Password"
+                    value={password}
+                    onChange={onPasswordChange}
+                    autoComplete="new-password"
+                />
+
+                <PasswordField
+                    label="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={onConfirmPasswordChange}
+                    autoComplete="new-password"
+                />
+
+                <SubmitButton isSubmitting={isSubmitting} label="Reset Password" />
+
+                <button
+                    type="button"
+                    className="am-btn-secondary"
+                    style={secondaryButtonStyle}
+                    onClick={onBackToSignIn}
+                    disabled={isSubmitting}
+                >
+                    Back To Sign In
+                </button>
+            </form>
+        )
+    }
+
     return (
         <form onSubmit={onSubmitSignIn} style={formStyle}>
             {lockEmailToInvite ? (
@@ -264,6 +326,18 @@ export default function AuthForms({
             />
 
             <SubmitButton isSubmitting={isSubmitting} label="Sign In" />
+
+            {!lockEmailToInvite ? (
+                <button
+                    type="button"
+                    className="am-btn-secondary"
+                    style={secondaryButtonStyle}
+                    onClick={onForgotPassword}
+                    disabled={isSubmitting}
+                >
+                    Forgot Password?
+                </button>
+            ) : null}
         </form>
     )
 }
