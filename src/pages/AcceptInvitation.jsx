@@ -6,7 +6,21 @@ import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
 
 const SUCCESS_REDIRECT_DELAY_MS = 300
-const inviteReauthKey = (token) => `am_invite_reauth_done_${token || 'unknown'}`
+
+const hashToken = (token) => {
+    if (!token) return 'unknown'
+
+    // Simple non-cryptographic hash to avoid storing the raw token in sessionStorage keys
+    let hash = 0
+    for (let i = 0; i < token.length; i += 1) {
+        hash = (hash << 5) - hash + token.charCodeAt(i)
+        hash |= 0 // Convert to 32-bit integer
+    }
+
+    return Math.abs(hash).toString(36)
+}
+
+const inviteReauthKey = (token) => `am_invite_reauth_done_${hashToken(token)}`
 
 const getInvitationToken = (search, hash) => {
     const params = new URLSearchParams(search || '')
@@ -28,10 +42,28 @@ const isInvitationEmailMismatchError = (error) => {
         : null
 
     const candidates = []
-    if (error instanceof Error && error.message) candidates.push(error.message)
+    
+    // Prefer Error.message when available
+    if (error instanceof Error && error.message) {
+        candidates.push(error.message)
+    } else if (error && typeof error === 'object' && typeof error.message === 'string') {
+        // Also handle non-Error objects that still carry a message string
+        candidates.push(error.message)
+    }
+
     if (details && typeof details === 'object') {
         if (typeof details.message === 'string') candidates.push(details.message)
         if (typeof details.detail === 'string') candidates.push(details.detail)
+
+        // Handle shapes like: { detail: [{ msg: ... }] } as produced by withStatus
+        if (Array.isArray(details.detail) && details.detail.length > 0) {
+            const firstDetail = details.detail[0]
+            if (firstDetail && typeof firstDetail === 'object') {
+                if (typeof firstDetail.msg === 'string') candidates.push(firstDetail.msg)
+                if (typeof firstDetail.message === 'string') candidates.push(firstDetail.message)
+                if (typeof firstDetail.detail === 'string') candidates.push(firstDetail.detail)
+            }
+        }
     }
 
     const text = candidates.join(' ').toLowerCase()
@@ -125,13 +157,13 @@ const AcceptInvitation = () => {
         if (!hasCompletedInviteReauth) {
             ;(async () => {
                 try {
-                    if (token) {
-                        sessionStorage.setItem(inviteReauthKey(token), '1')
-                    }
                     await logout()
                 } catch {
                     // Continue to login even if best-effort logout fails.
                 } finally {
+                    if (token) {
+                        sessionStorage.setItem(inviteReauthKey(token), '1')
+                    }
                     redirectToLoginWithReturnPath()
                 }
             })()

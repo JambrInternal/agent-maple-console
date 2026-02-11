@@ -1,6 +1,7 @@
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import AcceptInvitation from '../AcceptInvitation'
 import { acceptInvitation } from '../../services/people'
@@ -24,6 +25,18 @@ vi.mock('react-router-dom', async () => {
         useNavigate: () => mockNavigate,
     }
 })
+
+// Helper to compute the hashed session storage key (matching AcceptInvitation.jsx)
+const hashToken = (token) => {
+    if (!token) return 'unknown'
+    let hash = 0
+    for (let i = 0; i < token.length; i += 1) {
+        hash = (hash << 5) - hash + token.charCodeAt(i)
+        hash |= 0
+    }
+    return Math.abs(hash).toString(36)
+}
+const inviteReauthKey = (token) => `am_invite_reauth_done_${hashToken(token)}`
 
 describe('AcceptInvitation', () => {
     beforeEach(() => {
@@ -82,7 +95,7 @@ describe('AcceptInvitation', () => {
             usedAt: '2026-02-11T10:05:00Z',
         })
 
-        sessionStorage.setItem('am_invite_reauth_done_tok_1', '1')
+        sessionStorage.setItem(inviteReauthKey('tok_1'), '1')
 
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=tok_1']}>
@@ -169,7 +182,9 @@ describe('AcceptInvitation', () => {
         vi.mocked(acceptInvitation).mockRejectedValue(
             new Error('User email does not match invitation email')
         )
-        sessionStorage.setItem('am_invite_reauth_done_tok_mismatch', '1')
+        sessionStorage.setItem(inviteReauthKey('tok_mismatch'), '1')
+
+        const user = userEvent.setup()
 
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=tok_mismatch']}>
@@ -180,8 +195,8 @@ describe('AcceptInvitation', () => {
         expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
         expect(screen.getByText(/You are signed in as jeremy@jambr.ca/i)).toBeInTheDocument()
 
-        await screen.findByRole('button', { name: 'Sign Out & Continue' })
-        screen.getByRole('button', { name: 'Sign Out & Continue' }).click()
+        const signOutButton = await screen.findByRole('button', { name: 'Sign Out & Continue' })
+        await user.click(signOutButton)
 
         await waitFor(() => {
             expect(mockLogout).toHaveBeenCalledTimes(1)
@@ -196,5 +211,47 @@ describe('AcceptInvitation', () => {
                 },
             })
         })
+    })
+
+    it('handles email mismatch error from ApiError with details.detail[0].msg shape', async () => {
+        mockAuthState = {
+            user: {
+                id: 'u-test',
+                email: 'wrong@example.com',
+                name: 'Test User',
+                role: 'member',
+                organizationId: null,
+                tenantId: null,
+                mfaEnabled: false,
+                createdAt: '2026-02-11T00:00:00Z',
+            },
+            loading: false,
+            logout: mockLogout,
+        }
+
+        // Simulate ApiError with nested detail array shape
+        const apiError = new Error('Validation failed')
+        apiError.details = {
+            detail: [
+                { msg: 'invitation_email_mismatch: Email does not match invitation email' }
+            ]
+        }
+
+        vi.mocked(acceptInvitation).mockRejectedValue(apiError)
+        sessionStorage.setItem(inviteReauthKey('tok_api_err'), '1')
+
+        const user = userEvent.setup()
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_api_err']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
+        expect(screen.getByText(/You are signed in as wrong@example.com/i)).toBeInTheDocument()
+
+        const signOutButton = await screen.findByRole('button', { name: 'Sign Out & Continue' })
+        expect(signOutButton).toBeInTheDocument()
     })
 })
