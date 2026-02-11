@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getContact, getContacts, getUser, getUsers, inviteUser } from '../people';
+import { getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
 import { apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
@@ -96,7 +96,7 @@ describe('people service', () => {
             },
         });
 
-        const result = await inviteUser('new.user@example.com', 'member', '12');
+        const result = await inviteUser('new.user@example.com', '12');
 
         expect(apiFetch).toHaveBeenCalledWith('/tenants/send-invitation', {
             method: 'POST',
@@ -109,6 +109,17 @@ describe('people service', () => {
             role: 'member',
             status: 'pending',
             isUsed: false,
+        });
+    });
+
+    it('removes a user from an organization', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await removeUser('user_77', '12');
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/users/user_77', {
+            method: 'DELETE',
+            headers: { 'x-tenant-id': '12' },
         });
     });
 });

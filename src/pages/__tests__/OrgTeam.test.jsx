@@ -73,7 +73,7 @@ describe('OrgTeam', () => {
         expect(within(invitedRow).getByText('N/A')).toBeInTheDocument()
 
         expect(getUsers).toHaveBeenCalledWith('org_1')
-        expect(inviteUser).toHaveBeenCalledWith('invitee@example.com', 'instructor', 'org_1')
+        expect(inviteUser).toHaveBeenCalledWith('invitee@example.com', 'org_1')
         expect(removeUser).not.toHaveBeenCalled()
     })
 })

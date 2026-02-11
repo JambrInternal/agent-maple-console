@@ -27,7 +27,6 @@ const OrgTeam = () => {
     const { orgId } = useParams()
     const [isInviteOpen, setIsInviteOpen] = useState(false)
     const [inviteEmail, setInviteEmail] = useState('')
-    const [inviteRole, setInviteRole] = useState('instructor')
     const [inviteError, setInviteError] = useState('')
     const [isInviting, setIsInviting] = useState(false)
     const [pendingInvites, setPendingInvites] = useState(() => readPendingInvites(orgId))
@@ -95,7 +94,7 @@ const OrgTeam = () => {
         setInviteError('')
         setIsInviting(true)
         try {
-            const invitation = await inviteUser(inviteEmail.trim(), inviteRole, orgId)
+            const invitation = await inviteUser(inviteEmail.trim(), orgId)
             setPendingInvites((prev) => {
                 const next = prev.filter((item) => normalizeEmail(item.email) !== normalizeEmail(invitation.email))
                 return [...next, invitation]
@@ -173,7 +172,6 @@ const OrgTeam = () => {
                         type="button"
                         onClick={() => {
                             setInviteEmail('')
-                            setInviteRole('instructor')
                             setInviteError('')
                             setIsInviteOpen(true)
                         }}
@@ -255,6 +253,7 @@ const OrgTeam = () => {
                                                     style={{ color: '#ef4444' }}
                                                     onClick={() => handleRemove(member.id, member.name)}
                                                     title="Remove member"
+                                                    aria-label={`Remove member ${member.name || member.email || member.id}`}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -275,18 +274,27 @@ const OrgTeam = () => {
             </div>
 
             {isInviteOpen && (
-                <div className="am-modal-backdrop" onClick={() => !isInviting && setIsInviteOpen(false)}>
+                <div
+                    className="am-modal-backdrop"
+                    role="presentation"
+                    onClick={() => !isInviting && setIsInviteOpen(false)}
+                >
                     <div
                         className="am-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="invite-member-title"
                         onClick={(e) => e.stopPropagation()}
                         style={{ maxWidth: '480px' }}
                     >
                         <div className="am-modal-header">
-                            <h2 className="am-modal-title">Invite Team Member</h2>
+                            <h2 id="invite-member-title" className="am-modal-title">Invite Team Member</h2>
                             <button
+                                type="button"
                                 className="am-icon-button"
                                 onClick={() => setIsInviteOpen(false)}
                                 disabled={isInviting}
+                                aria-label="Close invite modal"
                             >
                                 <X size={20} />
                             </button>

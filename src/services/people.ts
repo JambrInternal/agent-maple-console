@@ -118,7 +118,7 @@ export async function getUser(id: string, tenantId?: string): Promise<User> {
 /**
  * Invite a new user to the organization
  */
-export async function inviteUser(email: string, _role: string, tenantId: string): Promise<TeamInvite> {
+export async function inviteUser(email: string, tenantId: string): Promise<TeamInvite> {
     // All invited users are now assigned the INSTRUCTOR role by default
     const backendRole = 'INSTRUCTOR';
 
