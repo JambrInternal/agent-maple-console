@@ -344,7 +344,7 @@ button {
     border-bottom: none;
 }
 
-.am-table tr:hover {
+.am-table tr:hover td {
     background-color: var(--am-table-row-hover);
 }
 
