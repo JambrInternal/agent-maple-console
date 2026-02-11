@@ -18,6 +18,10 @@ build/
 .vite/
 coverage/
 
+# Runtime artifacts (keep README.md only)
+artifacts/*
+!artifacts/README.md
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

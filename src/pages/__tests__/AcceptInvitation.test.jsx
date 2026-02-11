@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import AcceptInvitation from '../AcceptInvitation'
 import { acceptInvitation } from '../../services/people'
+import { inviteReauthKey } from '../../utils/invitation'
 
 const mockNavigate = vi.fn()
 const mockLogout = vi.fn()
@@ -25,18 +26,6 @@ vi.mock('react-router-dom', async () => {
         useNavigate: () => mockNavigate,
     }
 })
-
-// Helper to compute the hashed session storage key (matching AcceptInvitation.jsx)
-const hashToken = (token) => {
-    if (!token) return 'unknown'
-    let hash = 0
-    for (let i = 0; i < token.length; i += 1) {
-        hash = (hash << 5) - hash + token.charCodeAt(i)
-        hash |= 0
-    }
-    return Math.abs(hash).toString(36)
-}
-const inviteReauthKey = (token) => `am_invite_reauth_done_${hashToken(token)}`
 
 describe('AcceptInvitation', () => {
     beforeEach(() => {
@@ -239,8 +228,6 @@ describe('AcceptInvitation', () => {
 
         vi.mocked(acceptInvitation).mockRejectedValue(apiError)
         sessionStorage.setItem(inviteReauthKey('tok_api_err'), '1')
-
-        const user = userEvent.setup()
 
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=tok_api_err']}>
