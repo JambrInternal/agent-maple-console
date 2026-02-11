@@ -103,4 +103,23 @@ describe('auth service', () => {
         expect(result).toBeNull();
         expect(apiFetch).not.toHaveBeenCalled();
     });
+
+    it('clears auth, admin mode, and theme on logout', async () => {
+        localStorage.setItem('am_auth_token', 'token-1');
+        localStorage.setItem('am_user', JSON.stringify({ id: 'u1' }));
+        localStorage.setItem('am_tenant_id', 'org_1');
+        localStorage.setItem('am_admin_mode', 'true');
+        localStorage.setItem('am_theme', 'light');
+        document.documentElement.dataset.theme = 'light';
+
+        await authService.logout();
+
+        expect(authApi.logout).toHaveBeenCalledTimes(1);
+        expect(localStorage.getItem('am_auth_token')).toBeNull();
+        expect(localStorage.getItem('am_user')).toBeNull();
+        expect(localStorage.getItem('am_tenant_id')).toBeNull();
+        expect(localStorage.getItem('am_admin_mode')).toBeNull();
+        expect(localStorage.getItem('am_theme')).toBeNull();
+        expect(document.documentElement.dataset.theme).toBe('dark');
+    });
 });

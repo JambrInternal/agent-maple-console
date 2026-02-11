@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import Breadcrumbs from './Breadcrumbs'
 import { useAuth } from '../contexts/AuthContext'
 import { getAdminMode } from '../utils/admin'
+import { applyThemeForAdminMode } from '../utils/theme'
 
 const Layout = () => {
     const { orgId } = useParams()
@@ -44,6 +45,10 @@ const Layout = () => {
             localStorage.setItem('am_tenant_id', orgId)
         }
     }, [orgId])
+
+    useEffect(() => {
+        applyThemeForAdminMode(isAdminMode)
+    }, [isAdminMode])
 
     const handleLogout = async () => {
         await logout()

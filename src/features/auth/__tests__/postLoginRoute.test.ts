@@ -18,16 +18,18 @@ describe('resolvePostLoginRoute', () => {
     })
 
     it('returns redirectTo when present for non-admin', async () => {
+        const setTheme = vi.fn()
         const route = await resolvePostLoginRoute({
             redirectTo: '/org_1/projects',
             getOrganizations: vi.fn().mockResolvedValue([{ id: 'org_1' }]),
             getProjects: vi.fn(),
             getAdminMode: vi.fn().mockReturnValue(false),
-            setTheme: vi.fn(),
+            setTheme,
             pushDebug: vi.fn(),
         })
 
         expect(route).toBe('/org_1/projects')
+        expect(setTheme).toHaveBeenCalledWith('dark')
     })
 
     it('routes to single project when one org and one project exist', async () => {
@@ -75,4 +77,3 @@ describe('resolvePostLoginRoute', () => {
         expect(pushDebug).toHaveBeenCalledWith('Post-login organization lookup failed', expect.any(Error))
     })
 })
-
