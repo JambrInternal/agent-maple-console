@@ -1,4 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
+
+// Mock token service to avoid Amplify side effects
+vi.mock('../../services/token', () => ({
+  getFreshToken: vi.fn(() => Promise.resolve(null)),
+  clearToken: vi.fn(),
+}));
+
 import * as client from '../client';
 
 // URL normalization regression test
