@@ -14,18 +14,6 @@ const labelStyle = {
     color: 'var(--am-text-2)',
 }
 
-const inviteEmailStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.45rem',
-    padding: '0.65rem 0.75rem',
-    borderRadius: 'var(--radius-sm)',
-    border: '1px solid rgba(148, 163, 184, 0.3)',
-    background: 'rgba(15, 23, 42, 0.35)',
-    color: 'var(--am-text-1)',
-    fontSize: '0.92rem',
-}
-
 const panelBaseStyle = {
     padding: '0.75rem',
     borderRadius: 'var(--radius-sm)',
@@ -63,13 +51,14 @@ const submitButtonStyle = {
 }
 
 export default function InvitationAuthCard({
-    inviteEmail,
+    email,
     authMode,
     password,
     confirmationCode,
     info,
     error,
     isSubmitting,
+    onEmailChange,
     onPasswordChange,
     onConfirmationCodeChange,
     onSubmitPassword,
@@ -84,14 +73,34 @@ export default function InvitationAuthCard({
                     Accept Invitation
                 </h1>
                 <p className="am-text-2" style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
-                    Enter your password to continue. If no account exists, we will create one for this invited email.
+                    Enter your email and password to continue. If no account exists, we will create one and continue.
                 </p>
 
                 <div style={{ ...fieldStyle, marginBottom: '1rem' }}>
-                    <label style={labelStyle}>Invited Email</label>
-                    <div style={inviteEmailStyle}>
-                        <Mail size={16} />
-                        <span>{inviteEmail}</span>
+                    <label htmlFor="invite-email" style={labelStyle}>Email</label>
+                    <div style={{ position: 'relative' }}>
+                        <Mail
+                            size={16}
+                            style={{
+                                position: 'absolute',
+                                left: '0.75rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: 'var(--am-text-2)',
+                            }}
+                        />
+                        <input
+                            id="invite-email"
+                            type="email"
+                            className="am-input"
+                            style={{ width: '100%', paddingLeft: '2.45rem' }}
+                            placeholder="name@company.com"
+                            value={email}
+                            onChange={(event) => onEmailChange(event.target.value)}
+                            autoComplete="username"
+                            disabled={isSubmitting || isConfirmMode}
+                            required
+                        />
                     </div>
                 </div>
 
