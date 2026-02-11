@@ -128,7 +128,7 @@ export async function inviteUser(email: string, tenantId: string): Promise<TeamI
         body: JSON.stringify({ email, role: backendRole }),
     });
 
-    const invitation = unwrapData<ApiInvitationResponse>(response as ApiResponse<ApiInvitationResponse>);
+    const invitation = unwrapData<ApiInvitationResponse>(response);
     return mapInvitationToTeamInvite(invitation, backendRole, email);
 }
 
