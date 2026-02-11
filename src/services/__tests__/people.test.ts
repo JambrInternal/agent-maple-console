@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getContact, getContacts, getUser, getUsers } from '../people';
+import { getContact, getContacts, getUser, getUsers, inviteUser } from '../people';
 import { apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
@@ -81,5 +81,34 @@ describe('people service', () => {
         vi.mocked(apiFetch).mockResolvedValue({ data: [] });
 
         await expect(getUser('missing')).rejects.toThrow('User not found: missing');
+    });
+
+    it('returns invitation details when inviting a user', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'invite_1',
+                email: 'new.user@example.com',
+                role: 'INSTRUCTOR',
+                is_used: false,
+                created_at: '2026-02-11T10:00:00Z',
+                expires_at: '2026-03-11T10:00:00Z',
+                used_at: null,
+            },
+        });
+
+        const result = await inviteUser('new.user@example.com', 'member', '12');
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/send-invitation', {
+            method: 'POST',
+            headers: { 'x-tenant-id': '12' },
+            body: JSON.stringify({ email: 'new.user@example.com', role: 'INSTRUCTOR' }),
+        });
+        expect(result).toMatchObject({
+            id: 'invite_1',
+            email: 'new.user@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+        });
     });
 });

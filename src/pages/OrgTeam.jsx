@@ -1,10 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Plus, User as UserIcon, Shield, Mail, Trash2, X } from 'lucide-react'
+import { Plus, User as UserIcon, Shield, Trash2, X } from 'lucide-react'
 import { getUsers, inviteUser, removeUser } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 import QueryError from '../components/QueryError'
+
+const pendingInvitesKey = (orgId) => `am_pending_team_invites_${orgId || 'unknown'}`
+
+const normalizeEmail = (email) => (email || '').trim().toLowerCase()
+
+const readPendingInvites = (orgId) => {
+    if (!orgId) return []
+    try {
+        const raw = localStorage.getItem(pendingInvitesKey(orgId))
+        if (!raw) return []
+        const parsed = JSON.parse(raw)
+        if (!Array.isArray(parsed)) return []
+        return parsed.filter((invite) => typeof invite?.email === 'string')
+    } catch {
+        return []
+    }
+}
 
 const OrgTeam = () => {
     const { orgId } = useParams()
@@ -13,6 +30,7 @@ const OrgTeam = () => {
     const [inviteRole, setInviteRole] = useState('instructor')
     const [inviteError, setInviteError] = useState('')
     const [isInviting, setIsInviting] = useState(false)
+    const [pendingInvites, setPendingInvites] = useState(() => readPendingInvites(orgId))
 
     const {
         data: members = [],
@@ -25,6 +43,49 @@ const OrgTeam = () => {
         { enabled: !!orgId }
     )
 
+    useEffect(() => {
+        setPendingInvites(readPendingInvites(orgId))
+    }, [orgId])
+
+    const memberEmailSet = useMemo(
+        () => new Set(members.map((member) => normalizeEmail(member.email)).filter(Boolean)),
+        [members]
+    )
+
+    useEffect(() => {
+        if (!orgId) return
+        const filtered = pendingInvites.filter((invite) => !memberEmailSet.has(normalizeEmail(invite.email)))
+        if (filtered.length === pendingInvites.length) return
+        setPendingInvites(filtered)
+    }, [memberEmailSet, orgId, pendingInvites])
+
+    useEffect(() => {
+        if (!orgId) return
+        localStorage.setItem(pendingInvitesKey(orgId), JSON.stringify(pendingInvites))
+    }, [orgId, pendingInvites])
+
+    const rows = useMemo(() => {
+        const memberRows = members.map((member) => ({
+            ...member,
+            inviteStatus: 'active',
+            isInviteOnly: false,
+        }))
+
+        const inviteRows = pendingInvites
+            .filter((invite) => !memberEmailSet.has(normalizeEmail(invite.email)))
+            .map((invite) => ({
+                id: `invite-${invite.id}`,
+                email: invite.email,
+                name: invite.email,
+                role: invite.role || 'viewer',
+                mfaEnabled: false,
+                inviteStatus: invite.status || 'pending',
+                isInviteOnly: true,
+            }))
+
+        return [...memberRows, ...inviteRows]
+    }, [memberEmailSet, members, pendingInvites])
+
     const handleInvite = async (e) => {
         e.preventDefault()
         if (!inviteEmail.trim()) {
@@ -34,7 +95,11 @@ const OrgTeam = () => {
         setInviteError('')
         setIsInviting(true)
         try {
-            await inviteUser(inviteEmail.trim(), inviteRole, orgId)
+            const invitation = await inviteUser(inviteEmail.trim(), inviteRole, orgId)
+            setPendingInvites((prev) => {
+                const next = prev.filter((item) => normalizeEmail(item.email) !== normalizeEmail(invitation.email))
+                return [...next, invitation]
+            })
             setInviteEmail('')
             setIsInviteOpen(false)
             refetch()
@@ -54,6 +119,33 @@ const OrgTeam = () => {
         } catch (err) {
             console.error('Failed to remove user:', err)
             alert(withStatus('Failed to remove member.', err))
+        }
+    }
+
+    const getInviteStatusPillClass = (status) => {
+        switch (status) {
+            case 'active':
+            case 'accepted':
+                return 'am-pill is-ready'
+            case 'expired':
+                return 'am-status-pill is-inactive'
+            case 'pending':
+            default:
+                return 'am-pill is-pending'
+        }
+    }
+
+    const getInviteStatusLabel = (status) => {
+        switch (status) {
+            case 'active':
+                return 'Active'
+            case 'accepted':
+                return 'Accepted'
+            case 'expired':
+                return 'Expired'
+            case 'pending':
+            default:
+                return 'Pending'
         }
     }
 
@@ -111,12 +203,13 @@ const OrgTeam = () => {
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Invite Status</th>
                                     <th>MFA Status</th>
                                     <th className="am-table-action">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {members.map((member) => (
+                                {rows.map((member) => (
                                     <tr key={member.id}>
                                         <td className="am-contact-name">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -133,29 +226,46 @@ const OrgTeam = () => {
                                             </span>
                                         </td>
                                         <td>
+                                            <span className={getInviteStatusPillClass(member.inviteStatus)}>
+                                                {getInviteStatusLabel(member.inviteStatus)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {member.isInviteOnly ? (
+                                                <span className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                                                    N/A
+                                                </span>
+                                            ) : (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: member.mfaEnabled ? '#22c55e' : 'var(--am-text-2)' }}>
                                                 <Shield size={14} />
                                                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
                                                     {member.mfaEnabled ? 'Enabled' : 'Disabled'}
                                                 </span>
                                             </div>
+                                            )}
                                         </td>
                                         <td className="am-table-action">
-                                            <button
-                                                className="am-icon-button"
-                                                style={{ color: '#ef4444' }}
-                                                onClick={() => handleRemove(member.id, member.name)}
-                                                title="Remove member"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                            {member.isInviteOnly ? (
+                                                <span className="am-text-2" style={{ fontSize: '0.75rem' }}>
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    className="am-icon-button"
+                                                    style={{ color: '#ef4444' }}
+                                                    onClick={() => handleRemove(member.id, member.name)}
+                                                    title="Remove member"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
 
-                        {members.length === 0 && (
+                        {rows.length === 0 && (
                             <div className="am-text-2" style={{ padding: '2rem 0', textAlign: 'center' }}>
                                 No team members found.
                             </div>
