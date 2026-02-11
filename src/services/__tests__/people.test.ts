@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
+import { acceptInvitation, getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
 import { apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
@@ -88,6 +88,7 @@ describe('people service', () => {
             data: {
                 id: 'invite_1',
                 email: 'new.user@example.com',
+                tenant_id: 12,
                 role: 'INSTRUCTOR',
                 is_used: false,
                 created_at: '2026-02-11T10:00:00Z',
@@ -106,6 +107,7 @@ describe('people service', () => {
         expect(result).toMatchObject({
             id: 'invite_1',
             email: 'new.user@example.com',
+            tenantId: '12',
             role: 'member',
             status: 'pending',
             isUsed: false,
@@ -117,6 +119,7 @@ describe('people service', () => {
             data: {
                 id: 'invite_2',
                 email: 'used.invite@example.com',
+                tenant_id: 12,
                 role: 'INSTRUCTOR',
                 created_at: '2026-02-11T10:00:00Z',
                 expires_at: '2026-03-11T10:00:00Z',
@@ -127,6 +130,37 @@ describe('people service', () => {
         const result = await inviteUser('used.invite@example.com', '12');
 
         expect(result).toMatchObject({
+            tenantId: '12',
+            status: 'accepted',
+            isUsed: true,
+        });
+    });
+
+    it('accepts an invitation token', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'invite_3',
+                email: 'accept.user@example.com',
+                tenant_id: 44,
+                role: 'LEARNER',
+                is_used: true,
+                created_at: '2026-02-11T10:00:00Z',
+                expires_at: '2026-03-11T10:00:00Z',
+                used_at: '2026-02-11T11:00:00Z',
+            },
+        });
+
+        const result = await acceptInvitation('token_abc');
+
+        expect(apiFetch).toHaveBeenCalledWith('/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ token: 'token_abc' }),
+        });
+        expect(result).toMatchObject({
+            id: 'invite_3',
+            email: 'accept.user@example.com',
+            tenantId: '44',
+            role: 'viewer',
             status: 'accepted',
             isUsed: true,
         });

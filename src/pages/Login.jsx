@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react'
@@ -12,6 +12,20 @@ import { setTheme } from '../utils/theme'
 // Logo assets (one-liner)
 const LOGO_LIGHT = '/agent-maple-wordmark-1line-white-textHalf.png';
 const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png';
+
+const getInvitationToken = (search, hash) => {
+    const params = new URLSearchParams(search || '')
+    const fromQuery = params.get('token') || params.get('invitation_token') || params.get('invite_token')
+    if (fromQuery) return fromQuery
+
+    if (hash) {
+        const hashValue = hash.startsWith('#') ? hash.slice(1) : hash
+        const hashParams = new URLSearchParams(hashValue)
+        return hashParams.get('token') || hashParams.get('invitation_token') || hashParams.get('invite_token')
+    }
+
+    return null
+}
 
 const Login = () => {
     // Always set theme to dark mode on login page mount
@@ -33,7 +47,8 @@ const Login = () => {
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
         return () => observer.disconnect();
     }, []);
-    const { login, logout, user, loading } = useAuth();
+
+    const { login, register, confirmRegistration, logout, user, loading } = useAuth();
 
     // On mount, if Cognito session exists but app user is null, force logout to clear stale session
     useEffect(() => {
@@ -50,9 +65,13 @@ const Login = () => {
         })();
     }, [loading, user, logout]);
 
+    const [authMode, setAuthMode] = useState('signin')
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [confirmationCode, setConfirmationCode] = useState('')
     const [error, setError] = useState('');
+    const [info, setInfo] = useState('')
     const [debugEvents, setDebugEvents] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
@@ -66,6 +85,19 @@ const Login = () => {
         const hash = from.hash || ''
         return `${from.pathname}${search}${hash}`
     })()
+
+    const invitationToken = useMemo(() => {
+        const from = location.state?.from
+        const fromToken = getInvitationToken(from?.search || '', from?.hash || '')
+        if (fromToken) return fromToken
+        return getInvitationToken(location.search, location.hash)
+    }, [location.hash, location.search, location.state])
+
+    const hasInviteContext = (
+        !!invitationToken ||
+        redirectTo.startsWith('/accept-invitation') ||
+        redirectTo.startsWith('/user/accept-invitation')
+    )
 
     const [debugEnabled, setDebugEnabled] = useState(() => {
         if (import.meta.env.VITE_DEBUG_AUTH === 'true') return true
@@ -82,6 +114,17 @@ const Login = () => {
         if (localStorage.getItem('am_debug_auth') === 'false') return
         setDebugEnabled(true)
     }, [location.search])
+
+    useEffect(() => {
+        if (hasInviteContext) return
+        if (authMode !== 'signin') {
+            setAuthMode('signin')
+            setConfirmPassword('')
+            setConfirmationCode('')
+            setInfo('')
+            setError('')
+        }
+    }, [authMode, hasInviteContext])
 
     const formatDebugError = (err) => {
         if (!err) return 'Unknown error'
@@ -116,6 +159,35 @@ const Login = () => {
             }
         }
         return 'Sign in failed. Try again or contact support.'
+    }
+
+    const getRegisterErrorMessage = (err) => {
+        if (err && typeof err === 'object' && 'message' in err) {
+            const message = String(err.message).toLowerCase()
+            if (message.includes('exist')) {
+                return 'An account already exists for this email. Confirm your account or sign in.'
+            }
+            if (message.includes('password')) {
+                return 'Password does not meet requirements. Use a stronger password and try again.'
+            }
+            if (message.includes('invitation')) {
+                return 'Registration is invite-only. Open the invite link from your email and try again.'
+            }
+        }
+        return 'Failed to create account. Try again or contact support.'
+    }
+
+    const getConfirmationErrorMessage = (err) => {
+        if (err && typeof err === 'object' && 'message' in err) {
+            const message = String(err.message).toLowerCase()
+            if (message.includes('code')) {
+                return 'Invalid confirmation code. Check the code and try again.'
+            }
+            if (message.includes('expired')) {
+                return 'Confirmation code expired. Request a new invite and try again.'
+            }
+        }
+        return 'Failed to confirm account. Try again or contact support.'
     }
 
     useEffect(() => {
@@ -165,6 +237,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
+        setInfo('')
         setIsSubmitting(true)
         loginInProgressRef.current = true
 
@@ -177,6 +250,77 @@ const Login = () => {
             pushDebug('Login failed', err)
         } finally {
             loginInProgressRef.current = false
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleRegister = async (e) => {
+        e.preventDefault()
+        const normalizedEmail = email.trim()
+        if (!normalizedEmail) {
+            setError('Email is required')
+            return
+        }
+        if (!password) {
+            setError('Password is required')
+            return
+        }
+        if (password !== confirmPassword) {
+            setError('Passwords do not match')
+            return
+        }
+
+        setError('')
+        setInfo('')
+        setIsSubmitting(true)
+        try {
+            const result = await register(normalizedEmail, password)
+            if (result.isComplete) {
+                setInfo('Account created. Sign in to continue.')
+                setAuthMode('signin')
+                setConfirmPassword('')
+                return
+            }
+
+            setAuthMode('confirm')
+            const destination = result.codeDeliveryDestination ? ` at ${result.codeDeliveryDestination}` : ''
+            setInfo(`Enter the confirmation code sent${destination}.`)
+        } catch (err) {
+            setError(getRegisterErrorMessage(err))
+            pushDebug('Register failed', err)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleConfirmRegistration = async (e) => {
+        e.preventDefault()
+        const normalizedEmail = email.trim()
+        const normalizedCode = confirmationCode.trim()
+
+        if (!normalizedEmail) {
+            setError('Email is required')
+            return
+        }
+        if (!normalizedCode) {
+            setError('Confirmation code is required')
+            return
+        }
+
+        setError('')
+        setInfo('')
+        setIsSubmitting(true)
+        try {
+            await confirmRegistration(normalizedEmail, normalizedCode)
+            setAuthMode('signin')
+            setConfirmationCode('')
+            setConfirmPassword('')
+            setPassword('')
+            setInfo('Account confirmed. Sign in to accept your invitation.')
+        } catch (err) {
+            setError(getConfirmationErrorMessage(err))
+            pushDebug('Confirm registration failed', err)
+        } finally {
             setIsSubmitting(false)
         }
     }
@@ -209,97 +353,285 @@ const Login = () => {
                 </div>
 
                 <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                        {error && (
-                            <div style={{
-                                display: 'flex',
-                                gap: '8px',
-                                padding: '0.75rem',
-                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                borderRadius: 'var(--radius-sm)',
-                                color: '#ef4444',
-                                fontSize: '0.875rem'
-                            }}>
-                                <AlertCircle size={18} flexShrink={0} />
-                                <span>{error}</span>
-                            </div>
-                        )}
-                        {debugEnabled && (
-                            <div
-                                style={{
-                                    padding: '0.75rem',
-                                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                                    border: '1px solid rgba(148, 163, 184, 0.3)',
-                                    borderRadius: 'var(--radius-sm)',
-                                    color: 'var(--am-text-2)',
-                                    fontSize: '0.75rem',
-                                    whiteSpace: 'pre-wrap',
-                                    wordBreak: 'break-word',
-                                }}
-                            >
-                                {(() => {
-                                    const config = getAmplifyAuthConfig()
-                                    const lines = [
-                                        `Cognito region: ${config.region}`,
-                                        `Cognito user pool: ${config.userPoolId}`,
-                                        `Cognito app client: ${config.userPoolClientId}`,
-                                    ]
-                                    if (debugEvents.length > 0) {
-                                        lines.push('', ...debugEvents)
-                                    }
-                                    return lines.join('\n')
-                                })()}
-                            </div>
-                        )}
+                    {hasInviteContext && (
+                        <div style={{
+                            marginBottom: '1rem',
+                            padding: '0.75rem',
+                            backgroundColor: 'rgba(194, 106, 46, 0.1)',
+                            border: '1px solid rgba(194, 106, 46, 0.3)',
+                            borderRadius: 'var(--radius-sm)',
+                            color: 'var(--am-text-1)',
+                            fontSize: '0.82rem',
+                        }}>
+                            You were invited to join an organization. Sign in or create an account to continue.
+                        </div>
+                    )}
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
-                                Email Address
-                            </label>
-                            <div style={{ position: 'relative' }}>
-                                <Mail size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                    {hasInviteContext && authMode !== 'confirm' && (
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                            <button
+                                type="button"
+                                className={authMode === 'signin' ? 'am-btn-primary' : 'am-btn-secondary'}
+                                style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={() => {
+                                    setAuthMode('signin')
+                                    setError('')
+                                    setInfo('')
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                type="button"
+                                className={authMode === 'register' ? 'am-btn-primary' : 'am-btn-secondary'}
+                                style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={() => {
+                                    setAuthMode('register')
+                                    setError('')
+                                    setInfo('')
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                Create Account
+                            </button>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div style={{
+                            display: 'flex',
+                            gap: '8px',
+                            padding: '0.75rem',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            borderRadius: 'var(--radius-sm)',
+                            color: '#ef4444',
+                            fontSize: '0.875rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <AlertCircle size={18} flexShrink={0} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
+                    {info && (
+                        <div style={{
+                            padding: '0.75rem',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            border: '1px solid rgba(34, 197, 94, 0.2)',
+                            borderRadius: 'var(--radius-sm)',
+                            color: '#22c55e',
+                            fontSize: '0.82rem',
+                            marginBottom: '1rem',
+                        }}>
+                            {info}
+                        </div>
+                    )}
+
+                    {debugEnabled && (
+                        <div
+                            style={{
+                                padding: '0.75rem',
+                                marginBottom: '1rem',
+                                backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                                border: '1px solid rgba(148, 163, 184, 0.3)',
+                                borderRadius: 'var(--radius-sm)',
+                                color: 'var(--am-text-2)',
+                                fontSize: '0.75rem',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                            }}
+                        >
+                            {(() => {
+                                const config = getAmplifyAuthConfig()
+                                const lines = [
+                                    `Cognito region: ${config.region}`,
+                                    `Cognito user pool: ${config.userPoolId}`,
+                                    `Cognito app client: ${config.userPoolClientId}`,
+                                ]
+                                if (debugEvents.length > 0) {
+                                    lines.push('', ...debugEvents)
+                                }
+                                return lines.join('\n')
+                            })()}
+                        </div>
+                    )}
+
+                    {authMode === 'confirm' ? (
+                        <form onSubmit={handleConfirmRegistration} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Email Address
+                                </label>
                                 <input
                                     type="email"
                                     className="am-input"
-                                    style={{ width: '100%', paddingLeft: '2.5rem' }}
-                                    placeholder="name@company.com"
+                                    style={{ width: '100%' }}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     autoComplete="username"
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
-                                Password
-                            </label>
-                            <div style={{ position: 'relative' }}>
-                                <Lock size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Confirmation Code
+                                </label>
                                 <input
-                                    type="password"
+                                    type="text"
                                     className="am-input"
-                                    style={{ width: '100%', paddingLeft: '2.5rem' }}
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    autoComplete="current-password"
+                                    style={{ width: '100%' }}
+                                    placeholder="123456"
+                                    value={confirmationCode}
+                                    onChange={(e) => setConfirmationCode(e.target.value)}
+                                    autoComplete="one-time-code"
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <button
-                            type="submit"
-                            className="am-btn-primary"
-                            style={{ padding: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : 'Sign In'}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                className="am-btn-primary"
+                                style={{ padding: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : 'Confirm Account'}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="am-btn-secondary"
+                                style={{ justifyContent: 'center' }}
+                                onClick={() => {
+                                    setAuthMode('signin')
+                                    setError('')
+                                    setInfo('')
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                Back To Sign In
+                            </button>
+                        </form>
+                    ) : authMode === 'register' ? (
+                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Email Address
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Mail size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                                    <input
+                                        type="email"
+                                        className="am-input"
+                                        style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                        placeholder="name@company.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoComplete="username"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Password
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                                    <input
+                                        type="password"
+                                        className="am-input"
+                                        style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Confirm Password
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                                    <input
+                                        type="password"
+                                        className="am-input"
+                                        style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                        placeholder="••••••••"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="am-btn-primary"
+                                style={{ padding: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : 'Create Account'}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Email Address
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Mail size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                                    <input
+                                        type="email"
+                                        className="am-input"
+                                        style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                        placeholder="name@company.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoComplete="username"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Password
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--am-text-2)' }} />
+                                    <input
+                                        type="password"
+                                        className="am-input"
+                                        style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete="current-password"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="am-btn-primary"
+                                style={{ padding: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : 'Sign In'}
+                            </button>
+                        </form>
+                    )}
                 </div>
 
                 <p className="am-text-2" style={{ marginTop: '2rem', fontSize: '0.875rem' }}>

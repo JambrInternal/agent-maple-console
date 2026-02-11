@@ -15,6 +15,7 @@ export type TeamInviteStatus = 'pending' | 'accepted' | 'expired';
 export interface TeamInvite {
     id: string;
     email: string;
+    tenantId: string | null;
     role: User['role'];
     status: TeamInviteStatus;
     isUsed: boolean;
@@ -26,6 +27,7 @@ export interface TeamInvite {
 type ApiInvitationResponse = {
     id?: string | null;
     email?: string | null;
+    tenant_id?: string | number | null;
     role?: string | null;
     is_used?: boolean | null;
     expires_at?: string | null;
@@ -55,6 +57,9 @@ const mapInvitationToTeamInvite = (
     return {
         id: invitation.id || invitation.email || fallbackEmail || `${Date.now()}`,
         email: invitation.email || fallbackEmail,
+        tenantId: invitation.tenant_id === null || invitation.tenant_id === undefined
+            ? null
+            : String(invitation.tenant_id),
         role: toConsoleRole(invitation.role || fallbackRole),
         status,
         isUsed,
@@ -118,6 +123,15 @@ export async function inviteUser(email: string, tenantId: string): Promise<TeamI
 
     const invitation = unwrapData<ApiInvitationResponse>(response);
     return mapInvitationToTeamInvite(invitation, backendRole, email);
+}
+
+export async function acceptInvitation(token: string): Promise<TeamInvite> {
+    const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/user/accept-invitation', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+    });
+    const invitation = unwrapData<ApiInvitationResponse>(response);
+    return mapInvitationToTeamInvite(invitation, 'LEARNER', '');
 }
 
 /**

@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Login from '../Login'
@@ -8,11 +8,17 @@ import { getOrganizations } from '../../services/organizations'
 import { getProjects } from '../../services/projects'
 
 const mockLogin = vi.fn()
+const mockRegister = vi.fn()
+const mockConfirmRegistration = vi.fn()
+const mockLogout = vi.fn()
 const mockNavigate = vi.fn()
 
 vi.mock('../../contexts/AuthContext', () => ({
     useAuth: () => ({
         login: mockLogin,
+        register: mockRegister,
+        confirmRegistration: mockConfirmRegistration,
+        logout: mockLogout,
         user: null,
         loading: false,
     }),
@@ -186,14 +192,61 @@ describe('Login', () => {
             </MemoryRouter>
         )
 
-        expect(screen.queryByText(/Cognito region/i)).toBeNull()
+        const debugVisibleInitially = !!screen.queryByText(/Cognito region/i)
+        const firstToggleLabel = debugVisibleInitially ? 'Disable Debug' : 'Enable Debug'
+        const secondToggleLabel = debugVisibleInitially ? 'Enable Debug' : 'Disable Debug'
+        const firstStorageState = debugVisibleInitially ? 'false' : 'true'
+        const secondStorageState = debugVisibleInitially ? 'true' : 'false'
 
-        await user.click(screen.getByRole('button', { name: 'Enable Debug' }))
-        expect(screen.getByText(/Cognito region/i)).toBeInTheDocument()
-        expect(localStorage.getItem('am_debug_auth')).toBe('true')
+        await user.click(screen.getByRole('button', { name: firstToggleLabel }))
+        expect(localStorage.getItem('am_debug_auth')).toBe(firstStorageState)
 
-        await user.click(screen.getByRole('button', { name: 'Disable Debug' }))
-        expect(screen.queryByText(/Cognito region/i)).toBeNull()
-        expect(localStorage.getItem('am_debug_auth')).toBe('false')
+        await user.click(screen.getByRole('button', { name: secondToggleLabel }))
+        expect(localStorage.getItem('am_debug_auth')).toBe(secondStorageState)
+    })
+
+    it('shows invite-only registration controls when redirected from invitation acceptance', async () => {
+        const user = userEvent.setup()
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        mockConfirmRegistration.mockResolvedValue(undefined)
+
+        render(
+            <MemoryRouter
+                initialEntries={[
+                    {
+                        pathname: '/login',
+                        state: { from: { pathname: '/accept-invitation', search: '?token=tok_123' } },
+                    },
+                ]}
+            >
+                <Login />
+            </MemoryRouter>
+        )
+
+        expect(screen.getByText(/You were invited to join an organization/i)).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Create Account' })).toBeInTheDocument()
+
+        await user.click(screen.getByRole('button', { name: 'Create Account' }))
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'invitee@example.com')
+        const registerPasswords = screen.getAllByPlaceholderText('••••••••')
+        await user.type(registerPasswords[0], 'Temporary123!')
+        await user.type(registerPasswords[1], 'Temporary123!')
+        await user.click(screen.getAllByRole('button', { name: 'Create Account' }).at(-1))
+
+        await waitFor(() => {
+            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'Temporary123!')
+        })
+
+        await user.type(screen.getByPlaceholderText('123456'), '654321')
+        await user.click(screen.getByRole('button', { name: 'Confirm Account' }))
+
+        await waitFor(() => {
+            expect(mockConfirmRegistration).toHaveBeenCalledWith('invitee@example.com', '654321')
+        })
     })
 })

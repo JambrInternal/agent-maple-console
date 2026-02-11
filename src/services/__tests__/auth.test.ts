@@ -7,6 +7,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../api/auth', () => ({
     login: vi.fn(),
+    register: vi.fn(),
+    confirmRegistration: vi.fn(),
     logout: vi.fn(),
     getSessionUser: vi.fn(),
 }));
@@ -48,8 +50,6 @@ describe('auth service', () => {
         expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
-
-
     it('hydrates user on session restore (no sync)', async () => {
         const user: User = {
             id: 'u2',
@@ -74,15 +74,33 @@ describe('auth service', () => {
         expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
-
-
-
-        it('returns null when session is missing', async () => {
-            vi.mocked(authApi.getSessionUser).mockResolvedValue(null);
-            const result = await authService.getCurrentUser();
-            expect(result).toBeNull();
-            expect(apiFetch).not.toHaveBeenCalled();
+    it('registers a new invited user account', async () => {
+        vi.mocked(authApi.register).mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
         });
 
+        const result = await authService.register('invitee@example.com', 'Temporary123!');
 
+        expect(authApi.register).toHaveBeenCalledWith('invitee@example.com', 'Temporary123!');
+        expect(result.isComplete).toBe(false);
+        expect(result.nextStep).toBe('CONFIRM_SIGN_UP');
+    });
+
+    it('confirms invited user registration code', async () => {
+        vi.mocked(authApi.confirmRegistration).mockResolvedValue();
+
+        await authService.confirmRegistration('invitee@example.com', '123456');
+
+        expect(authApi.confirmRegistration).toHaveBeenCalledWith('invitee@example.com', '123456');
+    });
+
+    it('returns null when session is missing', async () => {
+        vi.mocked(authApi.getSessionUser).mockResolvedValue(null);
+        const result = await authService.getCurrentUser();
+        expect(result).toBeNull();
+        expect(apiFetch).not.toHaveBeenCalled();
+    });
 });
