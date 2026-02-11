@@ -1,0 +1,63 @@
+import React from 'react'
+
+const inviteNoticeStyle = {
+    marginBottom: '1rem',
+    padding: '0.75rem',
+    backgroundColor: 'rgba(194, 106, 46, 0.1)',
+    border: '1px solid rgba(194, 106, 46, 0.3)',
+    borderRadius: 'var(--radius-sm)',
+    color: 'var(--am-text-1)',
+    fontSize: '0.82rem',
+}
+
+const switchContainerStyle = {
+    display: 'flex',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+}
+
+const switchButtonStyle = {
+    flex: 1,
+    justifyContent: 'center',
+}
+
+export default function AuthInviteControls({
+    hasInviteContext,
+    authMode,
+    isSubmitting,
+    onSwitchToSignIn,
+    onSwitchToRegister,
+}) {
+    if (!hasInviteContext) return null
+
+    return (
+        <>
+            <div style={inviteNoticeStyle}>
+                You were invited to join an organization. Sign in or create an account to continue.
+            </div>
+
+            {authMode !== 'confirm' && (
+                <div style={switchContainerStyle}>
+                    <button
+                        type="button"
+                        className={authMode === 'signin' ? 'am-btn-primary' : 'am-btn-secondary'}
+                        style={switchButtonStyle}
+                        onClick={onSwitchToSignIn}
+                        disabled={isSubmitting}
+                    >
+                        Sign In
+                    </button>
+                    <button
+                        type="button"
+                        className={authMode === 'register' ? 'am-btn-primary' : 'am-btn-secondary'}
+                        style={switchButtonStyle}
+                        onClick={onSwitchToRegister}
+                        disabled={isSubmitting}
+                    >
+                        Create Account
+                    </button>
+                </div>
+            )}
+        </>
+    )
+}
