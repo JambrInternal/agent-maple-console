@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getContact, getContacts, getUser, getUsers } from '../people';
+import { getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
 import { apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
@@ -81,5 +81,65 @@ describe('people service', () => {
         vi.mocked(apiFetch).mockResolvedValue({ data: [] });
 
         await expect(getUser('missing')).rejects.toThrow('User not found: missing');
+    });
+
+    it('returns invitation details when inviting a user', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'invite_1',
+                email: 'new.user@example.com',
+                role: 'INSTRUCTOR',
+                is_used: false,
+                created_at: '2026-02-11T10:00:00Z',
+                expires_at: '2026-03-11T10:00:00Z',
+                used_at: null,
+            },
+        });
+
+        const result = await inviteUser('new.user@example.com', '12');
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/send-invitation', {
+            method: 'POST',
+            headers: { 'x-tenant-id': '12' },
+            body: JSON.stringify({ email: 'new.user@example.com', role: 'INSTRUCTOR' }),
+        });
+        expect(result).toMatchObject({
+            id: 'invite_1',
+            email: 'new.user@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+        });
+    });
+
+    it('marks invitation as used when used_at is present even if is_used is missing', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'invite_2',
+                email: 'used.invite@example.com',
+                role: 'INSTRUCTOR',
+                created_at: '2026-02-11T10:00:00Z',
+                expires_at: '2026-03-11T10:00:00Z',
+                used_at: '2026-02-11T11:00:00Z',
+            },
+        });
+
+        const result = await inviteUser('used.invite@example.com', '12');
+
+        expect(result).toMatchObject({
+            status: 'accepted',
+            isUsed: true,
+        });
+    });
+
+    it('removes a user from an organization', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await removeUser('user_77', '12');
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/users/user_77', {
+            method: 'DELETE',
+            headers: { 'x-tenant-id': '12' },
+        });
     });
 });

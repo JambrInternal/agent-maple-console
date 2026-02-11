@@ -197,7 +197,7 @@ const toKnowledgeType = (source?: string | null, contentType?: string | null): K
     return 'pdf';
 };
 
-const toConsoleRole = (role: string | null | undefined): UserRole => {
+export const toConsoleRole = (role: string | null | undefined): UserRole => {
     switch (role) {
         case 'ADMIN':
             return 'admin';

@@ -274,7 +274,7 @@ const OrgSelection = () => {
                                         disabled={isCreating || obtainTwilio}
                                     />
                                 </div>
-                                <div className="am-form-field" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                <div className="am-form-field" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', justifyContent: 'flex-start' }}>
                                     <input
                                         id="org-obtain-twilio"
                                         type="checkbox"

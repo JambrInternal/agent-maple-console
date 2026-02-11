@@ -10,6 +10,7 @@ import BuildTag from './components/BuildTag'
 import Login from './pages/Login'
 import OrgSelection from './pages/OrgSelection'
 import Projects from './pages/Projects'
+import OrgTeam from './pages/OrgTeam'
 import Contacts from './pages/Contacts'
 import Knowledge from './pages/Knowledge'
 import Voice from './pages/Voice'
@@ -42,7 +43,7 @@ function App() {
 
                                 {/* Org Level Pages */}
                                 <Route path="projects" element={<Projects />} />
-                                <Route path="team" element={<ComingSoon title="Team" />} />
+                                <Route path="team" element={<OrgTeam />} />
                                 <Route path="billing" element={<ComingSoon title="Billing" />} />
                                 <Route path="usage" element={<ComingSoon title="Usage" />} />
                                 <Route path="settings" element={<ComingSoon title="Organization Settings" />} />
