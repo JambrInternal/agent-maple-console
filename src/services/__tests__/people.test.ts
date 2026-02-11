@@ -112,6 +112,26 @@ describe('people service', () => {
         });
     });
 
+    it('marks invitation as used when used_at is present even if is_used is missing', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                id: 'invite_2',
+                email: 'used.invite@example.com',
+                role: 'INSTRUCTOR',
+                created_at: '2026-02-11T10:00:00Z',
+                expires_at: '2026-03-11T10:00:00Z',
+                used_at: '2026-02-11T11:00:00Z',
+            },
+        });
+
+        const result = await inviteUser('used.invite@example.com', '12');
+
+        expect(result).toMatchObject({
+            status: 'accepted',
+            isUsed: true,
+        });
+    });
+
     it('removes a user from an organization', async () => {
         vi.mocked(apiFetch).mockResolvedValue({});
 
