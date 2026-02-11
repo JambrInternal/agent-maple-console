@@ -105,6 +105,10 @@ const OrgTeam = () => {
 
     const handleInvite = async (e) => {
         e.preventDefault()
+        if (!orgId) {
+            setInviteError('Organization ID is missing')
+            return
+        }
         if (!inviteEmail.trim()) {
             setInviteError('Email is required')
             return
@@ -130,6 +134,10 @@ const OrgTeam = () => {
     }
 
     const handleRemove = async (userId, userName) => {
+        if (!orgId) {
+            alert('Organization ID is missing')
+            return
+        }
         if (!window.confirm(`Are you sure you want to remove ${userName}?`)) return
         try {
             await removeUser(userId, orgId)
@@ -264,7 +272,7 @@ const OrgTeam = () => {
                                         <td className="am-table-action">
                                             {member.isInviteOnly ? (
                                                 <span className="am-text-2" style={{ fontSize: '0.75rem' }}>
-                                                    Pending
+                                                    —
                                                 </span>
                                             ) : (
                                                 <button
