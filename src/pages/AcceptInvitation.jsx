@@ -195,7 +195,15 @@ const AcceptInvitation = () => {
         } catch (signInError) {
             const signInReason = getSignInErrorReason(signInError)
 
-            if (signInReason === 'user_not_found') {
+            if (signInReason === 'user_unconfirmed') {
+                setAuthMode('confirm')
+                setInfo('Account not confirmed yet. Enter your confirmation code to continue.')
+                return
+            }
+
+            // Cognito can return NotAuthorizedException ("Incorrect username or password")
+            // for users that do not exist. For invite onboarding, attempt registration once.
+            if (signInReason === 'user_not_found' || signInReason === 'invalid_credentials') {
                 try {
                     const registerResult = await register(normalizedEmail, password)
 
@@ -210,15 +218,21 @@ const AcceptInvitation = () => {
                     setInfo(`Account created. Enter the confirmation code sent${destination}.`)
                     return
                 } catch (registerError) {
+                    if (signInReason === 'invalid_credentials') {
+                        const registerMessage = String(
+                            registerError && typeof registerError === 'object' && 'message' in registerError
+                                ? registerError.message
+                                : ''
+                        ).toLowerCase()
+
+                        if (registerMessage.includes('exist')) {
+                            setError('Sign in failed. The account may already exist with a different password. Reset your password and try again.')
+                            return
+                        }
+                    }
                     setError(getRegisterErrorMessage(registerError))
                     return
                 }
-            }
-
-            if (signInReason === 'user_unconfirmed') {
-                setAuthMode('confirm')
-                setInfo('Account not confirmed yet. Enter your confirmation code to continue.')
-                return
             }
 
             setError(getSignInErrorMessage(signInError))
