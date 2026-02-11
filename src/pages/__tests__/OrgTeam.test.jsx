@@ -76,4 +76,81 @@ describe('OrgTeam', () => {
         expect(inviteUser).toHaveBeenCalledWith('invitee@example.com', 'org_1')
         expect(removeUser).not.toHaveBeenCalled()
     })
+
+    it('recomputes invite status from localStorage when invite has expired', async () => {
+        vi.mocked(getUsers).mockResolvedValue([])
+
+        // Simulate an invite that was saved as 'pending' but has now expired
+        const expiredDate = new Date(Date.now() - 1000 * 60 * 60 * 24) // 1 day ago
+        const storedInvite = {
+            id: 'invite_expired',
+            email: 'expired@example.com',
+            role: 'member',
+            status: 'pending', // Stored as pending
+            isUsed: false,
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), // 30 days ago
+            expiresAt: expiredDate.toISOString(), // Expired
+            usedAt: null,
+        }
+
+        localStorage.setItem('am_pending_team_invites_org_1', JSON.stringify([storedInvite]))
+
+        const queryClient = new QueryClient()
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        await screen.findAllByText('expired@example.com')
+        const invitedRow = screen.getAllByRole('row').find(
+            (row) => within(row).queryAllByText('expired@example.com').length > 0
+        )
+        
+        expect(invitedRow).not.toBeNull()
+        expect(within(invitedRow).getByText('Expired')).toBeInTheDocument()
+    })
+
+    it('recomputes invite status from localStorage when invite has been used', async () => {
+        vi.mocked(getUsers).mockResolvedValue([])
+
+        // Simulate an invite that was saved as 'pending' but has been used
+        const storedInvite = {
+            id: 'invite_used',
+            email: 'used@example.com',
+            role: 'member',
+            status: 'pending', // Stored as pending
+            isUsed: true, // But has been used
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 25).toISOString(), // Still valid
+            usedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Used 1 day ago
+        }
+
+        localStorage.setItem('am_pending_team_invites_org_1', JSON.stringify([storedInvite]))
+
+        const queryClient = new QueryClient()
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        await screen.findAllByText('used@example.com')
+        const invitedRow = screen.getAllByRole('row').find(
+            (row) => within(row).queryAllByText('used@example.com').length > 0
+        )
+        
+        expect(invitedRow).not.toBeNull()
+        expect(within(invitedRow).getByText('Accepted')).toBeInTheDocument()
+    })
 })
