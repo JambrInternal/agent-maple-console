@@ -4,6 +4,7 @@ import type { Contact, User } from '../api/types';
 import {
     mapTenantUserToContact,
     mapTenantUserToConsoleUser,
+    toConsoleRole,
     unwrapData,
     type ApiResponse,
     type ApiTenantUser,
@@ -32,19 +33,6 @@ type ApiInvitationResponse = {
     created_at?: string | null;
 };
 
-const toInviteRole = (role: string | null | undefined): User['role'] => {
-    switch (role) {
-        case 'ADMIN':
-            return 'admin';
-        case 'INSTRUCTOR':
-            return 'member';
-        case 'LEARNER':
-            return 'viewer';
-        default:
-            return 'viewer';
-    }
-};
-
 const toIsoStringOrNull = (value: string | null | undefined): string | null => {
     if (!value) return null;
     const parsed = new Date(value);
@@ -67,7 +55,7 @@ const mapInvitationToTeamInvite = (
     return {
         id: invitation.id || invitation.email || fallbackEmail || `${Date.now()}`,
         email: invitation.email || fallbackEmail,
-        role: toInviteRole(invitation.role || fallbackRole),
+        role: toConsoleRole(invitation.role || fallbackRole),
         status,
         isUsed,
         createdAt,
