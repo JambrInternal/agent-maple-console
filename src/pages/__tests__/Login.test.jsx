@@ -44,6 +44,7 @@ describe('Login', () => {
     beforeEach(() => {
         localStorage.clear()
         vi.clearAllMocks()
+        document.documentElement.dataset.theme = 'dark'
     })
 
     it('auto-navigates to the only project after login', async () => {
@@ -96,6 +97,7 @@ describe('Login', () => {
     })
 
     it('respects redirectTo when coming from a protected route', async () => {
+        document.documentElement.dataset.theme = 'light'
         mockLogin.mockResolvedValue({
             id: 'user_2',
             email: 'test@example.com',
@@ -130,6 +132,7 @@ describe('Login', () => {
         expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
         expect(getProjects).not.toHaveBeenCalled()
         expect(mockNavigate).toHaveBeenCalledWith('/org_1/projects', { replace: true })
+        expect(document.documentElement.dataset.theme).toBe('dark')
     })
 
     it('routes admin users to the org selector with light theme', async () => {
@@ -182,6 +185,19 @@ describe('Login', () => {
         expect(screen.getByText(/Cognito region/i)).toBeInTheDocument()
         expect(screen.getByText(/Cognito user pool/i)).toBeInTheDocument()
         expect(screen.getByText(/Cognito app client/i)).toBeInTheDocument()
+    })
+
+    it('applies light theme on login when super admin mode is already enabled', () => {
+        localStorage.setItem('am_admin_mode', 'true')
+        document.documentElement.dataset.theme = 'dark'
+
+        render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        expect(document.documentElement.dataset.theme).toBe('light')
     })
 
     it('toggles debug mode on and off', async () => {

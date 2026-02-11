@@ -27,7 +27,7 @@ const LOGO_LIGHT = '/agent-maple-wordmark-1line-white-textHalf.png';
 const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png';
 
 const Login = () => {
-    const theme = useLoginTheme({ defaultTheme: 'dark' })
+    const theme = useLoginTheme({ defaultTheme: getAdminMode() ? 'light' : 'dark' })
 
     const { login, register, confirmRegistration, logout, user, loading } = useAuth();
 

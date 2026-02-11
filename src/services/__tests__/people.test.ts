@@ -213,6 +213,53 @@ describe('people service', () => {
         });
     });
 
+    it('retries invitation acceptance with alias token fields on 422 responses', async () => {
+        vi.mocked(apiFetch)
+            .mockRejectedValueOnce(new ApiError(422, 'Unprocessable Entity', 'invalid token'))
+            .mockResolvedValueOnce({
+                data: {
+                    id: 'invite_5',
+                    email: 'alias422.user@example.com',
+                    tenant_id: 46,
+                    role: 'LEARNER',
+                    is_used: true,
+                    created_at: '2026-02-11T10:00:00Z',
+                    expires_at: '2026-03-11T10:00:00Z',
+                    used_at: '2026-02-11T11:00:00Z',
+                },
+            });
+
+        const result = await acceptInvitation('token_alias_422');
+
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ token: 'token_alias_422' }),
+        });
+        expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ invitation_token: 'token_alias_422' }),
+        });
+        expect(result).toMatchObject({
+            id: 'invite_5',
+            tenantId: '46',
+            status: 'accepted',
+            isUsed: true,
+        });
+    });
+
+    it('does not retry invitation acceptance on non-validation errors', async () => {
+        vi.mocked(apiFetch).mockRejectedValueOnce(
+            new ApiError(500, 'Internal Server Error', 'upstream failure')
+        );
+
+        await expect(acceptInvitation('token_no_retry')).rejects.toThrow('upstream failure');
+        expect(apiFetch).toHaveBeenCalledTimes(1);
+        expect(apiFetch).toHaveBeenCalledWith('/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ token: 'token_no_retry' }),
+        });
+    });
+
     it('removes a user from an organization', async () => {
         vi.mocked(apiFetch).mockResolvedValue({});
 

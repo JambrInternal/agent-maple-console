@@ -33,9 +33,11 @@ describe('AcceptInvitation', () => {
         sessionStorage.clear()
         vi.clearAllMocks()
         mockAuthState = { user: null, loading: false, logout: mockLogout }
+        document.documentElement.dataset.theme = 'dark'
     })
 
     it('redirects to login when user is not authenticated', async () => {
+        document.documentElement.dataset.theme = 'light'
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=abc123']}>
                 <AcceptInvitation />
@@ -53,6 +55,21 @@ describe('AcceptInvitation', () => {
                     },
                 },
             })
+            expect(document.documentElement.dataset.theme).toBe('dark')
+        })
+    })
+
+    it('uses light theme while in super admin mode', async () => {
+        localStorage.setItem('am_admin_mode', 'true')
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_theme']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await waitFor(() => {
+            expect(document.documentElement.dataset.theme).toBe('light')
         })
     })
 

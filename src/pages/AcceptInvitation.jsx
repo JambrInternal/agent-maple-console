@@ -16,6 +16,8 @@ import InvitationLoadingCard from '../features/invitation/components/InvitationL
 import InvitationSuccessCard from '../features/invitation/components/InvitationSuccessCard'
 import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
+import { getAdminMode } from '../utils/admin'
+import { applyThemeForAdminMode } from '../utils/theme'
 const AcceptInvitation = () => {
     const { user, loading, logout } = useAuth()
     const location = useLocation()
@@ -26,6 +28,11 @@ const AcceptInvitation = () => {
     const [isSigningOut, setIsSigningOut] = useState(false)
     const submissionStartedRef = useRef(false)
     const redirectTimeoutRef = useRef(null)
+    const isSuperAdmin = getAdminMode()
+
+    useEffect(() => {
+        applyThemeForAdminMode(isSuperAdmin)
+    }, [isSuperAdmin])
 
     const token = useMemo(
         () => getInvitationToken(location.search, location.hash),

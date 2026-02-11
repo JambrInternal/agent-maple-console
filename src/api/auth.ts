@@ -23,6 +23,8 @@ export interface RegisterResult {
     codeDeliveryMedium: string | null;
 }
 
+const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
+
 async function determineRoleAndSetAdminMode(): Promise<UserRole> {
     try {
         const attributes = await fetchUserAttributes();
@@ -99,6 +101,7 @@ export async function register(email: string, password: string): Promise<Registe
         options: {
             userAttributes: {
                 email: normalizedEmail,
+                'custom:role': DEFAULT_SIGNUP_ROLE,
             },
         },
     });
