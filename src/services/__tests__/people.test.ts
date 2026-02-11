@@ -179,9 +179,20 @@ describe('people service', () => {
         });
     });
 
-    it('retries invitation acceptance with alias token fields on 400 responses', async () => {
+    it('retries invitation acceptance with invitation_token when backend requires that field', async () => {
         vi.mocked(apiFetch)
-            .mockRejectedValueOnce(new ApiError(400, 'Bad Request', 'invalid token'))
+            .mockRejectedValueOnce(
+                new ApiError(422, 'Unprocessable Entity', 'Field required', {
+                    detail: [
+                        {
+                            type: 'missing',
+                            loc: ['body', 'invitation_token'],
+                            msg: 'Field required',
+                            input: { token: 'token_alias' },
+                        },
+                    ],
+                })
+            )
             .mockResolvedValueOnce({
                 data: {
                     id: 'invite_4',
@@ -213,9 +224,20 @@ describe('people service', () => {
         });
     });
 
-    it('retries invitation acceptance with alias token fields on 422 responses', async () => {
+    it('retries invitation acceptance with invite_token when backend requires that field', async () => {
         vi.mocked(apiFetch)
-            .mockRejectedValueOnce(new ApiError(422, 'Unprocessable Entity', 'invalid token'))
+            .mockRejectedValueOnce(
+                new ApiError(422, 'Unprocessable Entity', 'Field required', {
+                    detail: [
+                        {
+                            type: 'missing',
+                            loc: ['body', 'invite_token'],
+                            msg: 'Field required',
+                            input: { token: 'token_alias_422' },
+                        },
+                    ],
+                })
+            )
             .mockResolvedValueOnce({
                 data: {
                     id: 'invite_5',
@@ -237,13 +259,35 @@ describe('people service', () => {
         });
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/accept-invitation', {
             method: 'POST',
-            body: JSON.stringify({ invitation_token: 'token_alias_422' }),
+            body: JSON.stringify({ invite_token: 'token_alias_422' }),
         });
         expect(result).toMatchObject({
             id: 'invite_5',
             tenantId: '46',
             status: 'accepted',
             isUsed: true,
+        });
+    });
+
+    it('does not retry invitation acceptance on unrelated 422 validation errors', async () => {
+        vi.mocked(apiFetch).mockRejectedValueOnce(
+            new ApiError(422, 'Unprocessable Entity', 'Invitation token is invalid', {
+                detail: [
+                    {
+                        type: 'value_error',
+                        loc: ['body', 'token'],
+                        msg: 'Invitation token is invalid',
+                        input: { token: 'token_no_retry_422' },
+                    },
+                ],
+            })
+        );
+
+        await expect(acceptInvitation('token_no_retry_422')).rejects.toThrow('Invitation token is invalid');
+        expect(apiFetch).toHaveBeenCalledTimes(1);
+        expect(apiFetch).toHaveBeenCalledWith('/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ token: 'token_no_retry_422' }),
         });
     });
 
