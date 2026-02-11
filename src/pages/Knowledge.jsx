@@ -122,7 +122,7 @@ const Knowledge = () => {
                         </table>
 
                         {rows.length === 0 && (
-                            <div className="am-text-2" style={{ padding: '2rem 0' }}>
+                            <div className="am-text-2 am-table-empty">
                                 No knowledge sources found for this project.
                             </div>
                         )}

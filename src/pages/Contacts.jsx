@@ -87,7 +87,7 @@ const Contacts = () => {
                         </table>
 
                         {contacts.length === 0 && (
-                            <div className="am-text-2" style={{ padding: '2rem 0' }}>
+                            <div className="am-text-2 am-table-empty">
                                 No contacts found for this project.
                             </div>
                         )}
