@@ -4,23 +4,9 @@ import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
+import { inviteReauthKey } from '../utils/invitation'
 
 const SUCCESS_REDIRECT_DELAY_MS = 300
-
-const hashToken = (token) => {
-    if (!token) return 'unknown'
-
-    // Simple non-cryptographic hash to avoid storing the raw token in sessionStorage keys
-    let hash = 0
-    for (let i = 0; i < token.length; i += 1) {
-        hash = (hash << 5) - hash + token.charCodeAt(i)
-        hash |= 0 // Convert to 32-bit integer
-    }
-
-    return Math.abs(hash).toString(36)
-}
-
-const inviteReauthKey = (token) => `am_invite_reauth_done_${hashToken(token)}`
 
 const getInvitationToken = (search, hash) => {
     const params = new URLSearchParams(search || '')
@@ -150,6 +136,10 @@ const AcceptInvitation = () => {
         }
 
         if (!user) {
+            // Set reauth flag before redirecting unauthenticated users to avoid double-logout
+            if (token) {
+                sessionStorage.setItem(inviteReauthKey(token), '1')
+            }
             redirectToLoginWithReturnPath()
             return
         }
@@ -239,7 +229,15 @@ const AcceptInvitation = () => {
                                 {isSigningOut ? 'Signing Out...' : 'Sign Out & Continue'}
                             </button>
                         ) : (
-                            <button type="button" className="am-btn-primary" onClick={redirectToLoginWithReturnPath}>
+                            <button
+                                type="button"
+                                className="am-btn-primary"
+                                onClick={
+                                    !token || (error && typeof error === 'string' && error.toLowerCase().includes('token'))
+                                        ? () => navigate('/login', { replace: true })
+                                        : redirectToLoginWithReturnPath
+                                }
+                            >
                                 Go To Login
                             </button>
                         )}
