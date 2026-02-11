@@ -21,12 +21,15 @@ import { withStatus } from '../utils/errors'
 import { getAdminMode } from '../utils/admin'
 import { applyThemeForAdminMode } from '../utils/theme'
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const AcceptInvitation = () => {
     const { user, loading, login, register, confirmRegistration, logout } = useAuth()
     const location = useLocation()
     const navigate = useNavigate()
     const [status, setStatus] = useState('checking')
     const [authMode, setAuthMode] = useState('password')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmationCode, setConfirmationCode] = useState('')
     const [error, setError] = useState('')
@@ -53,6 +56,11 @@ const AcceptInvitation = () => {
         if (fromEmail) return fromEmail
         return getInvitationEmail(location.search, location.hash)
     }, [location.hash, location.search, location.state])
+
+    useEffect(() => {
+        if (!inviteEmail) return
+        setEmail((currentEmail) => currentEmail.trim() ? currentEmail : inviteEmail)
+    }, [inviteEmail])
 
     useEffect(() => {
         return () => {
@@ -92,7 +100,7 @@ const AcceptInvitation = () => {
             scheduleRedirect('/')
             return true
         } catch (err) {
-            if (allowMismatchLogout && isInvitationEmailMismatchError(err)) {
+            if (isInvitationEmailMismatchError(err)) {
                 try {
                     await logout()
                 } catch {
@@ -100,12 +108,18 @@ const AcceptInvitation = () => {
                 }
 
                 setStatus('auth')
-                setError('')
-                if (inviteEmail) {
+                setError(allowMismatchLogout ? '' : withStatus('Failed to accept invitation.', err))
+                if (allowMismatchLogout && inviteEmail) {
                     setInfo(`This invite is for ${inviteEmail}. Enter that account password to continue.`)
                 } else {
-                    setInfo('This invite does not match your current session. Continue with the invited account.')
+                    setInfo('This invite does not match the signed-in account. Enter the invited email and password to continue.')
                 }
+                return false
+            }
+
+            if (!allowMismatchLogout) {
+                setStatus('auth')
+                setError(withStatus('Failed to accept invitation.', err))
                 return false
             }
 
@@ -115,18 +129,25 @@ const AcceptInvitation = () => {
         }
     }, [inviteEmail, logout, scheduleRedirect, token])
 
+    const getValidatedEmail = useCallback(() => {
+        const normalizedEmail = email.trim().toLowerCase()
+        if (!normalizedEmail) {
+            setError('Email is required')
+            return null
+        }
+        if (!EMAIL_PATTERN.test(normalizedEmail)) {
+            setError('Enter a valid email address')
+            return null
+        }
+        return normalizedEmail
+    }, [email])
+
     useEffect(() => {
         if (loading) return
 
         if (!token) {
             setStatus('error')
             setError('Invitation token is missing. Open the full invite link from your email.')
-            return
-        }
-
-        if (!inviteEmail) {
-            setStatus('error')
-            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
             return
         }
 
@@ -139,8 +160,8 @@ const AcceptInvitation = () => {
         }
 
         setStatus('auth')
-        setInfo('Enter your password to continue.')
-    }, [acceptWithCurrentSession, inviteEmail, loading, token, user])
+        setInfo('Enter your email and password to continue.')
+    }, [acceptWithCurrentSession, loading, token, user])
 
     const handlePasswordSubmit = async (event) => {
         event.preventDefault()
@@ -151,14 +172,13 @@ const AcceptInvitation = () => {
             return
         }
 
-        if (!inviteEmail) {
-            setStatus('error')
-            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
+        const normalizedEmail = getValidatedEmail()
+        if (!normalizedEmail) {
             return
         }
+        setEmail(normalizedEmail)
 
-        const normalizedPassword = password.trim()
-        if (!normalizedPassword) {
+        if (!password.trim()) {
             setError('Password is required')
             return
         }
@@ -169,7 +189,7 @@ const AcceptInvitation = () => {
         setStatus('auth')
 
         try {
-            await login(inviteEmail, normalizedPassword)
+            await login(normalizedEmail, password)
             await acceptWithCurrentSession({ allowMismatchLogout: false })
             return
         } catch (signInError) {
@@ -177,10 +197,10 @@ const AcceptInvitation = () => {
 
             if (signInReason === 'user_not_found') {
                 try {
-                    const registerResult = await register(inviteEmail, normalizedPassword)
+                    const registerResult = await register(normalizedEmail, password)
 
                     if (registerResult.isComplete) {
-                        await login(inviteEmail, normalizedPassword)
+                        await login(normalizedEmail, password)
                         await acceptWithCurrentSession({ allowMismatchLogout: false })
                         return
                     }
@@ -216,14 +236,13 @@ const AcceptInvitation = () => {
             return
         }
 
-        if (!inviteEmail) {
-            setStatus('error')
-            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
+        const normalizedEmail = getValidatedEmail()
+        if (!normalizedEmail) {
             return
         }
+        setEmail(normalizedEmail)
 
-        const normalizedPassword = password.trim()
-        if (!normalizedPassword) {
+        if (!password.trim()) {
             setError('Password is required')
             return
         }
@@ -240,8 +259,8 @@ const AcceptInvitation = () => {
         setStatus('auth')
 
         try {
-            await confirmRegistration(inviteEmail, normalizedCode)
-            await login(inviteEmail, normalizedPassword)
+            await confirmRegistration(normalizedEmail, normalizedCode)
+            await login(normalizedEmail, password)
             await acceptWithCurrentSession({ allowMismatchLogout: false })
         } catch (err) {
             setError(getConfirmationErrorMessage(err))
@@ -272,13 +291,14 @@ const AcceptInvitation = () => {
 
     return (
         <InvitationAuthCard
-            inviteEmail={inviteEmail}
+            email={email}
             authMode={authMode}
             password={password}
             confirmationCode={confirmationCode}
             info={info}
             error={error}
             isSubmitting={isSubmitting}
+            onEmailChange={setEmail}
             onPasswordChange={setPassword}
             onConfirmationCodeChange={setConfirmationCode}
             onSubmitPassword={handlePasswordSubmit}

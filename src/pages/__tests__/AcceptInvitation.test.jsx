@@ -41,6 +41,7 @@ describe('AcceptInvitation', () => {
         localStorage.clear()
         sessionStorage.clear()
         vi.clearAllMocks()
+        vi.mocked(acceptInvitation).mockReset()
         mockAuthState = {
             user: null,
             loading: false,
@@ -52,7 +53,7 @@ describe('AcceptInvitation', () => {
         document.documentElement.dataset.theme = 'dark'
     })
 
-    it('renders single invite auth screen for unauthenticated users', async () => {
+    it('renders single invite auth screen with editable email and password', async () => {
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=tok_1&email=invitee%40example.com']}>
                 <AcceptInvitation />
@@ -60,7 +61,7 @@ describe('AcceptInvitation', () => {
         )
 
         expect(await screen.findByText('Accept Invitation')).toBeInTheDocument()
-        expect(screen.getByText('invitee@example.com')).toBeInTheDocument()
+        expect(screen.getByLabelText('Email')).toHaveValue('invitee@example.com')
         expect(screen.getByLabelText('Password')).toBeInTheDocument()
         expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -69,7 +70,7 @@ describe('AcceptInvitation', () => {
         localStorage.setItem('am_admin_mode', 'true')
 
         render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_theme&email=invitee%40example.com']}>
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_theme']}>
                 <AcceptInvitation />
             </MemoryRouter>
         )
@@ -79,52 +80,7 @@ describe('AcceptInvitation', () => {
         })
     })
 
-    it('auto-accepts invitation for already-authenticated invited session', async () => {
-        mockAuthState = {
-            user: {
-                id: 'u1',
-                email: 'invitee@example.com',
-                name: 'Invitee',
-                role: 'member',
-                organizationId: null,
-                tenantId: null,
-                mfaEnabled: false,
-                createdAt: '2026-02-11T00:00:00Z',
-            },
-            loading: false,
-            login: mockLogin,
-            register: mockRegister,
-            confirmRegistration: mockConfirmRegistration,
-            logout: mockLogout,
-        }
-
-        vi.mocked(acceptInvitation).mockResolvedValue({
-            id: 'inv_1',
-            email: 'invitee@example.com',
-            tenantId: 'org_9',
-            role: 'viewer',
-            status: 'accepted',
-            isUsed: true,
-            createdAt: '2026-02-11T10:00:00Z',
-            expiresAt: '2026-03-11T10:00:00Z',
-            usedAt: '2026-02-11T10:05:00Z',
-        })
-
-        render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_1&email=invitee%40example.com']}>
-                <AcceptInvitation />
-            </MemoryRouter>
-        )
-
-        expect(await screen.findByText('Invitation Accepted')).toBeInTheDocument()
-        await waitFor(() => {
-            expect(acceptInvitation).toHaveBeenCalledWith('tok_1')
-            expect(localStorage.getItem('am_tenant_id')).toBe('org_9')
-            expect(mockNavigate).toHaveBeenCalledWith('/org_9/projects', { replace: true })
-        })
-    })
-
-    it('signs in existing invited user and accepts invitation from same screen', async () => {
+    it('signs in existing user and accepts invitation from same screen', async () => {
         const user = userEvent.setup()
         mockLogin.mockResolvedValue({
             id: 'u2',
@@ -185,12 +141,13 @@ describe('AcceptInvitation', () => {
         })
 
         render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_create&email=invitee%40example.com']}>
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_create']}>
                 <AcceptInvitation />
             </MemoryRouter>
         )
 
-        await user.type(await screen.findByLabelText('Password'), 'CreatePass123!')
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('Password'), 'CreatePass123!')
         await user.click(screen.getByRole('button', { name: 'Continue' }))
 
         await waitFor(() => {
@@ -230,16 +187,18 @@ describe('AcceptInvitation', () => {
         })
 
         render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_confirm&email=invitee%40example.com']}>
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_confirm']}>
                 <AcceptInvitation />
             </MemoryRouter>
         )
 
-        await user.type(await screen.findByLabelText('Password'), 'ConfirmPass123!')
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('Password'), 'ConfirmPass123!')
         await user.click(screen.getByRole('button', { name: 'Continue' }))
 
         expect(await screen.findByLabelText('Confirmation Code')).toBeInTheDocument()
         expect(screen.getByText(/Account created\. Enter the confirmation code/i)).toBeInTheDocument()
+        expect(screen.getByLabelText('Email')).toBeDisabled()
 
         await user.type(screen.getByLabelText('Confirmation Code'), '654321')
         await user.click(screen.getByRole('button', { name: 'Confirm & Continue' }))
@@ -252,12 +211,39 @@ describe('AcceptInvitation', () => {
         })
     })
 
-    it('logs out mismatched active session and keeps flow on invite screen', async () => {
+    it('shows invitation email mismatch as inline validation error', async () => {
+        const user = userEvent.setup()
+        mockLogin.mockResolvedValue({ id: 'u5', email: 'wrong@example.com' })
+        vi.mocked(acceptInvitation).mockRejectedValue(
+            new Error('User email does not match invitation email')
+        )
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_mismatch']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'wrong@example.com')
+        await user.type(screen.getByLabelText('Password'), 'Password123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        expect(await screen.findByText(/Failed to accept invitation/i)).toBeInTheDocument()
+        expect(screen.getByText(/User email does not match invitation email/i)).toBeInTheDocument()
+        expect(mockLogout).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('logs out existing session and keeps user on invite auth screen', async () => {
+        vi.mocked(acceptInvitation).mockRejectedValue(
+            new Error('User email does not match invitation email')
+        )
+
         mockAuthState = {
             user: {
-                id: 'u_wrong',
-                email: 'wrong@example.com',
-                name: 'Wrong',
+                id: 'u_existing',
+                email: 'existing@example.com',
+                name: 'Existing',
                 role: 'member',
                 organizationId: null,
                 tenantId: null,
@@ -271,12 +257,8 @@ describe('AcceptInvitation', () => {
             logout: mockLogout,
         }
 
-        vi.mocked(acceptInvitation).mockRejectedValue(
-            new Error('User email does not match invitation email')
-        )
-
         render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_mismatch&email=invitee%40example.com']}>
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_existing_session&email=invitee%40example.com']}>
                 <AcceptInvitation />
             </MemoryRouter>
         )
@@ -285,7 +267,7 @@ describe('AcceptInvitation', () => {
         await waitFor(() => {
             expect(mockLogout).toHaveBeenCalledTimes(1)
         })
-        expect(screen.getByText(/This invite is for invitee@example.com/i)).toBeInTheDocument()
+        expect(screen.getByLabelText('Email')).toHaveValue('invitee@example.com')
         expect(mockNavigate).not.toHaveBeenCalled()
     })
 
@@ -298,16 +280,5 @@ describe('AcceptInvitation', () => {
 
         expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
         expect(screen.getByText(/Invitation token is missing/i)).toBeInTheDocument()
-    })
-
-    it('shows an error when invitation email is missing', async () => {
-        render(
-            <MemoryRouter initialEntries={['/accept-invitation?token=tok_no_email']}>
-                <AcceptInvitation />
-            </MemoryRouter>
-        )
-
-        expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
-        expect(screen.getByText(/Invitation email is missing/i)).toBeInTheDocument()
     })
 })
