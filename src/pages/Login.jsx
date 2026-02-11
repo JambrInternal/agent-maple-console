@@ -5,6 +5,8 @@ import { getOrganizations } from '../services/organizations'
 import { getProjects } from '../services/projects'
 import {
     getConfirmationErrorMessage,
+    getForgotPasswordConfirmErrorMessage,
+    getForgotPasswordErrorMessage,
     getRedirectToFromLocation,
     getRegisterErrorMessage,
     getSignInErrorMessage,
@@ -26,7 +28,16 @@ const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png';
 const Login = () => {
     const theme = useLoginTheme({ defaultTheme: getAdminMode() ? 'light' : 'dark' })
 
-    const { login, register, confirmRegistration, logout, user, loading } = useAuth();
+    const {
+        login,
+        register,
+        confirmRegistration,
+        forgotPassword,
+        confirmForgotPassword,
+        logout,
+        user,
+        loading,
+    } = useAuth();
 
     useStaleSessionGuard({ loading, user, logout })
 
@@ -155,10 +166,87 @@ const Login = () => {
         }
     }
 
+    const handleForgotPasswordRequest = async (e) => {
+        e.preventDefault()
+        const normalizedEmail = email.trim()
+
+        if (!normalizedEmail) {
+            setError('Email is required')
+            return
+        }
+
+        setError('')
+        setInfo('')
+        setIsSubmitting(true)
+        try {
+            const result = await forgotPassword(normalizedEmail)
+            setAuthMode('reset-confirm')
+            const destination = result.codeDeliveryDestination ? ` at ${result.codeDeliveryDestination}` : ''
+            setInfo(`Enter the reset code sent${destination} and choose a new password.`)
+        } catch (err) {
+            setError(getForgotPasswordErrorMessage(err))
+            pushDebug('Forgot password request failed', err)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleForgotPasswordConfirm = async (e) => {
+        e.preventDefault()
+        const normalizedEmail = email.trim()
+        const normalizedCode = confirmationCode.trim()
+
+        if (!normalizedEmail) {
+            setError('Email is required')
+            return
+        }
+        if (!normalizedCode) {
+            setError('Confirmation code is required')
+            return
+        }
+        if (!password) {
+            setError('Password is required')
+            return
+        }
+        if (password !== confirmPassword) {
+            setError('Passwords do not match')
+            return
+        }
+
+        setError('')
+        setInfo('')
+        setIsSubmitting(true)
+        try {
+            await confirmForgotPassword(normalizedEmail, normalizedCode, password)
+            setAuthMode('signin')
+            setPassword('')
+            setConfirmPassword('')
+            setConfirmationCode('')
+            setInfo('Password reset successful. Sign in with your new password.')
+        } catch (err) {
+            setError(getForgotPasswordConfirmErrorMessage(err))
+            pushDebug('Forgot password confirmation failed', err)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     const switchToSignIn = () => {
         setAuthMode('signin')
         setError('')
         setInfo('')
+        setPassword('')
+        setConfirmPassword('')
+        setConfirmationCode('')
+    }
+
+    const switchToResetRequest = () => {
+        setAuthMode('reset-request')
+        setError('')
+        setInfo('Enter your account email to receive a password reset code.')
+        setPassword('')
+        setConfirmPassword('')
+        setConfirmationCode('')
     }
 
     return (
@@ -197,10 +285,13 @@ const Login = () => {
                         onSubmitSignIn={handleSubmit}
                         onSubmitRegister={handleRegister}
                         onSubmitConfirm={handleConfirmRegistration}
+                        onSubmitResetRequest={handleForgotPasswordRequest}
+                        onSubmitResetConfirm={handleForgotPasswordConfirm}
                         onEmailChange={setEmail}
                         onPasswordChange={setPassword}
                         onConfirmPasswordChange={setConfirmPassword}
                         onConfirmationCodeChange={setConfirmationCode}
+                        onForgotPassword={switchToResetRequest}
                         onBackToSignIn={switchToSignIn}
                     />
                 </div>

@@ -1,8 +1,10 @@
 import {
+    confirmResetPassword,
     confirmSignUp,
     signIn,
     signOut,
     signUp,
+    resetPassword,
     fetchAuthSession,
     getCurrentUser,
     fetchUserAttributes,
@@ -18,6 +20,12 @@ export interface AuthSession {
 
 export interface RegisterResult {
     isComplete: boolean;
+    nextStep: string;
+    codeDeliveryDestination: string | null;
+    codeDeliveryMedium: string | null;
+}
+
+export interface ResetPasswordStartResult {
     nextStep: string;
     codeDeliveryDestination: string | null;
     codeDeliveryMedium: string | null;
@@ -132,6 +140,33 @@ export async function confirmRegistration(email: string, confirmationCode: strin
     }
 
     throw new Error(`Registration confirmation incomplete: ${nextStep}`);
+}
+
+export async function forgotPassword(email: string): Promise<ResetPasswordStartResult> {
+    const normalizedEmail = email.trim();
+    const result = await resetPassword({ username: normalizedEmail });
+    const nextStep = result.nextStep?.resetPasswordStep || 'DONE';
+    const details = result.nextStep?.codeDeliveryDetails;
+
+    return {
+        nextStep,
+        codeDeliveryDestination: details?.destination ?? null,
+        codeDeliveryMedium: details?.deliveryMedium ?? null,
+    };
+}
+
+export async function confirmForgotPassword(
+    email: string,
+    confirmationCode: string,
+    newPassword: string
+): Promise<void> {
+    const normalizedEmail = email.trim();
+    const normalizedCode = confirmationCode.trim();
+    await confirmResetPassword({
+        username: normalizedEmail,
+        confirmationCode: normalizedCode,
+        newPassword,
+    });
 }
 
 export async function logout(): Promise<void> {

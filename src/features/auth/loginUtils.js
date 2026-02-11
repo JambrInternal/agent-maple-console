@@ -147,3 +147,32 @@ export const getConfirmationErrorMessage = (err) => {
     }
     return 'Failed to confirm account. Try again or contact support.'
 }
+
+export const getForgotPasswordErrorMessage = (err) => {
+    if (err && typeof err === 'object' && 'message' in err) {
+        const message = String(err.message).toLowerCase()
+        if (message.includes('user') && message.includes('not found')) {
+            return 'No account exists for this email.'
+        }
+        if (message.includes('limit') || message.includes('attempt')) {
+            return 'Too many attempts. Please wait before trying again.'
+        }
+    }
+    return 'Failed to send password reset code. Try again or contact support.'
+}
+
+export const getForgotPasswordConfirmErrorMessage = (err) => {
+    if (err && typeof err === 'object' && 'message' in err) {
+        const message = String(err.message).toLowerCase()
+        if (message.includes('code')) {
+            return 'Invalid reset code. Check the code and try again.'
+        }
+        if (message.includes('expired')) {
+            return 'Reset code expired. Request a new code and try again.'
+        }
+        if (message.includes('password')) {
+            return 'Password does not meet requirements. Use a stronger password and try again.'
+        }
+    }
+    return 'Failed to reset password. Try again or contact support.'
+}

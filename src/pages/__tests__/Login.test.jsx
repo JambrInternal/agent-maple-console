@@ -10,6 +10,8 @@ import { getProjects } from '../../services/projects'
 const mockLogin = vi.fn()
 const mockRegister = vi.fn()
 const mockConfirmRegistration = vi.fn()
+const mockForgotPassword = vi.fn()
+const mockConfirmForgotPassword = vi.fn()
 const mockLogout = vi.fn()
 const mockNavigate = vi.fn()
 
@@ -18,6 +20,8 @@ vi.mock('../../contexts/AuthContext', () => ({
         login: mockLogin,
         register: mockRegister,
         confirmRegistration: mockConfirmRegistration,
+        forgotPassword: mockForgotPassword,
+        confirmForgotPassword: mockConfirmForgotPassword,
         logout: mockLogout,
         user: null,
         loading: false,
@@ -219,6 +223,65 @@ describe('Login', () => {
 
         await user.click(screen.getByRole('button', { name: secondToggleLabel }))
         expect(localStorage.getItem('am_debug_auth')).toBe(secondStorageState)
+    })
+
+    it('starts forgot-password flow and requests reset code', async () => {
+        mockForgotPassword.mockResolvedValue({
+            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
+            codeDeliveryDestination: 'j***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+
+        const user = userEvent.setup()
+        render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Forgot Password?' }))
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'reset.user@example.com')
+        await user.click(screen.getByRole('button', { name: 'Send Reset Code' }))
+
+        await waitFor(() => {
+            expect(mockForgotPassword).toHaveBeenCalledWith('reset.user@example.com')
+        })
+        expect(screen.getByRole('button', { name: 'Reset Password' })).toBeInTheDocument()
+    })
+
+    it('confirms forgot-password flow and returns to sign in', async () => {
+        mockForgotPassword.mockResolvedValue({
+            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
+            codeDeliveryDestination: 'j***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        mockConfirmForgotPassword.mockResolvedValue(undefined)
+
+        const user = userEvent.setup()
+        render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Forgot Password?' }))
+        await user.type(screen.getByPlaceholderText('name@company.com'), 'reset.user@example.com')
+        await user.click(screen.getByRole('button', { name: 'Send Reset Code' }))
+
+        await user.type(screen.getByPlaceholderText('123456'), '654321')
+        const passwordInputs = screen.getAllByPlaceholderText('••••••••')
+        await user.type(passwordInputs[0], 'NewPass123!')
+        await user.type(passwordInputs[1], 'NewPass123!')
+        await user.click(screen.getByRole('button', { name: 'Reset Password' }))
+
+        await waitFor(() => {
+            expect(mockConfirmForgotPassword).toHaveBeenCalledWith(
+                'reset.user@example.com',
+                '654321',
+                'NewPass123!'
+            )
+        })
+        expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument()
     })
 
 })
