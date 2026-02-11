@@ -61,7 +61,7 @@ export default function AuthStatusPanels({
         <>
             {error && (
                 <div style={errorStyle}>
-                    <AlertCircle size={18} flexShrink={0} />
+                    <AlertCircle size={18} style={{ flexShrink: 0 }} />
                     <span>{error}</span>
                 </div>
             )}

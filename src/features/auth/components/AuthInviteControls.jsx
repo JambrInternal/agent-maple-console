@@ -21,8 +21,15 @@ const switchButtonStyle = {
     justifyContent: 'center',
 }
 
+const missingInviteEmailStyle = {
+    marginTop: '0.5rem',
+    color: '#ef4444',
+    fontWeight: 600,
+}
+
 export default function AuthInviteControls({
     hasInviteContext,
+    inviteEmail,
     authMode,
     isSubmitting,
     onSwitchToSignIn,
@@ -33,7 +40,16 @@ export default function AuthInviteControls({
     return (
         <>
             <div style={inviteNoticeStyle}>
-                You were invited to join an organization. Sign in or create an account to continue.
+                You were invited to join an organization. If this email already has an account, sign in with your password. If not, create an account first.
+                {inviteEmail ? (
+                    <div style={{ marginTop: '0.35rem', fontWeight: 600 }}>
+                        Invited email: {inviteEmail}
+                    </div>
+                ) : (
+                    <div style={missingInviteEmailStyle}>
+                        This invite link is missing email context. Reopen the original invitation email to continue.
+                    </div>
+                )}
             </div>
 
             {authMode !== 'confirm' && (

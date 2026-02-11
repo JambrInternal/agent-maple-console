@@ -2,46 +2,57 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
-    buildInvitationEmailMismatchMessage,
-    buildLoginReturnState,
-    clearInviteReauthCompleted,
-    hasInviteReauthCompleted,
-    isInvitationEmailMismatchError,
-    markInviteReauthCompleted,
     SUCCESS_REDIRECT_DELAY_MS,
+    isInvitationEmailMismatchError,
 } from '../features/invitation/acceptInvitationUtils'
-import { getInvitationToken } from '../features/invitation/invitationUtils'
+import { getInvitationEmail, getInvitationToken } from '../features/invitation/invitationUtils'
+import InvitationAuthCard from '../features/invitation/components/InvitationAuthCard'
 import InvitationErrorCard from '../features/invitation/components/InvitationErrorCard'
 import InvitationLoadingCard from '../features/invitation/components/InvitationLoadingCard'
 import InvitationSuccessCard from '../features/invitation/components/InvitationSuccessCard'
+import {
+    getConfirmationErrorMessage,
+    getRegisterErrorMessage,
+    getSignInErrorMessage,
+    getSignInErrorReason,
+} from '../features/auth/loginUtils'
 import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
 import { getAdminMode } from '../utils/admin'
 import { applyThemeForAdminMode } from '../utils/theme'
+
 const AcceptInvitation = () => {
-    const { user, loading, logout } = useAuth()
+    const { user, loading, login, register, confirmRegistration, logout } = useAuth()
     const location = useLocation()
     const navigate = useNavigate()
-    const [error, setError] = useState('')
     const [status, setStatus] = useState('checking')
-    const [isEmailMismatch, setIsEmailMismatch] = useState(false)
-    const [isSigningOut, setIsSigningOut] = useState(false)
-    const submissionStartedRef = useRef(false)
+    const [authMode, setAuthMode] = useState('password')
+    const [password, setPassword] = useState('')
+    const [confirmationCode, setConfirmationCode] = useState('')
+    const [error, setError] = useState('')
+    const [info, setInfo] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const redirectTimeoutRef = useRef(null)
+    const hasHandledInitialSessionRef = useRef(false)
     const isSuperAdmin = getAdminMode()
 
     useEffect(() => {
         applyThemeForAdminMode(isSuperAdmin)
     }, [isSuperAdmin])
 
-    const token = useMemo(
-        () => getInvitationToken(location.search, location.hash),
-        [location.search, location.hash]
-    )
+    const token = useMemo(() => {
+        const from = location.state?.from
+        const fromToken = getInvitationToken(from?.search || '', from?.hash || '')
+        if (fromToken) return fromToken
+        return getInvitationToken(location.search, location.hash)
+    }, [location.hash, location.search, location.state])
 
-    const hasCompletedInviteReauth = useMemo(() => {
-        return hasInviteReauthCompleted(token)
-    }, [token])
+    const inviteEmail = useMemo(() => {
+        const from = location.state?.from
+        const fromEmail = getInvitationEmail(from?.search || '', from?.hash || '')
+        if (fromEmail) return fromEmail
+        return getInvitationEmail(location.search, location.hash)
+    }, [location.hash, location.search, location.state])
 
     useEffect(() => {
         return () => {
@@ -63,24 +74,46 @@ const AcceptInvitation = () => {
         }, SUCCESS_REDIRECT_DELAY_MS)
     }, [navigate])
 
-    const redirectToLoginWithReturnPath = useCallback(() => {
-        navigate('/login', {
-            replace: true,
-            state: buildLoginReturnState(location),
-        })
-    }, [location.hash, location.pathname, location.search, navigate])
+    const acceptWithCurrentSession = useCallback(async ({ allowMismatchLogout }) => {
+        if (!token) return false
 
-    const handleSignOutAndRetry = useCallback(async () => {
-        setIsSigningOut(true)
+        setStatus('accepting')
+        setError('')
+        setInfo('')
+
         try {
-            await logout()
-            redirectToLoginWithReturnPath()
-        } catch {
-            setError('Could not sign out. Please sign out manually and continue with the invited email.')
-        } finally {
-            setIsSigningOut(false)
+            const invitation = await acceptInvitation(token)
+            setStatus('success')
+            if (invitation.tenantId) {
+                localStorage.setItem('am_tenant_id', invitation.tenantId)
+                scheduleRedirect(`/${invitation.tenantId}/projects`)
+                return true
+            }
+            scheduleRedirect('/')
+            return true
+        } catch (err) {
+            if (allowMismatchLogout && isInvitationEmailMismatchError(err)) {
+                try {
+                    await logout()
+                } catch {
+                    // Continue without blocking the invite-auth flow.
+                }
+
+                setStatus('auth')
+                setError('')
+                if (inviteEmail) {
+                    setInfo(`This invite is for ${inviteEmail}. Enter that account password to continue.`)
+                } else {
+                    setInfo('This invite does not match your current session. Continue with the invited account.')
+                }
+                return false
+            }
+
+            setStatus('error')
+            setError(withStatus('Failed to accept invitation.', err))
+            return false
         }
-    }, [logout, redirectToLoginWithReturnPath])
+    }, [inviteEmail, logout, scheduleRedirect, token])
 
     useEffect(() => {
         if (loading) return
@@ -91,83 +124,167 @@ const AcceptInvitation = () => {
             return
         }
 
-        if (!user) {
-            // Set reauth flag before redirecting unauthenticated users to avoid double-logout
-            markInviteReauthCompleted(token)
-            redirectToLoginWithReturnPath()
+        if (!inviteEmail) {
+            setStatus('error')
+            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
             return
         }
 
-        if (!hasCompletedInviteReauth) {
-            ;(async () => {
+        if (hasHandledInitialSessionRef.current) return
+        hasHandledInitialSessionRef.current = true
+
+        if (user) {
+            void acceptWithCurrentSession({ allowMismatchLogout: true })
+            return
+        }
+
+        setStatus('auth')
+        setInfo('Enter your password to continue.')
+    }, [acceptWithCurrentSession, inviteEmail, loading, token, user])
+
+    const handlePasswordSubmit = async (event) => {
+        event.preventDefault()
+
+        if (!token) {
+            setStatus('error')
+            setError('Invitation token is missing. Open the full invite link from your email.')
+            return
+        }
+
+        if (!inviteEmail) {
+            setStatus('error')
+            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
+            return
+        }
+
+        const normalizedPassword = password.trim()
+        if (!normalizedPassword) {
+            setError('Password is required')
+            return
+        }
+
+        setIsSubmitting(true)
+        setError('')
+        setInfo('')
+        setStatus('auth')
+
+        try {
+            await login(inviteEmail, normalizedPassword)
+            await acceptWithCurrentSession({ allowMismatchLogout: false })
+            return
+        } catch (signInError) {
+            const signInReason = getSignInErrorReason(signInError)
+
+            if (signInReason === 'user_not_found') {
                 try {
-                    markInviteReauthCompleted(token)
-                    await logout()
-                } catch {
-                    // Continue to login even if best-effort logout fails.
-                } finally {
-                    markInviteReauthCompleted(token)
-                    redirectToLoginWithReturnPath()
-                }
-            })()
-            return
-        }
+                    const registerResult = await register(inviteEmail, normalizedPassword)
 
-        if (submissionStartedRef.current) return
-        submissionStartedRef.current = true
-        setStatus('submitting')
+                    if (registerResult.isComplete) {
+                        await login(inviteEmail, normalizedPassword)
+                        await acceptWithCurrentSession({ allowMismatchLogout: false })
+                        return
+                    }
 
-        ;(async () => {
-            try {
-                const invitation = await acceptInvitation(token)
-                setIsEmailMismatch(false)
-                clearInviteReauthCompleted(token)
-                setStatus('success')
-                if (invitation.tenantId) {
-                    localStorage.setItem('am_tenant_id', invitation.tenantId)
-                    scheduleRedirect(`/${invitation.tenantId}/projects`)
+                    setAuthMode('confirm')
+                    const destination = registerResult.codeDeliveryDestination ? ` at ${registerResult.codeDeliveryDestination}` : ''
+                    setInfo(`Account created. Enter the confirmation code sent${destination}.`)
+                    return
+                } catch (registerError) {
+                    setError(getRegisterErrorMessage(registerError))
                     return
                 }
-                scheduleRedirect('/')
-            } catch (err) {
-                setStatus('error')
-                if (isInvitationEmailMismatchError(err)) {
-                    setIsEmailMismatch(true)
-                    setError(buildInvitationEmailMismatchMessage(user?.email))
-                } else {
-                    setIsEmailMismatch(false)
-                    setError(withStatus('Failed to accept invitation.', err))
-                }
-                submissionStartedRef.current = false
             }
-        })()
-    }, [hasCompletedInviteReauth, loading, logout, token, user, scheduleRedirect, redirectToLoginWithReturnPath])
 
-    if (loading || status === 'checking' || status === 'submitting') {
+            if (signInReason === 'user_unconfirmed') {
+                setAuthMode('confirm')
+                setInfo('Account not confirmed yet. Enter your confirmation code to continue.')
+                return
+            }
+
+            setError(getSignInErrorMessage(signInError))
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleConfirmSubmit = async (event) => {
+        event.preventDefault()
+
+        if (!token) {
+            setStatus('error')
+            setError('Invitation token is missing. Open the full invite link from your email.')
+            return
+        }
+
+        if (!inviteEmail) {
+            setStatus('error')
+            setError('Invitation email is missing from this link. Open the original invitation email and try again.')
+            return
+        }
+
+        const normalizedPassword = password.trim()
+        if (!normalizedPassword) {
+            setError('Password is required')
+            return
+        }
+
+        const normalizedCode = confirmationCode.trim()
+        if (!normalizedCode) {
+            setError('Confirmation code is required')
+            return
+        }
+
+        setIsSubmitting(true)
+        setError('')
+        setInfo('')
+        setStatus('auth')
+
+        try {
+            await confirmRegistration(inviteEmail, normalizedCode)
+            await login(inviteEmail, normalizedPassword)
+            await acceptWithCurrentSession({ allowMismatchLogout: false })
+        } catch (err) {
+            setError(getConfirmationErrorMessage(err))
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (loading || status === 'checking' || status === 'accepting') {
         return <InvitationLoadingCard />
     }
 
     if (status === 'error') {
-        const goToLogin = () => {
-            if (!token || (typeof error === 'string' && error.toLowerCase().includes('token'))) {
-                navigate('/login', { replace: true })
-                return
-            }
-            redirectToLoginWithReturnPath()
-        }
-
         return (
             <InvitationErrorCard
                 error={error}
-                isEmailMismatch={isEmailMismatch}
-                isSigningOut={isSigningOut}
-                onSignOutAndRetry={handleSignOutAndRetry}
-                onGoToLogin={goToLogin}
+                isEmailMismatch={false}
+                isSigningOut={false}
+                onSignOutAndRetry={() => {}}
+                onGoToLogin={() => navigate('/login', { replace: true })}
             />
         )
     }
 
-    return <InvitationSuccessCard />
+    if (status === 'success') {
+        return <InvitationSuccessCard />
+    }
+
+    return (
+        <InvitationAuthCard
+            inviteEmail={inviteEmail}
+            authMode={authMode}
+            password={password}
+            confirmationCode={confirmationCode}
+            info={info}
+            error={error}
+            isSubmitting={isSubmitting}
+            onPasswordChange={setPassword}
+            onConfirmationCodeChange={setConfirmationCode}
+            onSubmitPassword={handlePasswordSubmit}
+            onSubmitConfirmation={handleConfirmSubmit}
+        />
+    )
 }
 
 export default AcceptInvitation

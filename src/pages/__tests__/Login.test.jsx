@@ -221,48 +221,4 @@ describe('Login', () => {
         expect(localStorage.getItem('am_debug_auth')).toBe(secondStorageState)
     })
 
-    it('shows invite-only registration controls when redirected from invitation acceptance', async () => {
-        const user = userEvent.setup()
-        mockRegister.mockResolvedValue({
-            isComplete: false,
-            nextStep: 'CONFIRM_SIGN_UP',
-            codeDeliveryDestination: 'invitee@example.com',
-            codeDeliveryMedium: 'EMAIL',
-        })
-        mockConfirmRegistration.mockResolvedValue(undefined)
-
-        render(
-            <MemoryRouter
-                initialEntries={[
-                    {
-                        pathname: '/login',
-                        state: { from: { pathname: '/accept-invitation', search: '?token=tok_123' } },
-                    },
-                ]}
-            >
-                <Login />
-            </MemoryRouter>
-        )
-
-        expect(screen.getByText(/You were invited to join an organization/i)).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: 'Create Account' })).toBeInTheDocument()
-
-        await user.click(screen.getByRole('button', { name: 'Create Account' }))
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'invitee@example.com')
-        const registerPasswords = screen.getAllByPlaceholderText('••••••••')
-        await user.type(registerPasswords[0], 'Temporary123!')
-        await user.type(registerPasswords[1], 'Temporary123!')
-        await user.click(screen.getAllByRole('button', { name: 'Create Account' }).at(-1))
-
-        await waitFor(() => {
-            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'Temporary123!')
-        })
-
-        await user.type(screen.getByPlaceholderText('123456'), '654321')
-        await user.click(screen.getByRole('button', { name: 'Confirm Account' }))
-
-        await waitFor(() => {
-            expect(mockConfirmRegistration).toHaveBeenCalledWith('invitee@example.com', '654321')
-        })
-    })
 })

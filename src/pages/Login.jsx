@@ -1,15 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { getOrganizations } from '../services/organizations'
 import { getProjects } from '../services/projects'
-import { getInvitationToken } from '../features/invitation/invitationUtils'
 import {
     getConfirmationErrorMessage,
     getRedirectToFromLocation,
     getRegisterErrorMessage,
     getSignInErrorMessage,
-    hasInviteContext as computeInviteContext,
 } from '../features/auth/loginUtils'
 import { resolvePostLoginRoute } from '../features/auth/postLoginRoute'
 import useAuthDebug from '../features/auth/useAuthDebug'
@@ -17,7 +15,6 @@ import useLoginTheme from '../features/auth/useLoginTheme'
 import useStaleSessionGuard from '../features/auth/useStaleSessionGuard'
 import AuthDebugToggle from '../features/auth/components/AuthDebugToggle'
 import AuthForms from '../features/auth/components/AuthForms'
-import AuthInviteControls from '../features/auth/components/AuthInviteControls'
 import AuthStatusPanels from '../features/auth/components/AuthStatusPanels'
 import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
@@ -47,35 +44,12 @@ const Login = () => {
 
     const redirectTo = getRedirectToFromLocation(location)
 
-    const invitationToken = useMemo(() => {
-        const from = location.state?.from
-        const fromToken = getInvitationToken(from?.search || '', from?.hash || '')
-        if (fromToken) return fromToken
-        return getInvitationToken(location.search, location.hash)
-    }, [location.hash, location.search, location.state])
-
-    const hasInviteContext = computeInviteContext({
-        invitationToken,
-        redirectTo,
-    })
-
     const {
         debugEnabled,
         debugEvents,
         pushDebug,
         toggleDebug,
     } = useAuthDebug({ search: location.search })
-
-    useEffect(() => {
-        if (hasInviteContext) return
-        if (authMode !== 'signin') {
-            setAuthMode('signin')
-            setConfirmPassword('')
-            setConfirmationCode('')
-            setInfo('')
-            setError('')
-        }
-    }, [authMode, hasInviteContext])
 
     useEffect(() => {
         if (!loading && user && !loginInProgressRef.current) {
@@ -91,7 +65,7 @@ const Login = () => {
         loginInProgressRef.current = true
 
         try {
-            await login(email, password)
+            await login(email.trim(), password)
             const targetRoute = await resolvePostLoginRoute({
                 redirectTo,
                 getOrganizations,
@@ -187,12 +161,6 @@ const Login = () => {
         setInfo('')
     }
 
-    const switchToRegister = () => {
-        setAuthMode('register')
-        setError('')
-        setInfo('')
-    }
-
     return (
         <div className="am-app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
@@ -212,14 +180,6 @@ const Login = () => {
                 </div>
 
                 <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>
-                    <AuthInviteControls
-                        hasInviteContext={hasInviteContext}
-                        authMode={authMode}
-                        isSubmitting={isSubmitting}
-                        onSwitchToSignIn={switchToSignIn}
-                        onSwitchToRegister={switchToRegister}
-                    />
-
                     <AuthStatusPanels
                         error={error}
                         info={info}

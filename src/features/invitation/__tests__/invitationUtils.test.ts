@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { getInvitationToken, isInvitationPath } from '../invitationUtils'
+import { getInvitationEmail, getInvitationToken, isInvitationPath } from '../invitationUtils'
+
+const toBase64Url = (value: string) => {
+    const encoded = btoa(value)
+    return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
 
 describe('invitationUtils', () => {
     describe('getInvitationToken', () => {
@@ -26,6 +31,31 @@ describe('invitationUtils', () => {
 
         it('returns null when no token key exists', () => {
             expect(getInvitationToken('?foo=bar', '#bar=baz')).toBeNull()
+        })
+    })
+
+    describe('getInvitationEmail', () => {
+        it('returns invite email from query string keys', () => {
+            expect(getInvitationEmail('?email=Invitee%40Example.com', '')).toBe('invitee@example.com')
+            expect(getInvitationEmail('?invitation_email=member%40example.com', '')).toBe('member@example.com')
+            expect(getInvitationEmail('?invitee_email=Viewer%40example.com', '')).toBe('viewer@example.com')
+        })
+
+        it('returns invite email from hash fragment when query is empty', () => {
+            expect(getInvitationEmail('', '#email=hash.user%40example.com')).toBe('hash.user@example.com')
+        })
+
+        it('extracts invite email from JWT token payload when email is not in query', () => {
+            const header = toBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+            const payload = toBase64Url(JSON.stringify({ invitation_email: 'jwt.user@example.com' }))
+            const token = `${header}.${payload}.sig`
+
+            expect(getInvitationEmail(`?token=${token}`, '')).toBe('jwt.user@example.com')
+        })
+
+        it('returns null when invite email cannot be determined', () => {
+            expect(getInvitationEmail('?token=opaque_token', '')).toBeNull()
+            expect(getInvitationEmail('?foo=bar', '')).toBeNull()
         })
     })
 

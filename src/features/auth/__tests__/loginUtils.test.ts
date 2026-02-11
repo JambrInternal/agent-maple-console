@@ -5,6 +5,7 @@ import {
     getInitialDebugEnabled,
     getRedirectToFromLocation,
     getRegisterErrorMessage,
+    getSignInErrorReason,
     getSignInErrorMessage,
     hasInviteContext,
     shouldEnableDebugFromSearch,
@@ -55,9 +56,24 @@ describe('loginUtils', () => {
     it('maps auth error messages to user-friendly copy', () => {
         expect(getSignInErrorMessage(new Error('Invalid username or password')))
             .toContain('Check your email and password')
+        expect(getSignInErrorMessage(new Error('User does not exist')))
+            .toContain('No account exists')
+        expect(getSignInErrorMessage(new Error('User is not confirmed')))
+            .toContain('not confirmed')
         expect(getRegisterErrorMessage(new Error('User already exists')))
             .toContain('already exists')
         expect(getConfirmationErrorMessage(new Error('Token expired')))
             .toContain('expired')
+    })
+
+    it('classifies sign-in error reasons for invite mode branching', () => {
+        expect(getSignInErrorReason(new Error('UserNotFoundException: User does not exist')))
+            .toBe('user_not_found')
+        expect(getSignInErrorReason(new Error('UserNotConfirmedException: User is not confirmed')))
+            .toBe('user_unconfirmed')
+        expect(getSignInErrorReason(new Error('Incorrect username or password')))
+            .toBe('invalid_credentials')
+        expect(getSignInErrorReason(new Error('Unknown backend failure')))
+            .toBe('unknown')
     })
 })
