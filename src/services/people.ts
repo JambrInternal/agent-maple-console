@@ -47,3 +47,27 @@ export async function getUser(id: string, tenantId?: string): Promise<User> {
 
     return user;
 }
+
+/**
+ * Invite a new user to the organization
+ */
+export async function inviteUser(email: string, _role: string, tenantId: string): Promise<void> {
+    // All invited users are now assigned the INSTRUCTOR role by default
+    const backendRole = 'INSTRUCTOR';
+
+    await apiFetch('/tenants/send-invitation', {
+        method: 'POST',
+        headers: { 'x-tenant-id': tenantId },
+        body: JSON.stringify({ email, role: backendRole }),
+    });
+}
+
+/**
+ * Remove a user from the organization
+ */
+export async function removeUser(userId: string, tenantId: string): Promise<void> {
+    await apiFetch(`/tenants/users/${userId}`, {
+        method: 'DELETE',
+        headers: { 'x-tenant-id': tenantId },
+    });
+}

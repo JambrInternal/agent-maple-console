@@ -32,7 +32,7 @@ const Sidebar = () => {
 
     const orgNavItems = [
         { icon: LayoutGrid, label: 'Projects', path: `/${orgId}/projects` },
-        { icon: Shield, label: 'Team', path: `/${orgId}/team`, comingSoon: true },
+        { icon: Shield, label: 'Team', path: `/${orgId}/team` },
         { icon: CreditCard, label: 'Billing', path: `/${orgId}/billing`, comingSoon: true },
         { icon: Activity, label: 'Usage', path: `/${orgId}/usage`, comingSoon: true },
         { icon: Settings, label: 'Organization Settings', path: `/${orgId}/settings`, comingSoon: true },
