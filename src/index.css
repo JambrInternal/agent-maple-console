@@ -348,6 +348,11 @@ button {
     background-color: var(--am-table-row-hover);
 }
 
+.am-table-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
 .am-contact-name {
     font-weight: 600;
     color: var(--am-text-1);
