@@ -58,6 +58,7 @@ describe('OrgTeam', () => {
 
         expect(await screen.findByText('Member One')).toBeInTheDocument()
         expect(screen.getByRole('columnheader', { name: 'Role' })).toBeInTheDocument()
+        expect(screen.queryByRole('columnheader', { name: 'MFA Status' })).not.toBeInTheDocument()
         expect(screen.queryByRole('columnheader', { name: 'Invite Status' })).not.toBeInTheDocument()
         expect(screen.queryByRole('columnheader', { name: 'Actions' })).not.toBeInTheDocument()
 
@@ -73,7 +74,6 @@ describe('OrgTeam', () => {
         expect(within(invitedRow).getByText('Invited')).toBeInTheDocument()
         expect(within(invitedRow).getByLabelText('Invite status pending')).toBeInTheDocument()
         expect(within(invitedRow).getByRole('button', { name: 'Invite actions for invitee@example.com' })).toBeInTheDocument()
-        expect(within(invitedRow).getByText('N/A')).toBeInTheDocument()
 
         expect(getUsers).toHaveBeenCalledWith('org_1')
         expect(inviteUser).toHaveBeenCalledWith('invitee@example.com', 'org_1')

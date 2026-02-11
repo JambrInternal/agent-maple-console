@@ -47,6 +47,17 @@ const getAuthToken = () => localStorage.getItem('am_auth_token');
  */
 const getTenantId = () => localStorage.getItem('am_tenant_id');
 
+const TENANT_HEADER_EXEMPT_PATHS = new Set([
+    '/user/sync',
+    '/user/tenants',
+    '/user/accept-invitation',
+]);
+
+const shouldAttachTenantHeader = (endpoint: string): boolean => {
+    const pathname = new URL(endpoint, API_CONFIG.baseUrl).pathname;
+    return !TENANT_HEADER_EXEMPT_PATHS.has(pathname);
+};
+
 export async function apiFetch<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -61,7 +72,7 @@ export async function apiFetch<T>(
     if (token && !headers.has('Authorization')) {
         headers.set('Authorization', `Bearer ${token}`);
     }
-    if (tenantId && !headers.has('x-tenant-id')) {
+    if (tenantId && !headers.has('x-tenant-id') && shouldAttachTenantHeader(endpoint)) {
         headers.set('x-tenant-id', tenantId);
     }
     if (!isFormData && !headers.has('Content-Type')) {

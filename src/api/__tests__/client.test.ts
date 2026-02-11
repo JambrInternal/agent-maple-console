@@ -37,6 +37,46 @@ describe('API client endpoint error handling', () => {
   });
 });
 
+describe('API client tenant header behavior', () => {
+  it('does not attach x-tenant-id to tenant-agnostic /user endpoints', async () => {
+    localStorage.setItem('am_tenant_id', '26');
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true }),
+    })) as any;
+    globalThis.fetch = fetchMock;
+
+    await client.apiFetch('/user/accept-invitation', {
+      method: 'POST',
+      body: JSON.stringify({ token: 'tok_123' }),
+    });
+
+    const requestOptions = fetchMock.mock.calls[0][1] as RequestInit;
+    const headers = new Headers(requestOptions.headers as HeadersInit);
+    expect(headers.has('x-tenant-id')).toBe(false);
+  });
+
+  it('attaches x-tenant-id to tenant-scoped endpoints', async () => {
+    localStorage.setItem('am_tenant_id', '26');
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true }),
+    })) as any;
+    globalThis.fetch = fetchMock;
+
+    await client.apiFetch('/tenants/send-invitation', {
+      method: 'POST',
+      body: JSON.stringify({ email: 'x@example.com' }),
+    });
+
+    const requestOptions = fetchMock.mock.calls[0][1] as RequestInit;
+    const headers = new Headers(requestOptions.headers as HeadersInit);
+    expect(headers.get('x-tenant-id')).toBe('26');
+  });
+});
+
 // 401 redirect regression test
 
 describe('API client 401 redirect', () => {
