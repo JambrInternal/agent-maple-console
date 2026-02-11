@@ -3,14 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link id="app-favicon" rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+  <link id="app-favicon" rel="icon" type="image/svg+xml" href="/favicon/favicon-light.svg" />
+  <link rel="alternate icon" type="image/x-icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <script>
     (() => {
       const applyFavicon = () => {
         const link = document.getElementById('app-favicon');
         if (!link) return;
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        link.href = prefersDark ? '/favicon-dark.svg' : '/favicon-light.svg';
+        link.href = prefersDark ? '/favicon/favicon-dark.svg' : '/favicon/favicon-light.svg';
       };
       applyFavicon();
       if (!window.matchMedia) return;
