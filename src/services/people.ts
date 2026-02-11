@@ -1,5 +1,5 @@
 // People Service (Contacts + Console Users)
-import { ApiError, apiFetch } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { Contact, User } from '../api/types';
 import {
     mapTenantUserToContact,
@@ -15,7 +15,7 @@ import {
 
 export type TeamInviteStatus = 'pending' | 'accepted' | 'expired';
 
-const ACCEPT_INVITE_TOKEN_FIELDS = ['token', 'invitation_token', 'invite_token'] as const;
+const ACCEPT_INVITE_ALIAS_FIELDS = ['invitation_token', 'invite_token'] as const;
 
 export interface TeamInvite {
     id: string;
@@ -28,6 +28,56 @@ export interface TeamInvite {
     expiresAt: string | null;
     usedAt: string | null;
 }
+
+const VALIDATION_RETRY_STATUSES = new Set([400, 422]);
+
+const getErrorStatusCode = (error: unknown): number | null => {
+    if (!error || typeof error !== 'object') return null;
+    const status = (error as { status?: unknown }).status;
+    return typeof status === 'number' ? status : null;
+};
+
+const getMissingBodyFields = (error: unknown): Set<string> => {
+    const missingFields = new Set<string>();
+
+    if (!error || typeof error !== 'object') return missingFields;
+
+    const details = (error as { details?: unknown }).details;
+    if (details && typeof details === 'object') {
+        const detailEntries = (details as { detail?: unknown }).detail;
+        if (Array.isArray(detailEntries)) {
+            for (const entry of detailEntries) {
+                if (!entry || typeof entry !== 'object') continue;
+                const type = (entry as { type?: unknown }).type;
+                if (type !== 'missing') continue;
+                const loc = (entry as { loc?: unknown }).loc;
+                if (!Array.isArray(loc) || loc.length < 2) continue;
+                if (loc[0] !== 'body' || typeof loc[1] !== 'string') continue;
+                missingFields.add(loc[1]);
+            }
+        }
+    }
+
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') {
+        const lower = message.toLowerCase();
+        if (lower.includes('invitation_token')) missingFields.add('invitation_token');
+        if (lower.includes('invite_token')) missingFields.add('invite_token');
+        if (lower.includes('"token"') || lower.includes(' token ')) missingFields.add('token');
+    }
+
+    return missingFields;
+};
+
+const getAliasFieldsToRetry = (error: unknown): Array<typeof ACCEPT_INVITE_ALIAS_FIELDS[number]> => {
+    const status = getErrorStatusCode(error);
+    if (!status || !VALIDATION_RETRY_STATUSES.has(status)) return [];
+
+    const missingFields = getMissingBodyFields(error);
+    if (missingFields.size === 0) return [];
+
+    return ACCEPT_INVITE_ALIAS_FIELDS.filter((field) => missingFields.has(field));
+};
 
 const toIsoStringOrNull = (value: string | null | undefined): string | null => {
     if (!value) return null;
@@ -122,31 +172,38 @@ export async function inviteUser(email: string, tenantId: string): Promise<TeamI
 
 export async function acceptInvitation(token: string): Promise<TeamInvite> {
     const normalizedToken = token.trim();
-    let lastError: unknown = null;
+    const acceptWithPayload = async (payload: ApiAcceptInvitationRequest): Promise<TeamInvite> => {
+        const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+        const invitation = unwrapData<ApiInvitationResponse>(response);
+        return mapInvitationToTeamInvite(invitation, 'LEARNER', '');
+    };
 
-    for (let i = 0; i < ACCEPT_INVITE_TOKEN_FIELDS.length; i += 1) {
-        const field = ACCEPT_INVITE_TOKEN_FIELDS[i];
-        try {
-            const payload: ApiAcceptInvitationRequest = { [field]: normalizedToken };
-            const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/user/accept-invitation', {
-                method: 'POST',
-                body: JSON.stringify(payload),
-            });
-            const invitation = unwrapData<ApiInvitationResponse>(response);
-            return mapInvitationToTeamInvite(invitation, 'LEARNER', '');
-        } catch (error) {
-            lastError = error;
-            const canRetryWithAliasField =
-                error instanceof ApiError &&
-                (error.status === 400 || error.status === 422);
-
-            if (!canRetryWithAliasField || i === ACCEPT_INVITE_TOKEN_FIELDS.length - 1) {
-                throw error;
-            }
-        }
+    if (!normalizedToken) {
+        throw new Error('Invitation token is required.');
     }
 
-    throw (lastError instanceof Error ? lastError : new Error('Failed to accept invitation.'));
+    try {
+        return await acceptWithPayload({ token: normalizedToken });
+    } catch (error) {
+        const aliasFieldsToRetry = getAliasFieldsToRetry(error);
+        if (aliasFieldsToRetry.length === 0) {
+            throw error;
+        }
+
+        let lastError: unknown = error;
+        for (const field of aliasFieldsToRetry) {
+            try {
+                return await acceptWithPayload({ [field]: normalizedToken });
+            } catch (retryError) {
+                lastError = retryError;
+            }
+        }
+
+        throw (lastError instanceof Error ? lastError : new Error('Failed to accept invitation.'));
+    }
 }
 
 /**
