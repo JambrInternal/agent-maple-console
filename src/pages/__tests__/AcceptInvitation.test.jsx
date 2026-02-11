@@ -159,6 +159,51 @@ describe('AcceptInvitation', () => {
         })
     })
 
+    it('creates account when sign-in returns NotAuthorizedException for a non-existent user', async () => {
+        const user = userEvent.setup()
+        const notAuthorizedError = new Error('Incorrect username or password.')
+        notAuthorizedError.name = 'NotAuthorizedException'
+
+        mockLogin
+            .mockRejectedValueOnce(notAuthorizedError)
+            .mockResolvedValueOnce({ id: 'u3b', email: 'invitee@example.com' })
+        mockRegister.mockResolvedValue({
+            isComplete: true,
+            nextStep: 'DONE',
+            codeDeliveryDestination: null,
+            codeDeliveryMedium: null,
+        })
+        vi.mocked(acceptInvitation).mockResolvedValue({
+            id: 'inv_3b',
+            email: 'invitee@example.com',
+            tenantId: 'org_11b',
+            role: 'viewer',
+            status: 'accepted',
+            isUsed: true,
+            createdAt: '2026-02-11T10:00:00Z',
+            expiresAt: '2026-03-11T10:00:00Z',
+            usedAt: '2026-02-11T10:05:00Z',
+        })
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_masked']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('Password'), 'CreatePass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        await waitFor(() => {
+            expect(mockLogin).toHaveBeenNthCalledWith(1, 'invitee@example.com', 'CreatePass123!')
+            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'CreatePass123!')
+            expect(mockLogin).toHaveBeenNthCalledWith(2, 'invitee@example.com', 'CreatePass123!')
+            expect(acceptInvitation).toHaveBeenCalledWith('tok_masked')
+            expect(mockNavigate).toHaveBeenCalledWith('/org_11b/projects', { replace: true })
+        })
+    })
+
     it('collects confirmation code on same screen when registration needs confirmation', async () => {
         const user = userEvent.setup()
         const notFoundError = new Error('User does not exist')
