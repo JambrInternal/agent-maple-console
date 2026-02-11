@@ -10,6 +10,15 @@ const pendingInvitesKey = (orgId) => `am_pending_team_invites_${orgId || 'unknow
 
 const normalizeEmail = (email) => (email || '').trim().toLowerCase()
 
+const normalizeInviteStatus = (invite) => {
+    const isUsed = invite.isUsed === true || !!invite.usedAt
+    const isExpired = !!invite.expiresAt && new Date(invite.expiresAt).getTime() < Date.now()
+    
+    if (isUsed) return 'accepted'
+    if (isExpired) return 'expired'
+    return 'pending'
+}
+
 const readPendingInvites = (orgId) => {
     if (!orgId) return []
     try {
@@ -17,7 +26,12 @@ const readPendingInvites = (orgId) => {
         if (!raw) return []
         const parsed = JSON.parse(raw)
         if (!Array.isArray(parsed)) return []
-        return parsed.filter((invite) => typeof invite?.email === 'string')
+        return parsed
+            .filter((invite) => typeof invite?.email === 'string')
+            .map((invite) => ({
+                ...invite,
+                status: normalizeInviteStatus(invite)
+            }))
     } catch {
         return []
     }
