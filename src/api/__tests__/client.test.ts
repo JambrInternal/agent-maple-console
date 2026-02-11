@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock token service to avoid Amplify side effects
 vi.mock('../../services/token', () => ({
@@ -45,6 +45,14 @@ describe('API client endpoint error handling', () => {
 });
 
 describe('API client tenant header behavior', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
   it('does not attach x-tenant-id to tenant-agnostic /user endpoints', async () => {
     localStorage.setItem('am_tenant_id', '26');
     const fetchMock = vi.fn(async () => ({

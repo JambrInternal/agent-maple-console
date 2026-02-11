@@ -53,11 +53,6 @@ const TENANT_HEADER_EXEMPT_PATHS = new Set([
     '/user/accept-invitation',
 ]);
 
-const shouldAttachTenantHeader = (endpoint: string): boolean => {
-    const pathname = new URL(endpoint, API_CONFIG.baseUrl).pathname;
-    return !TENANT_HEADER_EXEMPT_PATHS.has(pathname);
-};
-
 export async function apiFetch<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -68,19 +63,22 @@ export async function apiFetch<T>(
     const tenantId = getTenantId();
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
 
+    // Construct URL once and reuse for both header logic and fetch
+    const url = new URL(endpoint, API_CONFIG.baseUrl);
+    const shouldAttachTenantHeader = !TENANT_HEADER_EXEMPT_PATHS.has(url.pathname);
+
     const headers = new Headers(options.headers as HeadersInit);
     if (token && !headers.has('Authorization')) {
         headers.set('Authorization', `Bearer ${token}`);
     }
-    if (tenantId && !headers.has('x-tenant-id') && shouldAttachTenantHeader(endpoint)) {
+    if (tenantId && !headers.has('x-tenant-id') && shouldAttachTenantHeader) {
         headers.set('x-tenant-id', tenantId);
     }
     if (!isFormData && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
     }
 
-    const url = new URL(endpoint, API_CONFIG.baseUrl).toString();
-    const response = await fetch(url, {
+    const response = await fetch(url.toString(), {
         ...options,
         headers,
     });
