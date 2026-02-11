@@ -40,6 +40,19 @@ const inputWithIconStyle = {
     paddingLeft: '2.5rem',
 }
 
+const inviteEmailValueStyle = {
+    width: '100%',
+    minHeight: '2.75rem',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0.65rem 0.75rem',
+    borderRadius: 'var(--radius-sm)',
+    border: '1px solid rgba(148, 163, 184, 0.3)',
+    background: 'rgba(15, 23, 42, 0.35)',
+    color: 'var(--am-text-1)',
+    fontSize: '0.95rem',
+}
+
 const primaryButtonStyle = {
     padding: '0.75rem',
     marginTop: '0.5rem',
@@ -139,9 +152,21 @@ function SubmitButton({ isSubmitting, label }) {
     )
 }
 
+function InviteEmailSummary({ email }) {
+    const displayEmail = email || 'Unavailable from invite link'
+    return (
+        <div style={fieldContainerStyle}>
+            <AuthFieldLabel>Invited Email</AuthFieldLabel>
+            <div style={inviteEmailValueStyle}>{displayEmail}</div>
+        </div>
+    )
+}
+
 export default function AuthForms({
     authMode,
     email,
+    inviteEmail,
+    lockEmailToInvite = false,
     password,
     confirmPassword,
     confirmationCode,
@@ -158,18 +183,22 @@ export default function AuthForms({
     if (authMode === 'confirm') {
         return (
             <form onSubmit={onSubmitConfirm} style={formStyle}>
-                <div style={fieldContainerStyle}>
-                    <AuthFieldLabel>Email Address</AuthFieldLabel>
-                    <input
-                        type="email"
-                        className="am-input"
-                        style={inputBaseStyle}
-                        value={email}
-                        onChange={(e) => onEmailChange(e.target.value)}
-                        autoComplete="username"
-                        required
-                    />
-                </div>
+                {lockEmailToInvite ? (
+                    <InviteEmailSummary email={inviteEmail} />
+                ) : (
+                    <div style={fieldContainerStyle}>
+                        <AuthFieldLabel>Email Address</AuthFieldLabel>
+                        <input
+                            type="email"
+                            className="am-input"
+                            style={inputBaseStyle}
+                            value={email}
+                            onChange={(e) => onEmailChange(e.target.value)}
+                            autoComplete="username"
+                            required
+                        />
+                    </div>
+                )}
 
                 <ConfirmCodeField
                     value={confirmationCode}
@@ -194,7 +223,11 @@ export default function AuthForms({
     if (authMode === 'register') {
         return (
             <form onSubmit={onSubmitRegister} style={formStyle}>
-                <EmailField value={email} onChange={onEmailChange} />
+                {lockEmailToInvite ? (
+                    <InviteEmailSummary email={inviteEmail} />
+                ) : (
+                    <EmailField value={email} onChange={onEmailChange} />
+                )}
 
                 <PasswordField
                     label="Password"
@@ -217,7 +250,11 @@ export default function AuthForms({
 
     return (
         <form onSubmit={onSubmitSignIn} style={formStyle}>
-            <EmailField value={email} onChange={onEmailChange} />
+            {lockEmailToInvite ? (
+                <InviteEmailSummary email={inviteEmail} />
+            ) : (
+                <EmailField value={email} onChange={onEmailChange} />
+            )}
 
             <PasswordField
                 label="Password"

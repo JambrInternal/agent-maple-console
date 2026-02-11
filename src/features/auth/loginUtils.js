@@ -47,16 +47,75 @@ export const buildDebugEvent = ({ label, error, getErrorStatus }) => {
     return `${prefix}: ${detail}`
 }
 
-export const getSignInErrorMessage = (err) => {
-    if (err && typeof err === 'object' && 'message' in err) {
-        const message = String(err.message).toLowerCase()
-        if (message.includes('invalid') || message.includes('password') || message.includes('username')) {
-            return 'Sign in failed. Check your email and password and try again.'
+const getAuthErrorText = (err) => {
+    const parts = []
+
+    if (err && typeof err === 'object') {
+        const name = 'name' in err ? String(err.name || '') : ''
+        const code = 'code' in err ? String(err.code || '') : ''
+        const message = 'message' in err ? String(err.message || '') : ''
+        parts.push(name, code, message)
+
+        if ('details' in err && err.details && typeof err.details === 'object') {
+            const detailMessage = typeof err.details.message === 'string' ? err.details.message : ''
+            const detail = typeof err.details.detail === 'string' ? err.details.detail : ''
+            parts.push(detailMessage, detail)
         }
-        if (message.includes('confirmed')) {
-            return 'Your account is not active yet. Contact your administrator.'
-        }
+    } else if (typeof err === 'string') {
+        parts.push(err)
     }
+
+    return parts.join(' ').toLowerCase()
+}
+
+export const getSignInErrorReason = (err) => {
+    const text = getAuthErrorText(err)
+    if (!text) return 'unknown'
+
+    if (
+        text.includes('usernotfoundexception') ||
+        text.includes('user does not exist') ||
+        text.includes('user not found')
+    ) {
+        return 'user_not_found'
+    }
+
+    if (
+        text.includes('usernotconfirmedexception') ||
+        text.includes('not confirmed') ||
+        text.includes('confirm sign up')
+    ) {
+        return 'user_unconfirmed'
+    }
+
+    if (
+        text.includes('invalid') ||
+        text.includes('incorrect') ||
+        text.includes('password') ||
+        text.includes('username') ||
+        text.includes('not authorized')
+    ) {
+        return 'invalid_credentials'
+    }
+
+    return 'unknown'
+}
+
+export const getSignInErrorMessage = (err) => {
+    const reason = getSignInErrorReason(err)
+
+    if (reason === 'user_not_found') {
+        return 'No account exists for this email yet. Create your account to continue.'
+    }
+
+    if (reason === 'user_unconfirmed') {
+        return 'Your account is not confirmed yet. Enter your confirmation code to continue.'
+    }
+
+    if (reason === 'invalid_credentials') {
+        return 'Sign in failed. Check your email and password and try again.'
+    }
+
     return 'Sign in failed. Try again or contact support.'
 }
 
@@ -88,4 +147,3 @@ export const getConfirmationErrorMessage = (err) => {
     }
     return 'Failed to confirm account. Try again or contact support.'
 }
-
