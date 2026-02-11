@@ -31,7 +31,7 @@ export async function getKnowledgeSource(id: string): Promise<KnowledgeSource> {
 export async function uploadKnowledgeSource(
     tenantId: string,
     file: File,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
 ): Promise<KnowledgeSource> {
     const formData = new FormData();
     formData.append('file', file);

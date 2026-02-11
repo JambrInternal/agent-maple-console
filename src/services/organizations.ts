@@ -1,6 +1,12 @@
 import { apiFetch, getErrorStatus } from '../api/client';
 import type { CreateOrganizationRequest, Organization } from '../api/types';
-import { mapTenantToOrganization, unwrapData, type ApiResponse, type ApiProject, type ApiTenant } from '../api/mappers';
+import {
+    mapTenantToOrganization,
+    unwrapData,
+    type ApiCreateTenantRequest,
+    type ApiResponse,
+    type ApiTenant,
+} from '../api/mappers';
 import { getAdminMode, setAdminMode } from '../utils/admin';
 
 type OrganizationOptions = {
@@ -76,7 +82,7 @@ export async function createOrganization(request: CreateOrganizationRequest | st
     const isAdmin = getAdminMode();
     const endpoint = isAdmin ? '/admin/tenants' : '/user/tenants';
 
-    const body = typeof request === 'string'
+    const body: ApiCreateTenantRequest = typeof request === 'string'
         ? { name: request }
         : {
             name: request.name,

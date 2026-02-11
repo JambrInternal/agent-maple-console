@@ -1,10 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { acceptInvitation, getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
-import { apiFetch } from '../../api/client';
+import { ApiError, apiFetch } from '../../api/client';
 
 vi.mock('../../api/client', () => ({
     API_CONFIG: { baseUrl: '' },
     apiFetch: vi.fn(),
+    ApiError: class ApiError extends Error {
+        status: number;
+        statusText: string;
+        details?: unknown;
+
+        constructor(status: number, statusText: string, message: string, details?: unknown) {
+            super(message);
+            this.name = 'ApiError';
+            this.status = status;
+            this.statusText = statusText;
+            this.details = details;
+        }
+    },
 }));
 
 describe('people service', () => {
@@ -161,6 +174,40 @@ describe('people service', () => {
             email: 'accept.user@example.com',
             tenantId: '44',
             role: 'viewer',
+            status: 'accepted',
+            isUsed: true,
+        });
+    });
+
+    it('retries invitation acceptance with alias token fields on 400 responses', async () => {
+        vi.mocked(apiFetch)
+            .mockRejectedValueOnce(new ApiError(400, 'Bad Request', 'invalid token'))
+            .mockResolvedValueOnce({
+                data: {
+                    id: 'invite_4',
+                    email: 'alias.user@example.com',
+                    tenant_id: 45,
+                    role: 'LEARNER',
+                    is_used: true,
+                    created_at: '2026-02-11T10:00:00Z',
+                    expires_at: '2026-03-11T10:00:00Z',
+                    used_at: '2026-02-11T11:00:00Z',
+                },
+            });
+
+        const result = await acceptInvitation('token_alias');
+
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ token: 'token_alias' }),
+        });
+        expect(apiFetch).toHaveBeenNthCalledWith(2, '/user/accept-invitation', {
+            method: 'POST',
+            body: JSON.stringify({ invitation_token: 'token_alias' }),
+        });
+        expect(result).toMatchObject({
+            id: 'invite_4',
+            tenantId: '45',
             status: 'accepted',
             isUsed: true,
         });

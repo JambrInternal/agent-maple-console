@@ -2,7 +2,16 @@
 import { apiFetch, getErrorStatus } from '../api/client';
 import logger from '../utils/verboseLogger';
 import type { Project, AgentStatus } from '../api/types';
-import { mapProjectResponse, mapTenantToProject, unwrapData, type ApiResponse, type ApiProject, type ApiTenant } from '../api/mappers';
+import {
+    mapProjectResponse,
+    mapTenantToProject,
+    unwrapData,
+    type ApiCreateProjectRequest,
+    type ApiProject,
+    type ApiResponse,
+    type ApiTenant,
+    type ApiTenantDisableRequest,
+} from '../api/mappers';
 
 /**
  * Get all projects for an organization.
@@ -49,12 +58,13 @@ export async function createProject(
         throw new Error('Organization ID is required to create a project');
     }
     logger.info('Creating project via API', { organizationId, name });
+    const payload: ApiCreateProjectRequest = { name };
     const response = await apiFetch<ApiResponse<ApiProject>>('/projects/', {
         method: 'POST',
         headers: {
             'x-tenant-id': organizationId,
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(payload),
     });
     logger.debug('Raw createProject response', response);
     const data = unwrapData(response);
@@ -106,9 +116,10 @@ export async function updateProjectStatus(
     const project = await getProject(id);
     const tenantId = project.organizationId || id;
     logger.debug('Disabling/enabling tenant', { tenantId, disabled });
+    const payload: ApiTenantDisableRequest = { disabled };
     await apiFetch(`/admin/tenants/${tenantId}/disable`, {
         method: 'POST',
-        body: JSON.stringify({ disabled }),
+        body: JSON.stringify(payload),
     });
 
     try {
