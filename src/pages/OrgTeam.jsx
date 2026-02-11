@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { MoreHorizontal, Plus, User as UserIcon, Shield, X } from 'lucide-react'
+import { MoreHorizontal, Plus, User as UserIcon, X } from 'lucide-react'
 import { getUsers, inviteUser } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
@@ -124,7 +124,6 @@ const OrgTeam = () => {
                 email: invite.email,
                 name: invite.email,
                 role: invite.role || 'viewer',
-                mfaEnabled: false,
                 inviteStatus: invite.status || 'pending',
                 isInviteOnly: true,
             }))
@@ -312,7 +311,6 @@ const OrgTeam = () => {
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
-                                    <th>MFA Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -373,20 +371,6 @@ const OrgTeam = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                        </td>
-                                        <td>
-                                            {member.isInviteOnly ? (
-                                                <span className="am-text-2" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                                                    N/A
-                                                </span>
-                                            ) : (
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: member.mfaEnabled ? '#22c55e' : 'var(--am-text-2)' }}>
-                                                <Shield size={14} />
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                                                    {member.mfaEnabled ? 'Enabled' : 'Disabled'}
-                                                </span>
-                                            </div>
-                                            )}
                                         </td>
                                     </tr>
                                 ))}
