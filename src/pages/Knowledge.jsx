@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react'
-import { FileText, UploadCloud } from 'lucide-react'
+import React, { useMemo } from 'react'
+import { UploadCloud } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { getKnowledgeSources } from '../services/knowledge'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { withStatus } from '../utils/errors'
 import QueryError from '../components/QueryError';
+import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
 
 const Knowledge = () => {
-    const { orgId, projId } = useParams()
+    const { orgId } = useParams()
 
     const {
         data: sources = [],
@@ -19,35 +19,7 @@ const Knowledge = () => {
         () => orgId ? getKnowledgeSources(orgId) : Promise.resolve([]),
         { enabled: !!orgId }
     )
-
-
-
-    const statusLabels = {
-        pending: 'Pending',
-        indexing: 'Indexing',
-        ready: 'Ready',
-        error: 'Error',
-    }
-
-    const formatDate = (value) => {
-        if (!value) return '—'
-        const date = new Date(value)
-        if (Number.isNaN(date.getTime())) return '—'
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        })
-    }
-
     const rows = useMemo(() => sources, [sources])
-
-    const renderSource = (type) => {
-        if (type === 'google_drive') {
-            return <span className="am-source-badge is-google-drive">Google Drive</span>
-        }
-        return <span className="am-pill is-upload">Upload</span>
-    }
 
     return (
         <div className="am-page-content">
@@ -78,55 +50,7 @@ const Knowledge = () => {
                 )}
 
                 {!loading && !error && (
-                    <div className="am-table-card">
-                        <table className="am-table am-table-knowledge">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>File Name</th>
-                                    <th>Type</th>
-                                    <th>Source</th>
-                                    <th>Status</th>
-                                    <th>Uploaded</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows.map((row) => (
-                                    <tr key={row.id}>
-                                        <td>
-                                            <input type="checkbox" className="am-checkbox" />
-                                        </td>
-                                        <td className="am-text-2">{row.id}</td>
-                                        <td>
-                                            <div className="am-file-cell">
-                                                <span className="am-file-icon">
-                                                    <FileText size={14} />
-                                                </span>
-                                                <div>
-                                                    <div className="am-file-name">{row.name}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="am-text-2">{row.type}</td>
-                                        <td>{renderSource(row.type)}</td>
-                                        <td>
-                                            <span className={`am-pill is-${row.status}`}>
-                                                {statusLabels[row.status] || row.status}
-                                            </span>
-                                        </td>
-                                        <td className="am-text-2">{formatDate(row.createdAt)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {rows.length === 0 && (
-                            <div className="am-text-2 am-table-empty">
-                                No knowledge sources found for this project.
-                            </div>
-                        )}
-                    </div>
+                    <KnowledgeTable rows={rows} />
                 )}
             </div>
         </div>

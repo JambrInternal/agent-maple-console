@@ -6,29 +6,9 @@ import logger from '../utils/verboseLogger'
 import { useApiQuery } from '../hooks/useApiQuery'
 import QueryError from '../components/QueryError';
 import { withStatus } from '../utils/errors'
-
-const STATUS_OPTIONS = [
-    { key: 'all', label: 'All' },
-    { key: 'online', label: 'Online' },
-    { key: 'offline', label: 'Offline' },
-]
-
-const STATUS_LABELS = {
-    online: 'Online',
-    offline: 'Offline',
-}
-
-const formatTimestamp = (value) => {
-    if (!value) return '—'
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return '—'
-    return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    })
-}
+import CreateProjectModal from '../features/projects/components/CreateProjectModal'
+import ProjectCard from '../features/projects/components/ProjectCard'
+import { filterProjects, PROJECT_STATUS_OPTIONS } from '../features/projects/projectsUtils'
 
 const Projects = () => {
     const { orgId } = useParams()
@@ -99,14 +79,18 @@ const Projects = () => {
     }
 
     const filteredProjects = useMemo(() => {
-        const filtered = projects.filter((project) => {
-            const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase())
-            const matchesStatus = statusFilter === 'all' || project.agentStatus === statusFilter
-            return matchesSearch && matchesStatus
+        const filtered = filterProjects({
+            projects,
+            searchTerm,
+            statusFilter,
         })
         logger.debug('Filtered projects', { count: filtered.length, searchTerm, statusFilter })
         return filtered
     }, [projects, searchTerm, statusFilter])
+
+    const handleOpenProject = (projectId) => {
+        navigate(`/${orgId}/${projectId}/contacts`)
+    }
 
     return (
         <div className="am-page-content">
@@ -132,7 +116,7 @@ const Projects = () => {
                     />
                 </div>
                 <div className="am-filter-row">
-                    {STATUS_OPTIONS.map((option) => (
+                    {PROJECT_STATUS_OPTIONS.map((option) => (
                         <button
                             key={option.key}
                             type="button"
@@ -160,44 +144,11 @@ const Projects = () => {
             {!loading && !error && (
                 <div className="am-projects-grid">
                     {filteredProjects.map((project) => (
-                        <div
+                        <ProjectCard
                             key={project.id}
-                            className="am-card am-project-card"
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => {
-                                navigate(`/${orgId}/${project.id}/contacts`)
-                            }}
-                            onKeyDown={(event) => {
-                                if (event.key === 'Enter') {
-                                    navigate(`/${orgId}/${project.id}/contacts`)
-                                }
-                            }}
-                        >
-                            <div className="am-project-card-header">
-                                <div>
-                                    <h3 className="am-project-name">{project.name}</h3>
-                                    <div className={`am-status-badge is-${project.agentStatus}`}>
-                                        {STATUS_LABELS[project.agentStatus] || 'Unknown'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="am-project-meta">
-                                <div>
-                                    <span className="am-meta-label">Threads</span>
-                                    <span className="am-meta-value">{project.threadCount}</span>
-                                </div>
-                                <div>
-                                    <span className="am-meta-label">Issues</span>
-                                    <span className="am-meta-value">{project.issueCount}</span>
-                                </div>
-                                <div>
-                                    <span className="am-meta-label">Last Activity</span>
-                                    <span className="am-meta-value">{formatTimestamp(project.lastActivityAt)}</span>
-                                </div>
-                            </div>
-                        </div>
+                            project={project}
+                            onOpenProject={handleOpenProject}
+                        />
                     ))}
 
                     {filteredProjects.length === 0 && (
@@ -208,61 +159,15 @@ const Projects = () => {
                 </div>
             )}
 
-            {isCreateOpen && (
-                <div className="am-modal-backdrop" role="presentation" onClick={closeCreateModal}>
-                    <div
-                        className="am-modal"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="create-project-title"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <div className="am-modal-header">
-                            <h2 className="am-modal-title" id="create-project-title">
-                                Create Project
-                            </h2>
-                            <button type="button" className="am-icon-button" onClick={closeCreateModal} aria-label="Close">
-                                ×
-                            </button>
-                        </div>
-                        <form onSubmit={handleCreate}>
-                            <div className="am-text-2" style={{ marginBottom: '1rem' }}>
-                                Create a new project to start configuring an agent.
-                            </div>
-                            {createError && (
-                                <div className="am-text-2" style={{ color: '#ef4444', marginBottom: '0.75rem' }}>
-                                    {createError}
-                                </div>
-                            )}
-                            <div className="am-form">
-                                <div className="am-form-field">
-                                    <label className="am-label" htmlFor="project-name">
-                                        Project Name
-                                    </label>
-                                    <input
-                                        id="project-name"
-                                        className="am-input"
-                                        type="text"
-                                        placeholder="Enter project name"
-                                        value={createName}
-                                        onChange={(event) => setCreateName(event.target.value)}
-                                        disabled={isCreating}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="am-modal-footer">
-                                <button type="button" className="am-btn-secondary" onClick={closeCreateModal} disabled={isCreating}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="am-btn-primary" disabled={isCreating}>
-                                    {isCreating ? 'Creating...' : 'Create Project'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <CreateProjectModal
+                isOpen={isCreateOpen}
+                isCreating={isCreating}
+                createError={createError}
+                createName={createName}
+                onCreateNameChange={setCreateName}
+                onClose={closeCreateModal}
+                onSubmit={handleCreate}
+            />
         </div>
     )
 }

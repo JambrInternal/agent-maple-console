@@ -1,12 +1,15 @@
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import AcceptInvitation from '../AcceptInvitation'
 import { acceptInvitation } from '../../services/people'
+import { inviteReauthKey } from '../../utils/invitation'
 
 const mockNavigate = vi.fn()
-let mockAuthState = { user: null, loading: false }
+const mockLogout = vi.fn()
+let mockAuthState = { user: null, loading: false, logout: mockLogout }
 
 vi.mock('../../contexts/AuthContext', () => ({
     useAuth: () => mockAuthState,
@@ -27,8 +30,9 @@ vi.mock('react-router-dom', async () => {
 describe('AcceptInvitation', () => {
     beforeEach(() => {
         localStorage.clear()
+        sessionStorage.clear()
         vi.clearAllMocks()
-        mockAuthState = { user: null, loading: false }
+        mockAuthState = { user: null, loading: false, logout: mockLogout }
     })
 
     it('redirects to login when user is not authenticated', async () => {
@@ -65,6 +69,7 @@ describe('AcceptInvitation', () => {
                 createdAt: '2026-02-11T00:00:00Z',
             },
             loading: false,
+            logout: mockLogout,
         }
 
         vi.mocked(acceptInvitation).mockResolvedValue({
@@ -78,6 +83,8 @@ describe('AcceptInvitation', () => {
             expiresAt: '2026-03-11T10:00:00Z',
             usedAt: '2026-02-11T10:05:00Z',
         })
+
+        sessionStorage.setItem(inviteReauthKey('tok_1'), '1')
 
         render(
             <MemoryRouter initialEntries={['/accept-invitation?token=tok_1']}>
@@ -95,6 +102,44 @@ describe('AcceptInvitation', () => {
         })
     })
 
+    it('auto logs out active session before invite acceptance and redirects to login', async () => {
+        mockAuthState = {
+            user: {
+                id: 'u-active',
+                email: 'active@example.com',
+                name: 'Active',
+                role: 'member',
+                organizationId: null,
+                tenantId: null,
+                mfaEnabled: false,
+                createdAt: '2026-02-11T00:00:00Z',
+            },
+            loading: false,
+            logout: mockLogout,
+        }
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_force']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await waitFor(() => {
+            expect(mockLogout).toHaveBeenCalledTimes(1)
+            expect(mockNavigate).toHaveBeenCalledWith('/login', {
+                replace: true,
+                state: {
+                    from: {
+                        pathname: '/accept-invitation',
+                        search: '?token=tok_force',
+                        hash: '',
+                    },
+                },
+            })
+            expect(acceptInvitation).not.toHaveBeenCalled()
+        })
+    })
+
     it('shows an error when token is missing', async () => {
         render(
             <MemoryRouter initialEntries={['/accept-invitation']}>
@@ -105,5 +150,95 @@ describe('AcceptInvitation', () => {
         expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
         expect(screen.getByText(/Invitation token is missing/i)).toBeInTheDocument()
         expect(acceptInvitation).not.toHaveBeenCalled()
+    })
+
+    it('handles email mismatch by offering sign out and continuing to login', async () => {
+        mockAuthState = {
+            user: {
+                id: 'u-admin',
+                email: 'jeremy@jambr.ca',
+                name: 'Jeremy',
+                role: 'admin',
+                organizationId: null,
+                tenantId: null,
+                mfaEnabled: false,
+                createdAt: '2026-02-11T00:00:00Z',
+            },
+            loading: false,
+            logout: mockLogout,
+        }
+
+        vi.mocked(acceptInvitation).mockRejectedValue(
+            new Error('User email does not match invitation email')
+        )
+        sessionStorage.setItem(inviteReauthKey('tok_mismatch'), '1')
+
+        const user = userEvent.setup()
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_mismatch']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
+        expect(screen.getByText(/You are signed in as jeremy@jambr.ca/i)).toBeInTheDocument()
+
+        const signOutButton = await screen.findByRole('button', { name: 'Sign Out & Continue' })
+        await user.click(signOutButton)
+
+        await waitFor(() => {
+            expect(mockLogout).toHaveBeenCalledTimes(1)
+            expect(mockNavigate).toHaveBeenCalledWith('/login', {
+                replace: true,
+                state: {
+                    from: {
+                        pathname: '/accept-invitation',
+                        search: '?token=tok_mismatch',
+                        hash: '',
+                    },
+                },
+            })
+        })
+    })
+
+    it('handles email mismatch error from ApiError with details.detail[0].msg shape', async () => {
+        mockAuthState = {
+            user: {
+                id: 'u-test',
+                email: 'wrong@example.com',
+                name: 'Test User',
+                role: 'member',
+                organizationId: null,
+                tenantId: null,
+                mfaEnabled: false,
+                createdAt: '2026-02-11T00:00:00Z',
+            },
+            loading: false,
+            logout: mockLogout,
+        }
+
+        // Simulate ApiError with nested detail array shape
+        const apiError = new Error('Validation failed')
+        apiError.details = {
+            detail: [
+                { msg: 'invitation_email_mismatch: Email does not match invitation email' }
+            ]
+        }
+
+        vi.mocked(acceptInvitation).mockRejectedValue(apiError)
+        sessionStorage.setItem(inviteReauthKey('tok_api_err'), '1')
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_api_err']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
+        expect(screen.getByText(/You are signed in as wrong@example.com/i)).toBeInTheDocument()
+
+        const signOutButton = await screen.findByRole('button', { name: 'Sign Out & Continue' })
+        expect(signOutButton).toBeInTheDocument()
     })
 })

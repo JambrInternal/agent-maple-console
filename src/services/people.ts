@@ -1,16 +1,21 @@
 // People Service (Contacts + Console Users)
-import { apiFetch } from '../api/client';
+import { ApiError, apiFetch } from '../api/client';
 import type { Contact, User } from '../api/types';
 import {
     mapTenantUserToContact,
     mapTenantUserToConsoleUser,
     toConsoleRole,
     unwrapData,
+    type ApiAcceptInvitationRequest,
+    type ApiInvitationResponse,
     type ApiResponse,
+    type ApiSendInvitationRequest,
     type ApiTenantUser,
 } from '../api/mappers';
 
 export type TeamInviteStatus = 'pending' | 'accepted' | 'expired';
+
+const ACCEPT_INVITE_TOKEN_FIELDS = ['token', 'invitation_token', 'invite_token'] as const;
 
 export interface TeamInvite {
     id: string;
@@ -23,17 +28,6 @@ export interface TeamInvite {
     expiresAt: string | null;
     usedAt: string | null;
 }
-
-type ApiInvitationResponse = {
-    id?: string | null;
-    email?: string | null;
-    tenant_id?: string | number | null;
-    role?: string | null;
-    is_used?: boolean | null;
-    expires_at?: string | null;
-    used_at?: string | null;
-    created_at?: string | null;
-};
 
 const toIsoStringOrNull = (value: string | null | undefined): string | null => {
     if (!value) return null;
@@ -115,10 +109,11 @@ export async function inviteUser(email: string, tenantId: string): Promise<TeamI
     // All invited users are now assigned the INSTRUCTOR role by default
     const backendRole = 'INSTRUCTOR';
 
+    const payload: ApiSendInvitationRequest = { email, role: backendRole };
     const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/tenants/send-invitation', {
         method: 'POST',
         headers: { 'x-tenant-id': tenantId },
-        body: JSON.stringify({ email, role: backendRole }),
+        body: JSON.stringify(payload),
     });
 
     const invitation = unwrapData<ApiInvitationResponse>(response);
@@ -126,12 +121,32 @@ export async function inviteUser(email: string, tenantId: string): Promise<TeamI
 }
 
 export async function acceptInvitation(token: string): Promise<TeamInvite> {
-    const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/user/accept-invitation', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-    });
-    const invitation = unwrapData<ApiInvitationResponse>(response);
-    return mapInvitationToTeamInvite(invitation, 'LEARNER', '');
+    const normalizedToken = token.trim();
+    let lastError: unknown = null;
+
+    for (let i = 0; i < ACCEPT_INVITE_TOKEN_FIELDS.length; i += 1) {
+        const field = ACCEPT_INVITE_TOKEN_FIELDS[i];
+        try {
+            const payload: ApiAcceptInvitationRequest = { [field]: normalizedToken };
+            const response = await apiFetch<ApiResponse<ApiInvitationResponse> | ApiInvitationResponse>('/user/accept-invitation', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+            const invitation = unwrapData<ApiInvitationResponse>(response);
+            return mapInvitationToTeamInvite(invitation, 'LEARNER', '');
+        } catch (error) {
+            lastError = error;
+            const canRetryWithAliasField =
+                error instanceof ApiError &&
+                (error.status === 400 || error.status === 422);
+
+            if (!canRetryWithAliasField || i === ACCEPT_INVITE_TOKEN_FIELDS.length - 1) {
+                throw error;
+            }
+        }
+    }
+
+    throw (lastError instanceof Error ? lastError : new Error('Failed to accept invitation.'));
 }
 
 /**

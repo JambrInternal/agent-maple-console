@@ -10,7 +10,7 @@
 4. **Review testing**: See `agent_docs/contributing/TESTING.md`
 5. **Tooling**: Use `mise` and `.tool-versions` to align Node versioning
 6. **Backend Sync**: if the src/api/ was not updated in the past 24h, regenerate the openapi using openapi-ts, update the src/api/ folder, and update api tests.
-7. **Review and Update** `agent_docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
+7. **Review and Update** `agent_docs/task.md`: One task at a time. A unified list of Nested tasks/projects/initiatives are encouraged. Outline the task as you see it, create a goal with a broken down todo list. Take inventory of all unfinished tasks. Remove unrelated tasks that have been completed for over a month ago and keep this page tidy. Mark all tasks of requiring human intervantion or review as complete. 
 
 ## During Work
 
@@ -18,6 +18,7 @@
 - Follow the Industrial Navy design system (`agent_docs/product/BRAND.md`)
 - Reference API contracts in `agent_docs/architecture/BACKEND.md`
 - Add or update tests using Vitest (`agent_docs/contributing/TESTING.md`) when behavior changes
+- When it is a good idea, add any important future work for yourself in `agent_docs/task.md`
 
 ## After Work (REQUIRED)
 
@@ -27,8 +28,8 @@
 2. Did I make a change that affects the PRD or architecture?
 3. Are there outdated docs that contradict what I just did?
 4. Always be refactoring content in agent_docs when there is an opportunity.
-5. Update `agent_docs/task.md`. Every time a task is completed, ask for a human review on the task.
-6. If any docs were updated, ask for a human review on the docs changes.
+5. Update `agent_docs/task.md`. Every time a task is completed, add the completion date to the completed task (simply append YYYY-MM-DD when a task is first marked completed). Take inventory of all unfinished tasks and infer broader projects and initiatives for the project. Nested TODOs are encouraged. Remove unrelated tasks that have been completed for over a month ago and keep this page tidy. Mark all tasks of requiring human intervantion or review as complete.
+6. If any docs were updated, explain why you made the docs changes.
 
 If yes to any, **update the relevant doc**.
 

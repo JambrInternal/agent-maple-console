@@ -1,24 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { getContacts } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { withStatus } from '../utils/errors'
 import QueryError from '../components/QueryError';
-
-const formatDate = (value) => {
-    if (!value) return '—'
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return '—'
-    return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    })
-}
+import ContactsTable from '../features/contacts/components/ContactsTable'
 
 const Contacts = () => {
-    const { orgId, projId } = useParams()
+    const { orgId } = useParams()
 
     const {
         data: contacts = [],
@@ -30,9 +19,6 @@ const Contacts = () => {
         () => orgId ? getContacts(orgId) : Promise.resolve([]),
         { enabled: !!orgId }
     )
-
-
-
     return (
         <div className="am-page-content">
             <div className="am-contacts-container">
@@ -62,36 +48,7 @@ const Contacts = () => {
                 )}
 
                 {!loading && !error && (
-                    <div className="am-table-card">
-                        <table className="am-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Company</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {contacts.map((contact) => (
-                                    <tr key={contact.id}>
-                                        <td className="am-contact-name">{contact.name}</td>
-                                        <td className="am-text-2">{contact.company || '—'}</td>
-                                        <td className="am-contact-info">{contact.email || '—'}</td>
-                                        <td className="am-contact-info">{contact.phone || '—'}</td>
-                                        <td className="am-text-2">{formatDate(contact.createdAt)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {contacts.length === 0 && (
-                            <div className="am-text-2 am-table-empty">
-                                No contacts found for this project.
-                            </div>
-                        )}
-                    </div>
+                    <ContactsTable contacts={contacts} />
                 )}
             </div>
         </div>
