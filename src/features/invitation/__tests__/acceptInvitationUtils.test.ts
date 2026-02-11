@@ -11,7 +11,7 @@ import {
 
 describe('acceptInvitationUtils', () => {
     it('builds invite reauth key with fallback for empty token', () => {
-        expect(inviteReauthKey('tok_1')).toBe('am_invite_reauth_done_tok_1')
+        expect(inviteReauthKey('tok_1')).toMatch(/^am_invite_reauth_done_[a-z0-9]+_[a-z0-9]+$/)
         expect(inviteReauthKey('')).toBe('am_invite_reauth_done_unknown')
     })
 

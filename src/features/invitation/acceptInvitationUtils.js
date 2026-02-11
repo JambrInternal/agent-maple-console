@@ -1,6 +1,7 @@
 import { inviteReauthKey } from '../../utils/invitation'
 
 export const SUCCESS_REDIRECT_DELAY_MS = 300
+export { inviteReauthKey }
 
 export const hasInviteReauthCompleted = (token, storage = sessionStorage) => {
     if (!token || !storage) return false
