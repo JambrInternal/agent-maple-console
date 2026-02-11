@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Plus, User as UserIcon, Shield, Trash2, X } from 'lucide-react'
-import { getUsers, inviteUser, removeUser } from '../services/people'
+import { MoreHorizontal, Plus, User as UserIcon, Shield, X } from 'lucide-react'
+import { getUsers, inviteUser } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 import QueryError from '../components/QueryError'
@@ -43,6 +43,9 @@ const OrgTeam = () => {
     const [inviteEmail, setInviteEmail] = useState('')
     const [inviteError, setInviteError] = useState('')
     const [isInviting, setIsInviting] = useState(false)
+    const [inviteActionError, setInviteActionError] = useState('')
+    const [inviteActionEmail, setInviteActionEmail] = useState('')
+    const [openInviteMenuId, setOpenInviteMenuId] = useState(null)
     const [pendingInvites, setPendingInvites] = useState(() => readPendingInvites(orgId))
     const pendingInvitesOrgIdRef = useRef(orgId)
 
@@ -60,6 +63,9 @@ const OrgTeam = () => {
     useEffect(() => {
         setPendingInvites(readPendingInvites(orgId))
         pendingInvitesOrgIdRef.current = orgId
+        setOpenInviteMenuId(null)
+        setInviteActionEmail('')
+        setInviteActionError('')
     }, [orgId])
 
     const memberEmailSet = useMemo(
@@ -80,6 +86,29 @@ const OrgTeam = () => {
         if (pendingInvitesOrgIdRef.current !== orgId) return
         localStorage.setItem(pendingInvitesKey(orgId), JSON.stringify(pendingInvites))
     }, [orgId, pendingInvites])
+
+    useEffect(() => {
+        if (!openInviteMenuId) return
+
+        const handlePointerDown = (event) => {
+            if (event.target instanceof Element && event.target.closest('[data-invite-menu]')) return
+            setOpenInviteMenuId(null)
+        }
+
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setOpenInviteMenuId(null)
+            }
+        }
+
+        document.addEventListener('pointerdown', handlePointerDown)
+        document.addEventListener('keydown', handleEscape)
+
+        return () => {
+            document.removeEventListener('pointerdown', handlePointerDown)
+            document.removeEventListener('keydown', handleEscape)
+        }
+    }, [openInviteMenuId])
 
     const rows = useMemo(() => {
         const memberRows = members.map((member) => ({
@@ -114,6 +143,7 @@ const OrgTeam = () => {
             return
         }
         setInviteError('')
+        setInviteActionError('')
         setIsInviting(true)
         try {
             const invitation = await inviteUser(inviteEmail.trim(), orgId)
@@ -133,19 +163,56 @@ const OrgTeam = () => {
         }
     }
 
-    const handleRemove = async (userId, userName) => {
+    const isInviteActionBusy = (email) => (
+        normalizeEmail(inviteActionEmail) !== '' &&
+        normalizeEmail(inviteActionEmail) === normalizeEmail(email)
+    )
+
+    const handleResendInvite = async (inviteMember) => {
         if (!orgId) {
-            alert('Organization ID is missing')
+            setInviteActionError('Organization ID is missing')
             return
         }
-        if (!window.confirm(`Are you sure you want to remove ${userName}?`)) return
+
+        const email = inviteMember.email?.trim()
+        if (!email) {
+            setInviteActionError('Invite email is missing')
+            return
+        }
+
+        setOpenInviteMenuId(null)
+        setInviteActionError('')
+        setInviteActionEmail(email)
+
         try {
-            await removeUser(userId, orgId)
+            const invitation = await inviteUser(email, orgId)
+            setPendingInvites((prev) => {
+                const next = prev.filter((item) => normalizeEmail(item.email) !== normalizeEmail(invitation.email))
+                return [...next, invitation]
+            })
+            pendingInvitesOrgIdRef.current = orgId
             refetch()
         } catch (err) {
-            console.error('Failed to remove user:', err)
-            alert(withStatus('Failed to remove member.', err))
+            console.error('Failed to resend invite:', err)
+            setInviteActionError(withStatus('Failed to resend invitation.', err))
+        } finally {
+            setInviteActionEmail('')
         }
+    }
+
+    const handleCancelInvite = (inviteMember) => {
+        const email = inviteMember.email?.trim()
+        if (!email) {
+            setInviteActionError('Invite email is missing')
+            return
+        }
+
+        if (!window.confirm(`Cancel invitation for ${email}?`)) return
+
+        setInviteActionError('')
+        setOpenInviteMenuId(null)
+        setPendingInvites((prev) => prev.filter((invite) => normalizeEmail(invite.email) !== normalizeEmail(email)))
+        pendingInvitesOrgIdRef.current = orgId
     }
 
     const getInviteStatusPillClass = (status) => {
@@ -175,13 +242,25 @@ const OrgTeam = () => {
         }
     }
 
-    const getRolePillClass = (role) => {
+    const getRolePillClass = (member) => {
+        if (member.isInviteOnly) {
+            return getInviteStatusPillClass(member.inviteStatus)
+        }
+
+        const role = member.role
         switch (role?.toLowerCase()) {
             case 'owner': return 'am-status-pill is-active' // Green-ish
             case 'admin': return 'am-status-pill is-on-break' // Amber-ish
             case 'member': return 'am-pill is-ready' // Also green-ish
             default: return 'am-pill is-pending' // Gray-ish
         }
+    }
+
+    const getRoleLabel = (member) => {
+        if (member.isInviteOnly && member.inviteStatus !== 'accepted') {
+            return 'Invited'
+        }
+        return member.role || 'viewer'
     }
 
     return (
@@ -222,15 +301,18 @@ const OrgTeam = () => {
 
                 {!loading && !error && (
                     <div className="am-table-card">
+                        {inviteActionError && (
+                            <div className="am-text-2" style={{ color: '#ef4444', fontSize: '0.85rem', padding: '1rem 1rem 0' }}>
+                                {inviteActionError}
+                            </div>
+                        )}
                         <table className="am-table">
                             <thead>
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
-                                    <th>Invite Status</th>
                                     <th>MFA Status</th>
-                                    <th className="am-table-action">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -246,14 +328,51 @@ const OrgTeam = () => {
                                         </td>
                                         <td className="am-contact-info">{member.email}</td>
                                         <td>
-                                            <span className={getRolePillClass(member.role)}>
-                                                {member.role || 'viewer'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={getInviteStatusPillClass(member.inviteStatus)}>
-                                                {getInviteStatusLabel(member.inviteStatus)}
-                                            </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                                                <span
+                                                    className={getRolePillClass(member)}
+                                                    aria-label={member.isInviteOnly ? `Invite status ${getInviteStatusLabel(member.inviteStatus).toLowerCase()}` : undefined}
+                                                >
+                                                    {getRoleLabel(member)}
+                                                </span>
+                                                {member.isInviteOnly && member.inviteStatus !== 'accepted' && (
+                                                    <div className="am-row-menu" data-invite-menu>
+                                                        <button
+                                                            type="button"
+                                                            className="am-icon-button"
+                                                            aria-label={`Invite actions for ${member.email}`}
+                                                            aria-haspopup="menu"
+                                                            aria-expanded={openInviteMenuId === member.id}
+                                                            onClick={() => setOpenInviteMenuId((current) => current === member.id ? null : member.id)}
+                                                            disabled={isInviteActionBusy(member.email)}
+                                                        >
+                                                            <MoreHorizontal size={16} />
+                                                        </button>
+                                                        {openInviteMenuId === member.id && (
+                                                            <div className="am-row-menu-dropdown" role="menu">
+                                                                <button
+                                                                    type="button"
+                                                                    className="am-row-menu-item"
+                                                                    role="menuitem"
+                                                                    onClick={() => handleResendInvite(member)}
+                                                                    disabled={isInviteActionBusy(member.email)}
+                                                                >
+                                                                    {isInviteActionBusy(member.email) ? 'Resending...' : 'Resend invite'}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="am-row-menu-item"
+                                                                    role="menuitem"
+                                                                    onClick={() => handleCancelInvite(member)}
+                                                                    disabled={isInviteActionBusy(member.email)}
+                                                                >
+                                                                    Cancel invite
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td>
                                             {member.isInviteOnly ? (
@@ -267,23 +386,6 @@ const OrgTeam = () => {
                                                     {member.mfaEnabled ? 'Enabled' : 'Disabled'}
                                                 </span>
                                             </div>
-                                            )}
-                                        </td>
-                                        <td className="am-table-action">
-                                            {member.isInviteOnly ? (
-                                                <span className="am-text-2" style={{ fontSize: '0.75rem' }}>
-                                                    —
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    className="am-icon-button"
-                                                    style={{ color: '#ef4444' }}
-                                                    onClick={() => handleRemove(member.id, member.name)}
-                                                    title="Remove member"
-                                                    aria-label={`Remove member ${member.name || member.email || member.id}`}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
                                             )}
                                         </td>
                                     </tr>

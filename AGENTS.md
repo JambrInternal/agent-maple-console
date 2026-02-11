@@ -9,7 +9,8 @@
 3. **Review constraints**: See `agent_docs/contributing/AGENT_RULES.md`
 4. **Review testing**: See `agent_docs/contributing/TESTING.md`
 5. **Tooling**: Use `mise` and `.tool-versions` to align Node versioning
-6. **Review and Update** `agent_docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
+6. **Backend Sync**: if the src/api/ was not updated in the past 24h, regenerate the openapi using openapi-ts, update the src/api/ folder, and update api tests.
+7. **Review and Update** `agent_docs/task.md`: One task at a time. Outline the task as you see it, create a goal with a broken down todo list.
 
 ## During Work
 

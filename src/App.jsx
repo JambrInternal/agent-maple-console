@@ -15,6 +15,7 @@ import Contacts from './pages/Contacts'
 import Knowledge from './pages/Knowledge'
 import Voice from './pages/Voice'
 import ComingSoon from './pages/ComingSoon'
+import AcceptInvitation from './pages/AcceptInvitation'
 
 function App() {
     useEffect(() => {
@@ -32,6 +33,8 @@ function App() {
                     <Routes>
                         {/* Public Routes */}
                         <Route path="/login" element={<Login />} />
+                        <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                        <Route path="/user/accept-invitation" element={<AcceptInvitation />} />
 
                         {/* Protected Console Routes */}
                         <Route element={<AuthGuard><Layout /></AuthGuard>}>

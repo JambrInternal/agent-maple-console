@@ -1,16 +1,15 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import OrgTeam from '../OrgTeam'
-import { getUsers, inviteUser, removeUser } from '../../services/people'
+import { getUsers, inviteUser } from '../../services/people'
 
 vi.mock('../../services/people', () => ({
     getUsers: vi.fn(),
     inviteUser: vi.fn(),
-    removeUser: vi.fn(),
 }))
 
 describe('OrgTeam', () => {
@@ -19,7 +18,7 @@ describe('OrgTeam', () => {
         vi.clearAllMocks()
     })
 
-    it('shows invited users in the team table with pending invite status', async () => {
+    it('shows invited users in the team table with merged role/status and invite actions menu', async () => {
         vi.mocked(getUsers).mockResolvedValue([
             {
                 id: 'user_1',
@@ -58,7 +57,9 @@ describe('OrgTeam', () => {
         )
 
         expect(await screen.findByText('Member One')).toBeInTheDocument()
-        expect(screen.getByText('Active')).toBeInTheDocument()
+        expect(screen.getByRole('columnheader', { name: 'Role' })).toBeInTheDocument()
+        expect(screen.queryByRole('columnheader', { name: 'Invite Status' })).not.toBeInTheDocument()
+        expect(screen.queryByRole('columnheader', { name: 'Actions' })).not.toBeInTheDocument()
 
         await user.click(screen.getByRole('button', { name: 'Invite Member' }))
         await user.type(screen.getByLabelText('Email Address'), 'invitee@example.com')
@@ -69,12 +70,13 @@ describe('OrgTeam', () => {
             (row) => within(row).queryAllByText('invitee@example.com').length > 0
         )
         expect(invitedRow).not.toBeNull()
-        expect(within(invitedRow).queryAllByText('Pending').length).toBeGreaterThan(0)
+        expect(within(invitedRow).getByText('Invited')).toBeInTheDocument()
+        expect(within(invitedRow).getByLabelText('Invite status pending')).toBeInTheDocument()
+        expect(within(invitedRow).getByRole('button', { name: 'Invite actions for invitee@example.com' })).toBeInTheDocument()
         expect(within(invitedRow).getByText('N/A')).toBeInTheDocument()
 
         expect(getUsers).toHaveBeenCalledWith('org_1')
         expect(inviteUser).toHaveBeenCalledWith('invitee@example.com', 'org_1')
-        expect(removeUser).not.toHaveBeenCalled()
     })
 
     it('recomputes invite status from localStorage when invite has expired', async () => {
@@ -113,7 +115,8 @@ describe('OrgTeam', () => {
         )
         
         expect(invitedRow).not.toBeNull()
-        expect(within(invitedRow).getByText('Expired')).toBeInTheDocument()
+        expect(within(invitedRow).getByLabelText('Invite status expired')).toBeInTheDocument()
+        expect(within(invitedRow).getByText('Invited')).toBeInTheDocument()
     })
 
     it('recomputes invite status from localStorage when invite has been used', async () => {
@@ -151,7 +154,102 @@ describe('OrgTeam', () => {
         )
         
         expect(invitedRow).not.toBeNull()
-        expect(within(invitedRow).getByText('Accepted')).toBeInTheDocument()
+        expect(within(invitedRow).getByLabelText('Invite status accepted')).toBeInTheDocument()
+        expect(within(invitedRow).getByText('member')).toBeInTheDocument()
+        expect(within(invitedRow).queryByRole('button', { name: 'Invite actions for used@example.com' })).not.toBeInTheDocument()
+    })
+
+    it('resends pending invites from the row menu', async () => {
+        vi.mocked(getUsers).mockResolvedValue([])
+        vi.mocked(inviteUser).mockResolvedValue({
+            id: 'invite_resend_2',
+            email: 'resend@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+            createdAt: '2026-02-12T00:00:00Z',
+            expiresAt: '2026-03-12T00:00:00Z',
+            usedAt: null,
+        })
+
+        localStorage.setItem('am_pending_team_invites_org_1', JSON.stringify([{
+            id: 'invite_resend_1',
+            email: 'resend@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+            createdAt: '2026-02-11T00:00:00Z',
+            expiresAt: '2026-03-11T00:00:00Z',
+            usedAt: null,
+        }]))
+
+        const queryClient = new QueryClient()
+        const user = userEvent.setup()
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        await screen.findByRole('button', { name: 'Invite actions for resend@example.com' })
+        await user.click(screen.getByRole('button', { name: 'Invite actions for resend@example.com' }))
+        await user.click(screen.getByRole('menuitem', { name: 'Resend invite' }))
+
+        expect(inviteUser).toHaveBeenCalledWith('resend@example.com', 'org_1')
+        await waitFor(() => {
+            const storage = JSON.parse(localStorage.getItem('am_pending_team_invites_org_1'))
+            expect(storage).toHaveLength(1)
+            expect(storage[0].id).toBe('invite_resend_2')
+        })
+    })
+
+    it('cancels pending invites from the row menu', async () => {
+        vi.mocked(getUsers).mockResolvedValue([])
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+        localStorage.setItem('am_pending_team_invites_org_1', JSON.stringify([{
+            id: 'invite_cancel_1',
+            email: 'cancel@example.com',
+            role: 'member',
+            status: 'pending',
+            isUsed: false,
+            createdAt: '2026-02-11T00:00:00Z',
+            expiresAt: '2026-03-11T00:00:00Z',
+            usedAt: null,
+        }]))
+
+        const queryClient = new QueryClient()
+        const user = userEvent.setup()
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={['/org_1/team']}>
+                    <Routes>
+                        <Route path="/:orgId/team" element={<OrgTeam />} />
+                    </Routes>
+                </MemoryRouter>
+            </QueryClientProvider>
+        )
+
+        await screen.findByRole('button', { name: 'Invite actions for cancel@example.com' })
+        await user.click(screen.getByRole('button', { name: 'Invite actions for cancel@example.com' }))
+        await user.click(screen.getByRole('menuitem', { name: 'Cancel invite' }))
+
+        expect(confirmSpy).toHaveBeenCalledWith('Cancel invitation for cancel@example.com?')
+        await waitFor(() => {
+            expect(screen.queryByText('cancel@example.com')).not.toBeInTheDocument()
+        })
+        await waitFor(() => {
+            const storage = JSON.parse(localStorage.getItem('am_pending_team_invites_org_1'))
+            expect(storage).toEqual([])
+        })
+
+        confirmSpy.mockRestore()
     })
 
     it('prevents cross-org invite state leaks when orgId changes', async () => {
