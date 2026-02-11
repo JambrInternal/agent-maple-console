@@ -292,7 +292,7 @@ const OrgTeam = () => {
                         </table>
 
                         {rows.length === 0 && (
-                            <div className="am-text-2" style={{ padding: '2rem 0', textAlign: 'center' }}>
+                            <div className="am-text-2 am-table-empty">
                                 No team members found.
                             </div>
                         )}
