@@ -48,8 +48,8 @@ const mapInvitationToTeamInvite = (
     const expiresAt = toIsoStringOrNull(invitation.expires_at);
     const createdAt = toIsoStringOrNull(invitation.created_at);
     const usedAt = toIsoStringOrNull(invitation.used_at);
-    const isUsed = invitation.is_used === true;
-    const isExpired = !!expiresAt && new Date(expiresAt).getTime() < Date.now();
+    const isUsed = invitation.is_used === true || !!usedAt;
+    const isExpired = !isUsed && !!expiresAt && new Date(expiresAt).getTime() < Date.now();
     const status: TeamInviteStatus = isUsed ? 'accepted' : isExpired ? 'expired' : 'pending';
 
     return {
