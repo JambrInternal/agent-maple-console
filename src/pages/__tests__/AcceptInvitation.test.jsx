@@ -85,6 +85,9 @@ describe('AcceptInvitation', () => {
             </MemoryRouter>
         )
 
+        expect(await screen.findByText('Invitation Accepted')).toBeInTheDocument()
+        expect(screen.getByText('Redirecting you now.')).toBeInTheDocument()
+
         await waitFor(() => {
             expect(acceptInvitation).toHaveBeenCalledWith('tok_1')
             expect(localStorage.getItem('am_tenant_id')).toBe('org_9')

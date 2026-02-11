@@ -7,6 +7,7 @@ import logger from '../utils/verboseLogger';
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
 import type { User } from '../api/types';
+import type { RegisterResult } from '../api/auth';
 
 const ensureUserIds = (user: User): User => ({
     ...user,
@@ -26,6 +27,23 @@ export async function login(email: string, password: string): Promise<User> {
     }
     logger.error('Authentication failed: Missing token or user data', { email });
     throw new Error('Authentication failed: Missing token or user data');
+}
+
+export async function register(email: string, password: string): Promise<RegisterResult> {
+    logger.info('Attempting register', { email });
+    const result = await authApi.register(email, password);
+    logger.info('Register result received', {
+        email,
+        complete: result.isComplete,
+        nextStep: result.nextStep,
+    });
+    return result;
+}
+
+export async function confirmRegistration(email: string, confirmationCode: string): Promise<void> {
+    logger.info('Attempting registration confirmation', { email });
+    await authApi.confirmRegistration(email, confirmationCode);
+    logger.info('Registration confirmation complete', { email });
 }
 
 export async function logout(): Promise<void> {

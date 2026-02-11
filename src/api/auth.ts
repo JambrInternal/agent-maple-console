@@ -1,6 +1,8 @@
 import {
+    confirmSignUp,
     signIn,
     signOut,
+    signUp,
     fetchAuthSession,
     getCurrentUser,
     fetchUserAttributes,
@@ -12,6 +14,13 @@ import { clearAdminMode, setAdminMode } from '../utils/admin';
 export interface AuthSession {
     user: User | null;
     token: string | null;
+}
+
+export interface RegisterResult {
+    isComplete: boolean;
+    nextStep: string;
+    codeDeliveryDestination: string | null;
+    codeDeliveryMedium: string | null;
 }
 
 async function determineRoleAndSetAdminMode(): Promise<UserRole> {
@@ -80,6 +89,46 @@ export async function login(email: string, password: string): Promise<AuthSessio
     }
 
     throw new Error(`Login failed: ${nextStep.signInStep}`);
+}
+
+export async function register(email: string, password: string): Promise<RegisterResult> {
+    const normalizedEmail = email.trim();
+    const result = await signUp({
+        username: normalizedEmail,
+        password,
+        options: {
+            userAttributes: {
+                email: normalizedEmail,
+            },
+        },
+    });
+
+    const nextStep = result.nextStep?.signUpStep || 'DONE';
+    const details = result.nextStep?.codeDeliveryDetails;
+
+    return {
+        isComplete: result.isSignUpComplete === true || nextStep === 'DONE',
+        nextStep,
+        codeDeliveryDestination: details?.destination ?? null,
+        codeDeliveryMedium: details?.deliveryMedium ?? null,
+    };
+}
+
+export async function confirmRegistration(email: string, confirmationCode: string): Promise<void> {
+    const normalizedEmail = email.trim();
+    const normalizedCode = confirmationCode.trim();
+
+    const result = await confirmSignUp({
+        username: normalizedEmail,
+        confirmationCode: normalizedCode,
+    });
+
+    const nextStep = result.nextStep?.signUpStep || 'DONE';
+    if (result.isSignUpComplete || nextStep === 'DONE') {
+        return;
+    }
+
+    throw new Error(`Registration confirmation incomplete: ${nextStep}`);
 }
 
 export async function logout(): Promise<void> {

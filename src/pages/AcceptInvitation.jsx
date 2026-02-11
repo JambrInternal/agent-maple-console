@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
+
+const SUCCESS_REDIRECT_DELAY_MS = 300
 
 const getInvitationToken = (search, hash) => {
     const params = new URLSearchParams(search || '')
@@ -26,11 +28,32 @@ const AcceptInvitation = () => {
     const [error, setError] = useState('')
     const [status, setStatus] = useState('checking')
     const submissionStartedRef = useRef(false)
+    const redirectTimeoutRef = useRef(null)
 
     const token = useMemo(
         () => getInvitationToken(location.search, location.hash),
         [location.search, location.hash]
     )
+
+    useEffect(() => {
+        return () => {
+            if (redirectTimeoutRef.current !== null) {
+                window.clearTimeout(redirectTimeoutRef.current)
+                redirectTimeoutRef.current = null
+            }
+        }
+    }, [])
+
+    const scheduleRedirect = useCallback((path) => {
+        if (redirectTimeoutRef.current !== null) {
+            window.clearTimeout(redirectTimeoutRef.current)
+        }
+
+        redirectTimeoutRef.current = window.setTimeout(() => {
+            navigate(path, { replace: true })
+            redirectTimeoutRef.current = null
+        }, SUCCESS_REDIRECT_DELAY_MS)
+    }, [navigate])
 
     useEffect(() => {
         if (loading) return
@@ -62,19 +85,20 @@ const AcceptInvitation = () => {
         ;(async () => {
             try {
                 const invitation = await acceptInvitation(token)
+                setStatus('success')
                 if (invitation.tenantId) {
                     localStorage.setItem('am_tenant_id', invitation.tenantId)
-                    navigate(`/${invitation.tenantId}/projects`, { replace: true })
+                    scheduleRedirect(`/${invitation.tenantId}/projects`)
                     return
                 }
-                navigate('/', { replace: true })
+                scheduleRedirect('/')
             } catch (err) {
                 setStatus('error')
                 setError(withStatus('Failed to accept invitation.', err))
                 submissionStartedRef.current = false
             }
         })()
-    }, [loading, token, user, navigate, location.pathname, location.search, location.hash])
+    }, [loading, token, user, navigate, location.pathname, location.search, location.hash, scheduleRedirect])
 
     if (loading || status === 'checking' || status === 'submitting') {
         return (

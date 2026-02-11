@@ -6,6 +6,8 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<User>;
+    register: (email: string, password: string) => ReturnType<typeof authService.register>;
+    confirmRegistration: (email: string, confirmationCode: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -56,8 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
     };
 
+    const register = async (email: string, password: string) => {
+        return authService.register(email, password);
+    };
+
+    const confirmRegistration = async (email: string, confirmationCode: string) => {
+        await authService.confirmRegistration(email, confirmationCode);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, confirmRegistration, logout }}>
             {children}
         </AuthContext.Provider>
     );
