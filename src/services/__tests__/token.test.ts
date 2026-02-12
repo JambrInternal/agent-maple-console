@@ -61,15 +61,26 @@ describe('tokenService', () => {
       expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');
     });
 
-  it('handles refresh failure', async () => {
-    localStorageMock.setItem(TOKEN_KEY, 'old-token');
-    localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
+  it('handles refresh failure with no existing token', async () => {
     const { fetchAuthSession } = await import('aws-amplify/auth');
     vi.mocked(fetchAuthSession).mockRejectedValue(new Error('fail'));
     const token = await tokenService.getFreshToken();
     expect(token).toBeNull();
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(EXP_KEY);
+  });
+
+  it('preserves existing token when refresh fails', async () => {
+    localStorageMock.setItem(TOKEN_KEY, 'old-token');
+    localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
+    const { fetchAuthSession } = await import('aws-amplify/auth');
+    vi.mocked(fetchAuthSession).mockRejectedValue(new Error('fail'));
+
+    const token = await tokenService.getFreshToken();
+
+    expect(token).toBe('old-token');
+    expect(localStorageMock.removeItem).not.toHaveBeenCalledWith(TOKEN_KEY);
+    expect(localStorageMock.removeItem).not.toHaveBeenCalledWith(EXP_KEY);
   });
 
   it('clears token', () => {

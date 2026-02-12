@@ -76,4 +76,20 @@ describe('useStaleSessionGuard', () => {
             expect(logout).toHaveBeenCalledTimes(1)
         })
     })
+
+    it('does not run when explicitly disabled', () => {
+        const loadCurrentUser = vi.fn()
+        const logout = vi.fn()
+
+        renderHook(() => useStaleSessionGuard({
+            loading: false,
+            user: null,
+            logout,
+            loadCurrentUser,
+            enabled: false,
+        }))
+
+        expect(loadCurrentUser).not.toHaveBeenCalled()
+        expect(logout).not.toHaveBeenCalled()
+    })
 })

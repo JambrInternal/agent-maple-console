@@ -73,6 +73,8 @@ export async function getFreshToken(): Promise<string | null> {
 }
 
 async function fetchAndStoreToken(): Promise<string | null> {
+  const { token: existingToken } = getTokenFromStorage();
+
   try {
     const session = await fetchAuthSession();
     const tokens = (session as any).tokens || {};
@@ -89,14 +91,22 @@ async function fetchAndStoreToken(): Promise<string | null> {
     } else {
       // Log event: token hydrate failed
       logger.warn('[Token] Hydration failed: missing token/exp');
-      // Optionally: metrics hook
+      // Keep existing token if present; backend 401 is the source of truth for invalidation.
+      if (existingToken) {
+        logger.warn('[Token] Preserving existing token after hydration miss');
+        return existingToken;
+      }
       clearToken();
       return null;
     }
   } catch (err) {
     // Log event: token hydrate failed
     logger.error('[Token] Hydration failed', err);
-    // Optionally: metrics hook
+    // Keep existing token if present; this can be a transient Cognito failure.
+    if (existingToken) {
+      logger.warn('[Token] Preserving existing token after hydration error');
+      return existingToken;
+    }
     clearToken();
     return null;
   }

@@ -39,8 +39,6 @@ const Login = () => {
         loading,
     } = useAuth();
 
-    useStaleSessionGuard({ loading, user, logout })
-
     const [authMode, setAuthMode] = useState('signin')
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -52,6 +50,13 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const loginInProgressRef = useRef(false);
+
+    useStaleSessionGuard({
+        loading,
+        user,
+        logout,
+        enabled: !isSubmitting,
+    })
 
     const redirectTo = getRedirectToFromLocation(location)
 

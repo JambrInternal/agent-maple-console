@@ -11,12 +11,12 @@ export default function useStaleSessionGuard({
     user,
     logout,
     loadCurrentUser = defaultLoadCurrentUser,
+    enabled = true,
 }) {
     const hasCheckedRef = useRef(false)
 
     useEffect(() => {
-        if (loading || user) {
-            hasCheckedRef.current = false
+        if (!enabled || loading || user) {
             return
         }
         if (hasCheckedRef.current) return
@@ -49,5 +49,5 @@ export default function useStaleSessionGuard({
         return () => {
             cancelled = true
         }
-    }, [loading, user, logout, loadCurrentUser])
+    }, [enabled, loading, user, logout, loadCurrentUser])
 }
