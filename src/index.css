@@ -1202,6 +1202,21 @@ button {
     }
 }
 
+@keyframes am-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    display: inline-block;
+    animation: am-spin 0.9s linear infinite;
+    transform-origin: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 1ms !important;
