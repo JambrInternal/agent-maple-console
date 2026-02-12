@@ -25,17 +25,38 @@ npm run dev
 
 ### Environment
 
-Set the API base URL at build time:
+Local development can still use Vite `VITE_*` variables:
 
 ```bash
 VITE_API_URL=https://api.stage.certly.jambr.ca
 ```
 
+For Railway/runtime deployments, app config is read from `/env.js` (served by `server.js`) so the same image can be promoted across environments.
+
+Runtime keys supported:
+- `API_URL`
+- `AWS_REGION`
+- `COGNITO_USER_POOL_ID`
+- `COGNITO_APP_CLIENT_ID`
+- `SENTRY_DSN`
 
 ### Build
 
 ```bash
 npm run build
+```
+
+### Production Runtime (Local)
+
+```bash
+npm run build
+npm run start
+```
+
+Health endpoint:
+
+```bash
+curl http://localhost:3000/healthz
 ```
 
 #### Build Commit Hash
@@ -59,6 +80,19 @@ npm run test:ci
 ```bash
 npm run test:api
 ```
+
+## Railway Deployment Setup
+
+The repo is configured for Railway Docker deployments:
+
+- `Dockerfile`: builds Vite assets and runs the Node runtime server.
+- `server.js`: serves `dist/`, dynamic `/env.js`, and `/healthz`.
+- `.dockerignore`: trims deployment context for faster builds.
+
+Railway service expectations:
+- Internal app port: `3000` (Railway injects `PORT` at runtime).
+- Start command comes from Docker `CMD` (`node server.js`).
+- Configure environment variables per Railway environment (`beta`, `prod`) using the runtime keys above.
 
 ## Features
 - **Dashboard**: Overview of agent activity.
