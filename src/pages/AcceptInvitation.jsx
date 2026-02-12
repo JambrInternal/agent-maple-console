@@ -191,7 +191,6 @@ const AcceptInvitation = () => {
         try {
             await login(normalizedEmail, password)
             await acceptWithCurrentSession({ allowMismatchLogout: false })
-            return
         } catch (signInError) {
             const signInReason = getSignInErrorReason(signInError)
 

@@ -1,6 +1,7 @@
 // Amplify Auth event listener for token hydration/clearing
 import { Hub } from 'aws-amplify/utils';
 import { getFreshToken, clearToken } from './token';
+import logger from '../utils/verboseLogger';
 
 // Listen for Amplify auth events
 Hub.listen('auth', async ({ payload }) => {
@@ -9,14 +10,14 @@ Hub.listen('auth', async ({ payload }) => {
     // Hydrate token on signIn or tokenRefresh
     await getFreshToken();
     // Log event
-    console.info('[AuthEvents] Token hydrated after', event);
+    logger.info('[AuthEvents] Token hydrated after', event);
   } else if (event === 'signedOut') {
     // Clear token and user on signOut
     clearToken();
     localStorage.removeItem('am_user');
     localStorage.removeItem('am_tenant_id');
     // Log event
-    console.info('[AuthEvents] Token cleared after signOut');
+    logger.info('[AuthEvents] Token cleared after signOut');
   }
 });
 

@@ -5,6 +5,13 @@ export type ProjectFacadeScope = {
     projectId?: string | null
 }
 
+export type ProjectScopedInput = string | ProjectFacadeScope
+
+export type ProjectTenantMappingEntry = {
+    projectId: string | null | undefined
+    tenantId: string | null | undefined
+}
+
 export const PROJECT_TENANT_MAP_STORAGE_KEY = 'am_project_tenant_map'
 export const PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY = 'am_project_personality_template_map'
 
@@ -83,15 +90,78 @@ export const rememberProjectTenantMapping = (
     tenantId: string | null | undefined,
     storage?: StorageLike
 ): void => {
-    const normalizedProjectId = normalizeId(projectId)
-    const normalizedTenantId = normalizeId(tenantId)
-    if (!normalizedProjectId || !normalizedTenantId) return
+    rememberProjectTenantMappings([{ projectId, tenantId }], storage)
+}
+
+export const rememberProjectTenantMappings = (
+    entries: ProjectTenantMappingEntry[],
+    storage?: StorageLike
+): void => {
+    if (entries.length === 0) return
 
     const mapping = readProjectTenantMap(storage)
-    if (mapping[normalizedProjectId] === normalizedTenantId) return
+    let hasChanges = false
 
-    mapping[normalizedProjectId] = normalizedTenantId
+    for (const entry of entries) {
+        const normalizedProjectId = normalizeId(entry.projectId)
+        const normalizedTenantId = normalizeId(entry.tenantId)
+        if (!normalizedProjectId || !normalizedTenantId) continue
+        if (mapping[normalizedProjectId] === normalizedTenantId) continue
+
+        mapping[normalizedProjectId] = normalizedTenantId
+        hasChanges = true
+    }
+
+    if (!hasChanges) return
     writeProjectTenantMap(mapping, storage)
+}
+
+export const resolveTenantIdFromScopedInput = (
+    input: ProjectScopedInput,
+    context: string,
+    storage?: StorageLike
+): string => {
+    if (typeof input === 'string') {
+        const tenantId = input.trim()
+        if (!tenantId) {
+            throw new Error(`Organization ID is required for ${context}.`)
+        }
+        return tenantId
+    }
+
+    return resolveTenantIdOrThrow(input, context, storage)
+}
+
+export const resolveTenantIdFromScopedInputOptional = (
+    input: ProjectScopedInput | undefined,
+    context: string,
+    storage?: StorageLike
+): string | undefined => {
+    if (input === undefined) return undefined
+    return resolveTenantIdFromScopedInput(input, context, storage)
+}
+
+export const resolveTenantIdForProjectScope = (
+    scope: ProjectFacadeScope,
+    storage?: StorageLike
+): string | null => {
+    const organizationId = normalizeId(scope.organizationId)
+    const projectId = normalizeId(scope.projectId)
+
+    // In project facade mode, organization/tenant is the source of truth.
+    if (organizationId) {
+        if (projectId) {
+            rememberProjectTenantMapping(projectId, organizationId, storage)
+        }
+        return organizationId
+    }
+
+    if (!projectId) {
+        return null
+    }
+
+    const mapping = readProjectTenantMap(storage)
+    return mapping[projectId] || null
 }
 
 export const rememberProjectPersonalityTemplateMapping = (
@@ -121,29 +191,6 @@ export const resolvePersonalityTemplateIdForProject = (
 
     const mapping = readProjectPersonalityTemplateMap(storage)
     return mapping[normalizedProjectId] || null
-}
-
-export const resolveTenantIdForProjectScope = (
-    scope: ProjectFacadeScope,
-    storage?: StorageLike
-): string | null => {
-    const organizationId = normalizeId(scope.organizationId)
-    const projectId = normalizeId(scope.projectId)
-
-    // In project facade mode, organization/tenant is the source of truth.
-    if (organizationId) {
-        if (projectId) {
-            rememberProjectTenantMapping(projectId, organizationId, storage)
-        }
-        return organizationId
-    }
-
-    if (!projectId) {
-        return null
-    }
-
-    const mapping = readProjectTenantMap(storage)
-    return mapping[projectId] || null
 }
 
 export const resolveTenantIdOrThrow = (

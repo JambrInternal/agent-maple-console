@@ -2,7 +2,7 @@
 import { apiFetch, getErrorStatus } from '../api/client';
 import logger from '../utils/verboseLogger';
 import { getAdminMode, setAdminMode } from '../utils/admin';
-import { rememberProjectTenantMapping } from './projectFacade';
+import { rememberProjectTenantMapping, rememberProjectTenantMappings } from './projectFacade';
 import type { Project, AgentStatus } from '../api/types';
 import {
     mapProjectResponse,
@@ -26,6 +26,15 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
     }
     logger.info('Fetching projects for organization', { organizationId });
 
+    const rememberTenantMappingsForProjects = (projects: Project[]): void => {
+        rememberProjectTenantMappings(
+            projects.map((project) => ({
+                projectId: project.id,
+                tenantId: project.organizationId,
+            }))
+        );
+    };
+
     const fetchCurrentTenantProjects = async (): Promise<Project[]> => {
         const response = await apiFetch<ApiResponse<ApiProject[]>>('/projects/', {
             headers: {
@@ -36,9 +45,7 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
         const projects = data.map(mapProjectResponse);
-        projects.forEach((project) => {
-            rememberProjectTenantMapping(project.id, project.organizationId);
-        });
+        rememberTenantMappingsForProjects(projects);
         return projects;
     };
 
@@ -54,9 +61,7 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
         const projects = data.map(mapProjectResponse);
-        projects.forEach((project) => {
-            rememberProjectTenantMapping(project.id, project.organizationId);
-        });
+        rememberTenantMappingsForProjects(projects);
         return projects;
     } catch (error) {
         const status = getErrorStatus(error);

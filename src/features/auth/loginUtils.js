@@ -35,7 +35,7 @@ export const formatDebugError = (err) => {
     }
     try {
         return JSON.stringify(err)
-    } catch (jsonError) {
+    } catch (_jsonError) {
         return String(err)
     }
 }

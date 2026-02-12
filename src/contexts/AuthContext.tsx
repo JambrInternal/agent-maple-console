@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as authService from '../services/auth';
 import type { User } from '../api/types';
+import logger from '../utils/verboseLogger';
 
 interface AuthContextType {
     user: User | null;
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const currentUser = await authService.getCurrentUser();
                 setUser(currentUser);
             } catch (error) {
-                console.error('Auth initialization failed:', error);
+                logger.error('Auth initialization failed:', error);
             } finally {
                 setLoading(false);
             }

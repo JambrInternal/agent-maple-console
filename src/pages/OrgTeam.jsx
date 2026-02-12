@@ -18,6 +18,7 @@ import { getUsers, inviteUser } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { withStatus } from '../utils/errors'
 import QueryError from '../components/QueryError'
+import logger from '../utils/verboseLogger'
 
 const OrgTeam = () => {
     const { orgId } = useParams()
@@ -117,7 +118,7 @@ const OrgTeam = () => {
             setIsInviteOpen(false)
             refetch()
         } catch (err) {
-            console.error('Failed to invite user:', err)
+            logger.error('Failed to invite user:', err)
             setInviteError(withStatus('Failed to send invitation.', err))
         } finally {
             setIsInviting(false)
@@ -151,7 +152,7 @@ const OrgTeam = () => {
             pendingInvitesOrgIdRef.current = orgId
             refetch()
         } catch (err) {
-            console.error('Failed to resend invite:', err)
+            logger.error('Failed to resend invite:', err)
             setInviteActionError(withStatus('Failed to resend invitation.', err))
         } finally {
             setInviteActionEmail('')

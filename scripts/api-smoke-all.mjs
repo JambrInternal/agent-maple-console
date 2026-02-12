@@ -104,7 +104,6 @@ async function run() {
 
         const startTime = Date.now();
         let status;
-        let error;
         let responseText;
 
         try {
@@ -153,7 +152,7 @@ async function run() {
                 console.error(`❌ ${method.toUpperCase()} ${path} -> ${status} (${duration}ms) - ${reason}`);
             }
 
-        } catch (e) {
+        } catch (error) {
             results.push({
                 operationId,
                 method,
@@ -161,9 +160,9 @@ async function run() {
                 url,
                 status: 'ERROR',
                 passed: false,
-                reason: e.message
+                reason: error.message
             });
-            console.error(`❌ ${method.toUpperCase()} ${path} -> ERROR: ${e.message}`);
+            console.error(`❌ ${method.toUpperCase()} ${path} -> ERROR: ${error.message}`);
         }
     }
 

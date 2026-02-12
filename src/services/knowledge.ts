@@ -2,28 +2,19 @@
 import { apiFetch } from '../api/client';
 import type { KnowledgeSource } from '../api/types';
 import { mapDatasourceResponse, unwrapData, type ApiDatasource, type ApiResponse } from '../api/mappers';
-import { resolveTenantIdOrThrow, type ProjectFacadeScope } from './projectFacade';
-
-type ProjectScopedInput = string | ProjectFacadeScope
-
-const resolveTenantId = (input: ProjectScopedInput, context: string): string => {
-    if (typeof input === 'string') {
-        const tenantId = input.trim()
-        if (!tenantId) {
-            throw new Error(`Organization ID is required for ${context}.`)
-        }
-        return tenantId
-    }
-
-    return resolveTenantIdOrThrow(input, context)
-}
+import { resolveTenantIdFromScopedInput, type ProjectScopedInput } from './projectFacade';
 
 /**
- * Get all knowledge sources for a project facade scope.
+ * Get all knowledge sources for a given project context.
+ *
+ * Accepts either:
+ * - a project facade scope object (`{ organizationId, projectId }`), or
+ * - a tenant/organization ID string.
+ *
  * Tenant-scoped backend resources are resolved via project facade mapping.
  */
 export async function getKnowledgeSources(scope: ProjectScopedInput): Promise<KnowledgeSource[]> {
-    const tenantId = resolveTenantId(scope, 'knowledge source list')
+    const tenantId = resolveTenantIdFromScopedInput(scope, 'knowledge source list')
     const response = await apiFetch<ApiResponse<ApiDatasource[]>>('/datasources', {
         headers: {
             'x-tenant-id': tenantId,
@@ -50,7 +41,7 @@ export async function uploadKnowledgeSource(
     file: File,
     metadata?: Record<string, unknown>
 ): Promise<KnowledgeSource> {
-    const tenantId = resolveTenantId(scope, 'knowledge source upload')
+    const tenantId = resolveTenantIdFromScopedInput(scope, 'knowledge source upload')
     const formData = new FormData();
     formData.append('file', file);
     if (metadata) {
