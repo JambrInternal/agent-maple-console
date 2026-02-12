@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useApiQuery } from '../hooks/useApiQuery'
 import QueryError from '../components/QueryError'
@@ -45,16 +45,6 @@ const Personality = () => {
         setFormState(nextFormState)
     }, [isSuperAdmin, personalityTemplate])
 
-    const templateMeta = useMemo(() => {
-        if (!personalityTemplate) {
-            return 'No template loaded yet.'
-        }
-        if (!personalityTemplate.id) {
-            return 'Template will be created on first save.'
-        }
-        return `Template ID ${personalityTemplate.id} (singleton mode)`
-    }, [personalityTemplate])
-
     const handleSubmit = async (event) => {
         event.preventDefault()
         if (!orgId || !projId) return
@@ -88,16 +78,12 @@ const Personality = () => {
                     <div>
                         <h1 className="am-page-title">Personality</h1>
                         <p className="am-page-subtitle">
-                            Configure the Project&apos;s single conversation template for the agent.
+                            Configure the Project&apos;s conversation template for the agent.
                         </p>
                     </div>
                 </div>
 
                 <section className="am-card">
-                    <p className="am-text-2" style={{ marginBottom: '1rem' }}>
-                        {templateMeta}
-                    </p>
-
                     {isLoading && (
                         <div className="am-text-2" style={{ padding: '1rem 0' }}>
                             Loading personality template...

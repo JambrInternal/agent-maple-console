@@ -67,5 +67,5 @@ export const personalityFormStateToDraft = (formState) => ({
     contextContent: (formState.contextContent || '').trim(),
     goals: splitListField(formState.goals),
     evaluationCriteria: splitListField(formState.evaluationCriteria),
-    isDefault: formState.isDefault !== false,
+    isDefault: true,
 })
