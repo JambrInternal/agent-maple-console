@@ -87,6 +87,7 @@ describe('api auth', () => {
 
         const result = await login('admin@example.com', 'Password123!')
 
+        expect(mockApiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' })
         expect(mockApiFetch).toHaveBeenCalledWith('/admin/tenants')
         expect(mockSetAdminMode).toHaveBeenCalledWith(true)
         expect(result.token).toBe('id-token-admin')
@@ -99,9 +100,11 @@ describe('api auth', () => {
         mockGetCurrentUser.mockResolvedValue({ userId: 'u_member', username: 'member@example.com' })
         mockFetchUserAttributes.mockResolvedValue({ 'custom:role': 'LEARNER' })
 
+        mockApiFetch.mockResolvedValue({ data: {} })
         const result = await login('member@example.com', 'Password123!')
 
-        expect(mockApiFetch).not.toHaveBeenCalled()
+        expect(mockApiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' })
+        expect(mockApiFetch).not.toHaveBeenCalledWith('/admin/tenants')
         expect(mockSetAdminMode).toHaveBeenCalledWith(false)
         expect(result.token).toBe('id-token-member')
         expect(result.user?.role).toBe('member')
@@ -112,10 +115,13 @@ describe('api auth', () => {
         mockFetchAuthSession.mockResolvedValue(buildSession('id-token-fallback'))
         mockGetCurrentUser.mockResolvedValue({ userId: 'u_admin_2', username: 'admin2@example.com' })
         mockFetchUserAttributes.mockResolvedValue({ 'custom:role': 'ADMIN' })
-        mockApiFetch.mockRejectedValue(new Error('forbidden'))
+        mockApiFetch
+            .mockResolvedValueOnce({ data: {} })
+            .mockRejectedValueOnce(new Error('forbidden'))
 
         const result = await login('admin2@example.com', 'Password123!')
 
+        expect(mockApiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' })
         expect(mockApiFetch).toHaveBeenCalledWith('/admin/tenants')
         expect(mockSetAdminMode).toHaveBeenCalledWith(false)
         expect(result.user?.role).toBe('member')
@@ -135,6 +141,7 @@ describe('api auth', () => {
         expect(user?.role).toBe('admin')
         expect(user?.email).toBe('session-admin@example.com')
         expect(localStorage.getItem('am_auth_token')).toBe('session-id-token')
+        expect(mockApiFetch).toHaveBeenCalledWith('/user/sync', { method: 'POST' })
         expect(mockSetAdminMode).toHaveBeenCalledWith(true)
     })
 

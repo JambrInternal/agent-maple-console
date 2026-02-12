@@ -33,6 +33,10 @@ export interface ResetPasswordStartResult {
 
 const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
 
+const syncUser = async (): Promise<void> => {
+    await apiFetch('/user/sync', { method: 'POST' });
+};
+
 async function determineRoleAndSetAdminMode(): Promise<UserRole> {
     try {
         const attributes = await fetchUserAttributes();
@@ -81,6 +85,7 @@ export async function login(email: string, password: string): Promise<AuthSessio
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
         const token = session.tokens?.idToken?.toString() || null;
+        await syncUser();
         const role = await determineRoleAndSetAdminMode();
 
         return {
@@ -184,6 +189,7 @@ export async function getSessionUser(): Promise<User | null> {
             localStorage.setItem('am_auth_token', token);
         }
 
+        await syncUser();
         const role = await determineRoleAndSetAdminMode();
         const attributes = await fetchUserAttributes();
         const email = attributes.email || cognitoUser.username;

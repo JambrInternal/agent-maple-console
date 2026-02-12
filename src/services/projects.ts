@@ -1,6 +1,7 @@
 // Projects Service
 import { apiFetch, getErrorStatus } from '../api/client';
 import logger from '../utils/verboseLogger';
+import { getAdminMode, setAdminMode } from '../utils/admin';
 import type { Project, AgentStatus } from '../api/types';
 import {
     mapProjectResponse,
@@ -15,7 +16,7 @@ import {
 
 /**
  * Get all projects for an organization.
- * Note: Uses the tenant-scoped projects list endpoint.
+ * Admins use the tenant-scoped endpoint; non-admin users use current-tenant endpoint.
  */
 export async function getProjects(organizationId: string): Promise<Project[]> {
     if (!organizationId) {
@@ -23,25 +24,43 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         return [];
     }
     logger.info('Fetching projects for organization', { organizationId });
-    // Endpoint capability detection: probe
-        try {
-            // Preferred: tenant-scoped list
-            const response = await apiFetch<ApiResponse<ApiProject[]>>(
-                `/projects/tenant/${organizationId}`
-            );
-            logger.debug('Raw projects response', response);
-            const data = unwrapData(response, []);
-            logger.info('Projects fetched', { count: data.length });
-            return data.map(mapProjectResponse);
-        } catch (error) {
-            const status = getErrorStatus(error);
-            // Optional fallback: if tenant-scoped list isn't supported, try the generic list
-            if (status === 404) {
-                const response = await apiFetch<ApiResponse<ApiProject[]>>(`/projects/`);
-                const data = unwrapData(response, []);
-                return data.map(mapProjectResponse);
-            }
-            throw error;
+
+    const fetchCurrentTenantProjects = async (): Promise<Project[]> => {
+        const response = await apiFetch<ApiResponse<ApiProject[]>>('/projects/', {
+            headers: {
+                'x-tenant-id': organizationId,
+            },
+        });
+        logger.debug('Raw projects response', response);
+        const data = unwrapData(response, []);
+        logger.info('Projects fetched', { count: data.length });
+        return data.map(mapProjectResponse);
+    };
+
+    if (!getAdminMode()) {
+        return fetchCurrentTenantProjects();
+    }
+
+    try {
+        const response = await apiFetch<ApiResponse<ApiProject[]>>(
+            `/projects/tenant/${organizationId}`
+        );
+        logger.debug('Raw projects response', response);
+        const data = unwrapData(response, []);
+        logger.info('Projects fetched', { count: data.length });
+        return data.map(mapProjectResponse);
+    } catch (error) {
+        const status = getErrorStatus(error);
+        // Admin mode can be stale between sessions.
+        if (status === 401 || status === 403) {
+            setAdminMode(false);
+            return fetchCurrentTenantProjects();
+        }
+        // Optional fallback: if tenant-scoped list isn't supported, try the generic list
+        if (status === 404) {
+            return fetchCurrentTenantProjects();
+        }
+        throw error;
     }
 }
 

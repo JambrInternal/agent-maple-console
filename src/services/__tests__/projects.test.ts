@@ -10,10 +10,11 @@ vi.mock('../../api/client', () => ({
 
 describe('projects service', () => {
     beforeEach(() => {
+        localStorage.clear();
         vi.resetAllMocks();
     });
 
-    it('lists projects for an organization', async () => {
+    it('lists projects for current tenant for non-admin users', async () => {
         vi.mocked(apiFetch).mockResolvedValue({
             data: [
                 {
@@ -30,9 +31,65 @@ describe('projects service', () => {
 
         const result = await getProjects('tenant_1');
 
-        expect(apiFetch).toHaveBeenCalledWith('/projects/tenant/tenant_1');
+        expect(apiFetch).toHaveBeenCalledWith('/projects/', {
+            headers: {
+                'x-tenant-id': 'tenant_1',
+            },
+        });
         expect(result[0].agentStatus).toBe('online');
         expect(result[0].organizationId).toBe('1');
+    });
+
+    it('uses tenant-scoped endpoint for admin users', async () => {
+        localStorage.setItem('am_admin_mode', 'true');
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    id: 'proj_admin_1',
+                    tenant_id: 77,
+                    name: 'Admin Site',
+                    created_at: '2026-02-01T00:00:00Z',
+                    agent: { status: 'online' },
+                    thread_count: 0,
+                    issue_count: 0,
+                },
+            ],
+        });
+
+        const result = await getProjects('77');
+
+        expect(apiFetch).toHaveBeenCalledWith('/projects/tenant/77');
+        expect(result[0].id).toBe('proj_admin_1');
+    });
+
+    it('falls back to current-tenant endpoint when admin endpoint returns forbidden', async () => {
+        localStorage.setItem('am_admin_mode', 'true');
+        vi.mocked(apiFetch)
+            .mockRejectedValueOnce({ status: 403, message: 'Not admin' })
+            .mockResolvedValueOnce({
+                data: [
+                    {
+                        id: 'proj_fallback_1',
+                        tenant_id: 88,
+                        name: 'Fallback Site',
+                        created_at: '2026-02-01T00:00:00Z',
+                        agent: { status: 'online' },
+                        thread_count: 0,
+                        issue_count: 0,
+                    },
+                ],
+            });
+
+        const result = await getProjects('88');
+
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/projects/tenant/88');
+        expect(apiFetch).toHaveBeenNthCalledWith(2, '/projects/', {
+            headers: {
+                'x-tenant-id': '88',
+            },
+        });
+        expect(localStorage.getItem('am_admin_mode')).toBe('false');
+        expect(result[0].id).toBe('proj_fallback_1');
     });
 
     it('gets a single project', async () => {
