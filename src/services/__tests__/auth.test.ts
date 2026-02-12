@@ -129,6 +129,7 @@ describe('auth service', () => {
         const result = await authService.getCurrentUser();
         expect(result).toBeNull();
         expect(apiFetch).not.toHaveBeenCalled();
+        expect(authApi.logout).not.toHaveBeenCalled();
     });
 
     it('clears auth, admin mode, and theme on logout', async () => {

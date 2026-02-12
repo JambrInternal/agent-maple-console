@@ -79,23 +79,15 @@ export async function logout(): Promise<void> {
 export async function getCurrentUser(): Promise<User | null> {
     logger.info('Fetching current user from session');
     // Hydrate token from Amplify session if missing/expired
-    const { getFreshToken, clearToken } = await import('./token');
+    const { getFreshToken } = await import('./token');
     const user = await authApi.getSessionUser();
     if (!user) {
-        logger.warn('No session user, treating as logged out');
-        clearToken();
-        try {
-            await authApi.logout(); // sign out of Cognito
-        } catch {}
+        logger.warn('No session user during bootstrap; leaving Cognito session untouched');
         return null;
     }
     const token = await getFreshToken();
     if (!token) {
-        logger.warn('Token hydration failed, treating as logged out');
-        clearToken();
-        try {
-            await authApi.logout(); // sign out of Cognito
-        } catch {}
+        logger.warn('Token hydration failed during bootstrap; leaving Cognito session untouched');
         return null;
     }
     const baseUser = ensureUserIds(user);
