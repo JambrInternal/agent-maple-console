@@ -33,6 +33,24 @@ export interface ResetPasswordStartResult {
 
 const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
 
+const syncUser = async (): Promise<void> => {
+    await apiFetch('/user/sync', { method: 'POST' });
+};
+
+type CodeDeliveryDetails = {
+    destination?: string | null;
+    deliveryMedium?: string | null;
+};
+
+const getCodeDeliveryDetails = (nextStep: unknown): CodeDeliveryDetails | null => {
+    if (!nextStep || typeof nextStep !== 'object' || !('codeDeliveryDetails' in nextStep)) {
+        return null;
+    }
+
+    const details = (nextStep as { codeDeliveryDetails?: CodeDeliveryDetails }).codeDeliveryDetails;
+    return details ?? null;
+};
+
 async function determineRoleAndSetAdminMode(): Promise<UserRole> {
     try {
         const attributes = await fetchUserAttributes();
@@ -81,6 +99,7 @@ export async function login(email: string, password: string): Promise<AuthSessio
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
         const token = session.tokens?.idToken?.toString() || null;
+        await syncUser();
         const role = await determineRoleAndSetAdminMode();
 
         return {
@@ -115,7 +134,7 @@ export async function register(email: string, password: string): Promise<Registe
     });
 
     const nextStep = result.nextStep?.signUpStep || 'DONE';
-    const details = result.nextStep?.codeDeliveryDetails;
+    const details = getCodeDeliveryDetails(result.nextStep);
 
     return {
         isComplete: result.isSignUpComplete === true || nextStep === 'DONE',
@@ -146,7 +165,7 @@ export async function forgotPassword(email: string): Promise<ResetPasswordStartR
     const normalizedEmail = email.trim();
     const result = await resetPassword({ username: normalizedEmail });
     const nextStep = result.nextStep?.resetPasswordStep || 'DONE';
-    const details = result.nextStep?.codeDeliveryDetails;
+    const details = getCodeDeliveryDetails(result.nextStep);
 
     return {
         nextStep,
@@ -184,6 +203,7 @@ export async function getSessionUser(): Promise<User | null> {
             localStorage.setItem('am_auth_token', token);
         }
 
+        await syncUser();
         const role = await determineRoleAndSetAdminMode();
         const attributes = await fetchUserAttributes();
         const email = attributes.email || cognitoUser.username;
