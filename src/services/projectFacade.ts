@@ -6,6 +6,7 @@ export type ProjectFacadeScope = {
 }
 
 export const PROJECT_TENANT_MAP_STORAGE_KEY = 'am_project_tenant_map'
+export const PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY = 'am_project_personality_template_map'
 
 const normalizeId = (value: string | null | undefined): string => (value || '').trim()
 
@@ -46,6 +47,37 @@ const writeProjectTenantMap = (mapping: Record<string, string>, storage?: Storag
     target.setItem(PROJECT_TENANT_MAP_STORAGE_KEY, JSON.stringify(mapping))
 }
 
+const readProjectPersonalityTemplateMap = (storage?: StorageLike): Record<string, string> => {
+    const target = getStorage(storage)
+    if (!target) return {}
+
+    try {
+        const raw = target.getItem(PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY)
+        if (!raw) return {}
+        const parsed = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+        return Object.entries(parsed as Record<string, unknown>).reduce<Record<string, string>>(
+            (acc, [projectId, templateId]) => {
+                const normalizedProjectId = normalizeId(projectId)
+                const normalizedTemplateId = typeof templateId === 'string' ? normalizeId(templateId) : ''
+                if (normalizedProjectId && normalizedTemplateId) {
+                    acc[normalizedProjectId] = normalizedTemplateId
+                }
+                return acc
+            },
+            {}
+        )
+    } catch {
+        return {}
+    }
+}
+
+const writeProjectPersonalityTemplateMap = (mapping: Record<string, string>, storage?: StorageLike): void => {
+    const target = getStorage(storage)
+    if (!target) return
+    target.setItem(PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY, JSON.stringify(mapping))
+}
+
 export const rememberProjectTenantMapping = (
     projectId: string | null | undefined,
     tenantId: string | null | undefined,
@@ -60,6 +92,35 @@ export const rememberProjectTenantMapping = (
 
     mapping[normalizedProjectId] = normalizedTenantId
     writeProjectTenantMap(mapping, storage)
+}
+
+export const rememberProjectPersonalityTemplateMapping = (
+    projectId: string | null | undefined,
+    templateId: string | number | null | undefined,
+    storage?: StorageLike
+): void => {
+    const normalizedProjectId = normalizeId(projectId)
+    const normalizedTemplateId = normalizeId(
+        templateId === null || templateId === undefined ? '' : String(templateId)
+    )
+    if (!normalizedProjectId || !normalizedTemplateId) return
+
+    const mapping = readProjectPersonalityTemplateMap(storage)
+    if (mapping[normalizedProjectId] === normalizedTemplateId) return
+
+    mapping[normalizedProjectId] = normalizedTemplateId
+    writeProjectPersonalityTemplateMap(mapping, storage)
+}
+
+export const resolvePersonalityTemplateIdForProject = (
+    projectId: string | null | undefined,
+    storage?: StorageLike
+): string | null => {
+    const normalizedProjectId = normalizeId(projectId)
+    if (!normalizedProjectId) return null
+
+    const mapping = readProjectPersonalityTemplateMap(storage)
+    return mapping[normalizedProjectId] || null
 }
 
 export const resolveTenantIdForProjectScope = (

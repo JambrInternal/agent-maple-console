@@ -1,10 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getProjectAgentContact } from '../agentFacade'
+import {
+    getProjectAgentContact,
+    getProjectPersonalityTemplate,
+    saveProjectPersonalityTemplate,
+} from '../agentFacade'
 
 const mockGetOrganization = vi.fn()
+const mockApiFetch = vi.fn()
 
 vi.mock('../organizations', () => ({
     getOrganization: (...args: unknown[]) => mockGetOrganization(...args),
+}))
+
+vi.mock('../../api/client', () => ({
+    apiFetch: (...args: unknown[]) => mockApiFetch(...args),
 }))
 
 describe('agentFacade service', () => {
@@ -49,5 +58,114 @@ describe('agentFacade service', () => {
             phoneNumber: null,
             source: 'unconfigured',
         })
+    })
+
+    it('returns bootstrap default personality when no templates exist', async () => {
+        mockApiFetch.mockResolvedValue({
+            data: [],
+        })
+
+        const result = await getProjectPersonalityTemplate({
+            organizationId: 'tenant_10',
+            projectId: 'proj_10',
+        })
+
+        expect(mockApiFetch).toHaveBeenCalledWith('/chat/conversation_parameter_templates', {
+            headers: {
+                'x-tenant-id': 'tenant_10',
+            },
+        })
+        expect(result.id).toBeNull()
+        expect(result.source).toBe('bootstrap_default')
+    })
+
+    it('selects and updates the canonical personality template, deleting duplicates', async () => {
+        mockApiFetch
+            .mockResolvedValueOnce({
+                data: [
+                    {
+                        id: 100,
+                        template_type: 'FULL_CONTROLLED',
+                        user_role: 'resident',
+                        conversation_type: 'construction_updates',
+                        ai_role: 'site_assistant',
+                        ai_role_characteristics: [],
+                        ai_role_emotional_tone: [],
+                        ai_role_dialogue_strategy: [],
+                        ai_role_constraints: [],
+                        goals: [],
+                        evaluation_criteria: [],
+                        is_default: true,
+                    },
+                    {
+                        id: 101,
+                        template_type: 'FULL_CONTROLLED',
+                        user_role: 'resident',
+                        conversation_type: 'construction_updates',
+                        ai_role: 'site_assistant',
+                        ai_role_characteristics: [],
+                        ai_role_emotional_tone: [],
+                        ai_role_dialogue_strategy: [],
+                        ai_role_constraints: [],
+                        goals: [],
+                        evaluation_criteria: [],
+                        is_default: false,
+                    },
+                ],
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    id: 100,
+                    template_type: 'FULL_CONTROLLED',
+                    user_role: 'resident',
+                    conversation_type: 'construction_updates',
+                    ai_role: 'site_assistant',
+                    ai_role_characteristics: ['clear'],
+                    ai_role_emotional_tone: [],
+                    ai_role_dialogue_strategy: [],
+                    ai_role_constraints: [],
+                    goals: [],
+                    evaluation_criteria: [],
+                    is_default: true,
+                },
+            })
+            .mockResolvedValueOnce({ data: {} })
+
+        const result = await saveProjectPersonalityTemplate(
+            {
+                organizationId: 'tenant_11',
+                projectId: 'proj_11',
+            },
+            {
+                userRole: 'resident',
+                conversationType: 'construction_updates',
+                aiRole: 'site_assistant',
+                aiRoleCharacteristics: ['clear'],
+            }
+        )
+
+        expect(mockApiFetch).toHaveBeenNthCalledWith(1, '/chat/conversation_parameter_templates', {
+            headers: {
+                'x-tenant-id': 'tenant_11',
+            },
+        })
+        expect(mockApiFetch).toHaveBeenNthCalledWith(
+            2,
+            '/chat/conversation_parameter_templates/100',
+            expect.objectContaining({
+                method: 'PUT',
+                headers: {
+                    'x-tenant-id': 'tenant_11',
+                },
+            })
+        )
+        expect(mockApiFetch).toHaveBeenNthCalledWith(3, '/chat/conversation_parameter_templates/101', {
+            method: 'DELETE',
+            headers: {
+                'x-tenant-id': 'tenant_11',
+            },
+        })
+        expect(result.id).toBe('100')
+        expect(result.aiRoleCharacteristics).toEqual(['clear'])
     })
 })

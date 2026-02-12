@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+    PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY,
     PROJECT_TENANT_MAP_STORAGE_KEY,
+    rememberProjectPersonalityTemplateMapping,
     rememberProjectTenantMapping,
+    resolvePersonalityTemplateIdForProject,
     resolveTenantIdForProjectScope,
 } from '../projectFacade'
 
@@ -37,5 +40,13 @@ describe('projectFacade mapping', () => {
         })
 
         expect(tenantId).toBeNull()
+    })
+
+    it('stores and resolves personality template mapping by project', () => {
+        rememberProjectPersonalityTemplateMapping('proj_3', 42)
+
+        const templateId = resolvePersonalityTemplateIdForProject('proj_3')
+        expect(templateId).toBe('42')
+        expect(localStorage.getItem(PROJECT_PERSONALITY_TEMPLATE_MAP_STORAGE_KEY)).toContain('"proj_3":"42"')
     })
 })
