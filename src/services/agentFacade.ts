@@ -1,6 +1,8 @@
 import { apiFetch } from '../api/client'
 import { unwrapData, type ApiResponse } from '../api/mappers'
 import { getOrganization } from './organizations'
+import { getProject } from './projects'
+import { getAdminMode } from '../utils/admin'
 import {
     rememberProjectPersonalityTemplateMapping,
     resolvePersonalityTemplateIdForProject,
@@ -9,6 +11,7 @@ import {
 } from './projectFacade'
 
 export type ProjectAgentContact = {
+    firstName: string | null
     phoneNumber: string | null
     source: 'tenant_twilio' | 'unconfigured'
 }
@@ -134,8 +137,14 @@ const normalizeDraft = (
     draft: Partial<ProjectPersonalityTemplateDraft> | undefined
 ): ProjectPersonalityTemplateDraft => {
     const fallback = DEFAULT_PROJECT_PERSONALITY_TEMPLATE
+    const canUseFullControlled = getAdminMode()
+    const requestedTemplateType = draft?.templateType === 'PARAMETERIZED'
+        ? 'PARAMETERIZED'
+        : 'FULL_CONTROLLED'
+    const templateType = canUseFullControlled ? requestedTemplateType : 'PARAMETERIZED'
+
     return {
-        templateType: draft?.templateType === 'PARAMETERIZED' ? 'PARAMETERIZED' : 'FULL_CONTROLLED',
+        templateType,
         runnerInstructions: normalizeString(draft?.runnerInstructions) || fallback.runnerInstructions,
         agentInstructions: normalizeString(draft?.agentInstructions) || fallback.agentInstructions,
         userRole: normalizeString(draft?.userRole) || fallback.userRole,
@@ -203,10 +212,20 @@ const selectCanonicalTemplate = (
 
 export async function getProjectAgentContact(scope: ProjectFacadeScope): Promise<ProjectAgentContact> {
     const tenantId = resolveTenantIdOrThrow(scope, 'project agent contact')
-    const organization = await getOrganization(tenantId)
+    const normalizedProjectId = typeof scope.projectId === 'string' ? scope.projectId.trim() : ''
+
+    const [organization, project] = await Promise.all([
+        getOrganization(tenantId),
+        normalizedProjectId
+            ? getProject(normalizedProjectId).catch(() => null)
+            : Promise.resolve(null),
+    ])
+
+    const firstName = project?.name?.trim() || null
     const phoneNumber = organization.twilioNumber?.trim() || null
 
     return {
+        firstName,
         phoneNumber,
         source: phoneNumber ? 'tenant_twilio' : 'unconfigured',
     }

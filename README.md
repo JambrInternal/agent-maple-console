@@ -65,3 +65,50 @@ npm run test:api
 - **Contacts**: Manage user contacts.
 - **Phone/SMS**: Interactive demos for phone and text agents.
 - **Data Sources**: Manage knowledge base files.
+
+## Backend Compatibility Layer (Current)
+
+The console currently runs in a compatibility mode to bridge project-scoped UX with partially tenant-scoped backend APIs.
+
+### Product and Scope Constraints
+- **One project per Organization (tenant) in UX**: The UI currently treats each Organization as having one active Project, while keeping multi-Project routing and service scaffolding intact.
+- **Organization = tenant mapping**: Organization screens are backed by tenant endpoints (`/user/tenants`, `/admin/tenants`).
+
+### Facades and Mappings
+- **Project facade (`src/services/projectFacade.ts`)**:
+  - Persists `projectId -> tenantId` in local storage.
+  - Resolves tenant context from `{ organizationId, projectId }` scope objects.
+  - Persists `projectId -> personalityTemplateId` for personality canonical selection.
+- **Agent facade (`src/services/agentFacade.ts`)**:
+  - Bridges project-scoped Personality UI to tenant-scoped chat template endpoints.
+  - Enforces single-template behavior in frontend (canonical template selection + duplicate cleanup).
+  - Resolves Agent Contact details from tenant/project data:
+    - `firstName` from Project name.
+    - phone number from Organization `twilioNumber`.
+
+### Contacts and Knowledge (Tenant-backed today)
+- **Contacts**:
+  - `getContacts/getContact` currently use tenant user endpoints (`/tenants/users`).
+  - Contacts are tenant-backed today, not truly project-scoped contact records yet.
+- **Knowledge/Data Sources**:
+  - Knowledge services accept either tenant ID or `{ organizationId, projectId }` scope.
+  - Requests resolve to tenant-scoped datasource APIs via `x-tenant-id`.
+
+### Auth, Invitation, and Admin Compatibility
+- **Invitation acceptance**:
+  - Single `/accept-invitation` auth flow (sign in/register/confirm) with inline errors.
+  - Accept-invitation retries token aliases only when backend validation explicitly requires alias fields.
+- **Cognito to backend sync**:
+  - Frontend calls `POST /user/sync` after sign-in/session restore to ensure backend user records exist before tenant-scoped reads.
+- **Admin fallback**:
+  - If admin project endpoint access fails (`401/403`), admin mode is disabled and project loading falls back to tenant-header endpoints.
+
+### Personality Access Rules
+- **Template mode gating**:
+  - `FULL_CONTROLLED` mode is super-admin only.
+  - Non-super-admin users can only save `PARAMETERIZED` mode (enforced in UI and service layer).
+
+### Migration Targets (When Backend Catches Up)
+- Move Contacts to true project-scoped contact resources.
+- Replace frontend singleton cleanup with backend-enforced singleton guarantees for personality templates.
+- Remove one-project UX constraint once multi-project behavior is fully supported in backend contracts.

@@ -22,6 +22,7 @@ const ListField = ({ id, label, value, onChange, disabled }) => (
 export default function PersonalityTemplateForm({
     value,
     disabled,
+    canUseFullControlled = false,
     onChange,
     onSubmit,
 }) {
@@ -30,6 +31,17 @@ export default function PersonalityTemplateForm({
             ...value,
             [field]: fieldValue,
         })
+    }
+
+    const templateTypeValue = canUseFullControlled
+        ? value.templateType
+        : 'PARAMETERIZED'
+
+    const handleTemplateTypeChange = (event) => {
+        const nextTemplateType = event.target.value === 'FULL_CONTROLLED' && !canUseFullControlled
+            ? 'PARAMETERIZED'
+            : event.target.value
+        setField('templateType', nextTemplateType)
     }
 
     return (
@@ -41,12 +53,14 @@ export default function PersonalityTemplateForm({
                         <select
                             id="personality-template-type"
                             className="am-input"
-                            value={value.templateType}
-                            onChange={(event) => setField('templateType', event.target.value)}
+                            value={templateTypeValue}
+                            onChange={handleTemplateTypeChange}
                             disabled={disabled}
                         >
-                            <option value="FULL_CONTROLLED">Full Controlled</option>
                             <option value="PARAMETERIZED">Parameterized</option>
+                            {canUseFullControlled && (
+                                <option value="FULL_CONTROLLED">Full Controlled</option>
+                            )}
                         </select>
                     </div>
 

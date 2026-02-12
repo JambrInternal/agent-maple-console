@@ -1,5 +1,5 @@
 import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -33,6 +33,11 @@ const renderPage = () => {
 }
 
 describe('Personality page', () => {
+    beforeEach(() => {
+        localStorage.clear()
+        vi.clearAllMocks()
+    })
+
     it('loads the singleton personality template for project scope', async () => {
         vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({
             id: '101',
@@ -61,6 +66,8 @@ describe('Personality page', () => {
         })
         expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
         expect(await screen.findByDisplayValue('Be concise and polite.')).toBeInTheDocument()
+        expect(screen.getByLabelText('Template Type')).toHaveValue('PARAMETERIZED')
+        expect(screen.queryByRole('option', { name: 'Full Controlled' })).not.toBeInTheDocument()
     })
 
     it('saves updates through the personality facade', async () => {
@@ -112,10 +119,39 @@ describe('Personality page', () => {
             expect(saveProjectPersonalityTemplate).toHaveBeenCalledWith(
                 { organizationId: 'org_1', projectId: 'proj_1' },
                 expect.objectContaining({
+                    templateType: 'PARAMETERIZED',
                     agentInstructions: 'Use practical language.',
                 })
             )
         })
         expect(await screen.findByText('Personality template saved.')).toBeInTheDocument()
+    })
+
+    it('shows Full Controlled option for super admins only', async () => {
+        localStorage.setItem('am_admin_mode', 'true')
+        vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({
+            id: '101',
+            source: 'tenant_template',
+            templateType: 'FULL_CONTROLLED',
+            runnerInstructions: '',
+            agentInstructions: '',
+            userRole: 'resident',
+            conversationType: 'project_updates',
+            aiRole: 'assistant',
+            aiRoleCharacteristics: [],
+            aiRoleEmotionalTone: [],
+            aiRoleDialogueStrategy: [],
+            aiRoleConstraints: [],
+            contextContent: '',
+            goals: [],
+            evaluationCriteria: [],
+            isDefault: true,
+        })
+
+        renderPage()
+
+        expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
+        expect(await screen.findByLabelText('Template Type')).toHaveValue('FULL_CONTROLLED')
+        expect(screen.getByRole('option', { name: 'Full Controlled' })).toBeInTheDocument()
     })
 })
