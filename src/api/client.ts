@@ -1,9 +1,11 @@
+import { getAppConfig } from '../config/runtimeConfig';
+
 export const navigation = {
     toLogin: () => window.location.assign('/login'),
 };
 let redirectingToLogin = false;
 export const API_CONFIG = {
-    baseUrl: import.meta.env.VITE_API_URL || 'https://api.dev.agentmaple.ca',
+    baseUrl: getAppConfig().API_URL,
 };
 
 export class ApiError extends Error {
