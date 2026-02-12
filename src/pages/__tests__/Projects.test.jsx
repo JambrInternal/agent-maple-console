@@ -36,8 +36,11 @@ const mockProjects = [
     },
 ]
 
-const renderWithRoute = async (initialEntry = '/org_1/projects') => {
-    vi.mocked(getProjects).mockResolvedValue(mockProjects)
+const renderWithRoute = async ({
+    initialEntry = '/org_1/projects',
+    projects = mockProjects,
+} = {}) => {
+    vi.mocked(getProjects).mockResolvedValue(projects)
     const queryClient = new QueryClient()
     render(
         <QueryClientProvider client={queryClient}>
@@ -68,6 +71,15 @@ describe('Projects page', () => {
         expect(screen.getByText('Site B')).toBeInTheDocument()
     })
 
+    it('disables launch project when organization already has a project', async () => {
+        await renderWithRoute()
+        await screen.findByText('Site A')
+
+        const launchButton = screen.getByRole('button', { name: 'Launch Project' })
+        expect(launchButton).toBeDisabled()
+        expect(launchButton).toHaveStyle({ opacity: '0.55' })
+    })
+
     it('creates a project from the modal', async () => {
         const user = userEvent.setup()
         vi.mocked(createProject).mockResolvedValue({
@@ -81,8 +93,8 @@ describe('Projects page', () => {
             createdAt: '2026-02-06T08:00:00Z',
         })
 
-        await renderWithRoute()
-        await screen.findByText('Site A')
+        await renderWithRoute({ projects: [] })
+        await screen.findByText('No projects match your filters.')
 
         await user.click(screen.getByRole('button', { name: 'Launch Project' }))
         await user.type(screen.getByLabelText('Project Name'), 'New Project')

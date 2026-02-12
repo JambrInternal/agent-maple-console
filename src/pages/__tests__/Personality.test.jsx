@@ -66,6 +66,8 @@ describe('Personality page', () => {
         })
         expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
         expect(await screen.findByDisplayValue('assistant')).toBeInTheDocument()
+        expect(screen.queryByText(/Template ID/i)).not.toBeInTheDocument()
+        expect(screen.queryByText('Mark as default template')).not.toBeInTheDocument()
         expect(screen.queryByLabelText('Template Type')).not.toBeInTheDocument()
         expect(screen.queryByRole('option', { name: 'Full Controlled' })).not.toBeInTheDocument()
         expect(screen.queryByLabelText('Agent Instructions')).not.toBeInTheDocument()

@@ -33,10 +33,15 @@ const Projects = () => {
     const [createName, setCreateName] = useState('')
     const [createError, setCreateError] = useState('')
     const [isCreating, setIsCreating] = useState(false)
+    const hasProjectLimitReached = projects.length >= 1
 
 
 
     const openCreateModal = () => {
+        if (hasProjectLimitReached) {
+            logger.info('Project create blocked: tenant already has a project', { orgId });
+            return;
+        }
         logger.info('Opening create project modal');
         setCreateName('')
         setCreateError('')
@@ -99,7 +104,15 @@ const Projects = () => {
                     <h1 className="am-page-title">Projects</h1>
                     <p className="am-page-subtitle">Monitor agent status and site activity</p>
                 </div>
-                <button className="am-btn-primary" type="button" onClick={openCreateModal}>
+                <button
+                    className="am-btn-primary"
+                    type="button"
+                    onClick={openCreateModal}
+                    disabled={hasProjectLimitReached}
+                    aria-disabled={hasProjectLimitReached}
+                    title={hasProjectLimitReached ? 'Only one project is allowed per organization right now.' : undefined}
+                    style={hasProjectLimitReached ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+                >
                     <Plus size={16} />
                     <span>Launch Project</span>
                 </button>

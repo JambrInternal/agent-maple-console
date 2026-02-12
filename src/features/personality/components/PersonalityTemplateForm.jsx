@@ -199,26 +199,6 @@ export default function PersonalityTemplateForm({
                     </>
                 )}
 
-                <div
-                    className="am-form-field"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                    }}
-                >
-                    <input
-                        id="personality-default"
-                        type="checkbox"
-                        checked={value.isDefault}
-                        onChange={(event) => setField('isDefault', event.target.checked)}
-                        disabled={disabled}
-                    />
-                    <label htmlFor="personality-default" className="am-label" style={{ margin: 0 }}>
-                        Mark as default template
-                    </label>
-                </div>
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>

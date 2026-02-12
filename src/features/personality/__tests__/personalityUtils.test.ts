@@ -49,11 +49,12 @@ describe('personalityUtils', () => {
             contextContent: '',
             goals: 'collect update\nsummarize',
             evaluationCriteria: 'concise',
-            isDefault: true,
+            isDefault: false,
         })
 
         expect(draft.userRole).toBe('resident')
         expect(draft.aiRoleCharacteristics).toEqual(['clear', 'brief', 'patient'])
         expect(draft.goals).toEqual(['collect update', 'summarize'])
+        expect(draft.isDefault).toBe(true)
     })
 })
