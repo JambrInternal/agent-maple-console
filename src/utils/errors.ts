@@ -15,17 +15,42 @@ const STATUS_HINTS: Record<number, string> = {
 const getErrorDetail = (error: unknown): string | null => {
     if (!error) return null;
 
+    // ApiError details (backend message body)
+    if (error instanceof ApiError) {
+        const details = error.details as {
+            message?: string;
+            detail?: string | Array<{ msg?: string } | string>;
+        } | undefined;
+
+        if (typeof details?.message === 'string' && details.message.trim()) {
+            return details.message;
+        }
+
+        if (typeof details?.detail === 'string' && details.detail.trim()) {
+            return details.detail;
+        }
+
+        if (Array.isArray(details?.detail)) {
+            const firstDetail = details.detail[0];
+            if (typeof firstDetail === 'string' && firstDetail.trim()) {
+                return firstDetail;
+            }
+            if (
+                firstDetail &&
+                typeof firstDetail === 'object' &&
+                'msg' in firstDetail &&
+                typeof firstDetail.msg === 'string' &&
+                firstDetail.msg.trim()
+            ) {
+                return firstDetail.msg;
+            }
+        }
+    }
+
     // Standard JS Error
     if (error instanceof Error && error.message) return error.message;
 
     if (typeof error !== 'object') return null;
-
-    // ApiError details (backend message body)
-    if (error instanceof ApiError) {
-        const details = error.details as { message?: string; detail?: Array<{ msg?: string }> } | undefined;
-        if (details?.message) return details.message;
-        if (Array.isArray(details?.detail) && details.detail[0]?.msg) return details.detail[0].msg;
-    }
 
     // Generic object with message
     const msg = (error as any).message;
