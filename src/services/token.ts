@@ -16,6 +16,34 @@ function getTokenFromStorage(): { token: string | null; exp: number | null } {
   return { token, exp };
 }
 
+function decodeBase64Url(input: string): string | null {
+  try {
+    const normalized = input.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    if (typeof atob === 'function') return atob(padded);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getExpFromJwt(token: string | null): number | null {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length < 2) return null;
+
+  const payloadJson = decodeBase64Url(parts[1]);
+  if (!payloadJson) return null;
+
+  try {
+    const payload = JSON.parse(payloadJson) as { exp?: unknown };
+    const exp = payload.exp;
+    return typeof exp === 'number' ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
 function isTokenValid(token: string | null, exp: number | null): boolean {
   if (!token || !exp) return false;
   const now = Math.floor(Date.now() / 1000);
@@ -26,6 +54,15 @@ function isTokenValid(token: string | null, exp: number | null): boolean {
 export async function getFreshToken(): Promise<string | null> {
   const { token, exp } = getTokenFromStorage();
   if (isTokenValid(token, exp)) return token;
+
+  // Recover when token exists but exp cache is missing/stale.
+  if (token && !exp) {
+    const decodedExp = getExpFromJwt(token);
+    if (isTokenValid(token, decodedExp)) {
+      localStorage.setItem(EXP_KEY, String(decodedExp));
+      return token;
+    }
+  }
 
   if (inFlightPromise) return inFlightPromise;
 

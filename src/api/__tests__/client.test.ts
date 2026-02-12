@@ -7,6 +7,7 @@ vi.mock('../../services/token', () => ({
 }));
 
 import * as client from '../client';
+import { getFreshToken } from '../../services/token';
 
 // URL normalization regression test
 
@@ -89,6 +90,24 @@ describe('API client tenant header behavior', () => {
     const requestOptions = fetchMock.mock.calls[0][1] as RequestInit;
     const headers = new Headers(requestOptions.headers as HeadersInit);
     expect(headers.get('x-tenant-id')).toBe('26');
+  });
+
+  it('falls back to stored token when token refresh returns null', async () => {
+    localStorage.setItem('am_auth_token', 'stored-token');
+    vi.mocked(getFreshToken).mockResolvedValueOnce(null);
+
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true }),
+    })) as any;
+    globalThis.fetch = fetchMock;
+
+    await client.apiFetch('/user/tenants');
+
+    const requestOptions = fetchMock.mock.calls[0][1] as RequestInit;
+    const headers = new Headers(requestOptions.headers as HeadersInit);
+    expect(headers.get('Authorization')).toBe('Bearer stored-token');
   });
 });
 

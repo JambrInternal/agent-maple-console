@@ -79,4 +79,20 @@ describe('tokenService', () => {
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(EXP_KEY);
   });
+
+  it('uses stored JWT and derives exp when exp cache is missing', async () => {
+    const futureExp = Math.floor(Date.now() / 1000) + 3600;
+    const payload = btoa(JSON.stringify({ exp: futureExp }))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/g, '');
+    const token = `header.${payload}.signature`;
+
+    localStorageMock.setItem(TOKEN_KEY, token);
+
+    const fresh = await tokenService.getFreshToken();
+    expect(fresh).toBe(token);
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(EXP_KEY, String(futureExp));
+    expect(fetchAuthSession).not.toHaveBeenCalled();
+  });
 });
