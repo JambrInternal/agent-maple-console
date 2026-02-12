@@ -1,5 +1,5 @@
 import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -33,6 +33,11 @@ const renderPage = () => {
 }
 
 describe('Personality page', () => {
+    beforeEach(() => {
+        localStorage.clear()
+        vi.clearAllMocks()
+    })
+
     it('loads the singleton personality template for project scope', async () => {
         vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({
             id: '101',
@@ -60,7 +65,12 @@ describe('Personality page', () => {
             projectId: 'proj_1',
         })
         expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
-        expect(await screen.findByDisplayValue('Be concise and polite.')).toBeInTheDocument()
+        expect(await screen.findByDisplayValue('assistant')).toBeInTheDocument()
+        expect(screen.queryByLabelText('Template Type')).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: 'Full Controlled' })).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('Agent Instructions')).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('Runner Instructions')).not.toBeInTheDocument()
+        expect(screen.getByLabelText('User Role')).toBeInTheDocument()
     })
 
     it('saves updates through the personality facade', async () => {
@@ -104,18 +114,51 @@ describe('Personality page', () => {
         renderPage()
 
         const user = userEvent.setup()
-        const instructionsField = await screen.findByLabelText('Agent Instructions')
-        await user.type(instructionsField, 'Use practical language.')
+        const aiRoleField = await screen.findByLabelText('AI Role')
+        await user.clear(aiRoleField)
+        await user.type(aiRoleField, 'site_assistant')
         await user.click(screen.getByRole('button', { name: 'Save Personality' }))
 
         await waitFor(() => {
             expect(saveProjectPersonalityTemplate).toHaveBeenCalledWith(
                 { organizationId: 'org_1', projectId: 'proj_1' },
                 expect.objectContaining({
-                    agentInstructions: 'Use practical language.',
+                    templateType: 'PARAMETERIZED',
+                    aiRole: 'site_assistant',
                 })
             )
         })
         expect(await screen.findByText('Personality template saved.')).toBeInTheDocument()
+    })
+
+    it('shows Full Controlled option for super admins only', async () => {
+        localStorage.setItem('am_admin_mode', 'true')
+        vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({
+            id: '101',
+            source: 'tenant_template',
+            templateType: 'FULL_CONTROLLED',
+            runnerInstructions: '',
+            agentInstructions: '',
+            userRole: 'resident',
+            conversationType: 'project_updates',
+            aiRole: 'assistant',
+            aiRoleCharacteristics: [],
+            aiRoleEmotionalTone: [],
+            aiRoleDialogueStrategy: [],
+            aiRoleConstraints: [],
+            contextContent: '',
+            goals: [],
+            evaluationCriteria: [],
+            isDefault: true,
+        })
+
+        renderPage()
+
+        expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
+        expect(await screen.findByLabelText('Template Type')).toHaveValue('FULL_CONTROLLED')
+        expect(screen.getByRole('option', { name: 'Full Controlled' })).toBeInTheDocument()
+        expect(screen.getByLabelText('Agent Instructions')).toBeInTheDocument()
+        expect(screen.getByLabelText('Runner Instructions')).toBeInTheDocument()
+        expect(screen.queryByLabelText('User Role')).not.toBeInTheDocument()
     })
 })

@@ -12,9 +12,11 @@ import {
     personalityFormStateToDraft,
     personalityTemplateToFormState,
 } from '../features/personality/personalityUtils'
+import { getAdminMode } from '../utils/admin'
 
 const Personality = () => {
     const { orgId, projId } = useParams()
+    const isSuperAdmin = getAdminMode()
     const [formState, setFormState] = useState(() => createDefaultPersonalityFormState())
     const [saveError, setSaveError] = useState('')
     const [saveNotice, setSaveNotice] = useState('')
@@ -36,8 +38,12 @@ const Personality = () => {
     )
 
     useEffect(() => {
-        setFormState(personalityTemplateToFormState(personalityTemplate))
-    }, [personalityTemplate])
+        const nextFormState = personalityTemplateToFormState(personalityTemplate)
+        if (!isSuperAdmin) {
+            nextFormState.templateType = 'PARAMETERIZED'
+        }
+        setFormState(nextFormState)
+    }, [isSuperAdmin, personalityTemplate])
 
     const templateMeta = useMemo(() => {
         if (!personalityTemplate) {
@@ -57,9 +63,13 @@ const Personality = () => {
         setSaveError('')
         setSaveNotice('')
         try {
+            const draft = personalityFormStateToDraft(formState)
+            if (!isSuperAdmin) {
+                draft.templateType = 'PARAMETERIZED'
+            }
             await saveProjectPersonalityTemplate(
                 { organizationId: orgId, projectId: projId },
-                personalityFormStateToDraft(formState)
+                draft
             )
             setSaveNotice('Personality template saved.')
             await refetch()
@@ -102,6 +112,7 @@ const Personality = () => {
                         <PersonalityTemplateForm
                             value={formState}
                             disabled={isSaving}
+                            canUseFullControlled={isSuperAdmin}
                             onChange={setFormState}
                             onSubmit={handleSubmit}
                         />

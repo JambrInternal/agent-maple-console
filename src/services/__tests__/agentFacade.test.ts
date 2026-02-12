@@ -6,10 +6,15 @@ import {
 } from '../agentFacade'
 
 const mockGetOrganization = vi.fn()
+const mockGetProject = vi.fn()
 const mockApiFetch = vi.fn()
 
 vi.mock('../organizations', () => ({
     getOrganization: (...args: unknown[]) => mockGetOrganization(...args),
+}))
+
+vi.mock('../projects', () => ({
+    getProject: (...args: unknown[]) => mockGetProject(...args),
 }))
 
 vi.mock('../../api/client', () => ({
@@ -29,6 +34,15 @@ describe('agentFacade service', () => {
             twilioNumber: '+15551234567',
             createdAt: '2026-02-01T00:00:00.000Z',
         })
+        mockGetProject.mockResolvedValue({
+            id: 'proj_1',
+            name: 'Lakeside',
+            organizationId: 'tenant_1',
+            createdAt: '2026-02-01T00:00:00.000Z',
+            threadCount: 0,
+            issueCount: 0,
+            agentStatus: 'online',
+        })
 
         const result = await getProjectAgentContact({
             organizationId: 'tenant_1',
@@ -36,7 +50,9 @@ describe('agentFacade service', () => {
         })
 
         expect(mockGetOrganization).toHaveBeenCalledWith('tenant_1')
+        expect(mockGetProject).toHaveBeenCalledWith('proj_1')
         expect(result).toEqual({
+            firstName: 'Lakeside',
             phoneNumber: '+15551234567',
             source: 'tenant_twilio',
         })
@@ -48,6 +64,15 @@ describe('agentFacade service', () => {
             name: 'Org Two',
             createdAt: '2026-02-01T00:00:00.000Z',
         })
+        mockGetProject.mockResolvedValue({
+            id: 'proj_2',
+            name: 'Riverside',
+            organizationId: 'tenant_2',
+            createdAt: '2026-02-01T00:00:00.000Z',
+            threadCount: 0,
+            issueCount: 0,
+            agentStatus: 'online',
+        })
 
         const result = await getProjectAgentContact({
             organizationId: 'tenant_2',
@@ -55,6 +80,7 @@ describe('agentFacade service', () => {
         })
 
         expect(result).toEqual({
+            firstName: 'Riverside',
             phoneNumber: null,
             source: 'unconfigured',
         })
@@ -167,5 +193,46 @@ describe('agentFacade service', () => {
         })
         expect(result.id).toBe('100')
         expect(result.aiRoleCharacteristics).toEqual(['clear'])
+    })
+
+    it('forces parameterized template mode for non-super-admin saves', async () => {
+        mockApiFetch
+            .mockResolvedValueOnce({
+                data: [],
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    id: 301,
+                    template_type: 'PARAMETERIZED',
+                    user_role: 'resident',
+                    conversation_type: 'construction_updates',
+                    ai_role: 'site_assistant',
+                    ai_role_characteristics: [],
+                    ai_role_emotional_tone: [],
+                    ai_role_dialogue_strategy: [],
+                    ai_role_constraints: [],
+                    goals: [],
+                    evaluation_criteria: [],
+                    is_default: true,
+                },
+            })
+
+        await saveProjectPersonalityTemplate(
+            {
+                organizationId: 'tenant_12',
+                projectId: 'proj_12',
+            },
+            {
+                templateType: 'FULL_CONTROLLED',
+                userRole: 'resident',
+                conversationType: 'construction_updates',
+                aiRole: 'site_assistant',
+            }
+        )
+
+        const createCallPayload = mockApiFetch.mock.calls[1]?.[1]?.body
+        expect(createCallPayload).toBeTruthy()
+        const parsedPayload = JSON.parse(createCallPayload)
+        expect(parsedPayload.template_type).toBe('PARAMETERIZED')
     })
 })

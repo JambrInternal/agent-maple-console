@@ -12,6 +12,7 @@ import {
     BarChart3,
     Mail,
     Phone,
+    Lightbulb,
     Settings,
     Shield,
     CreditCard,
@@ -44,7 +45,7 @@ const Sidebar = () => {
         {
             title: 'Agent',
             items: [
-                { icon: Settings, label: 'Personality', path: `/${orgId}/${projId}/personality` },
+                { icon: Lightbulb, label: 'Personality', path: `/${orgId}/${projId}/personality` },
                 { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice` },
@@ -76,10 +77,11 @@ const Sidebar = () => {
         () => (
             orgId && projId
                 ? getProjectAgentContact({ organizationId: orgId, projectId: projId })
-                : Promise.resolve({ phoneNumber: null, source: 'unconfigured' })
+                : Promise.resolve({ firstName: null, phoneNumber: null, source: 'unconfigured' })
         ),
         { enabled: !!orgId && !!projId }
     )
+    const agentFirstName = projectAgentContact?.firstName || projectName || 'Project'
     const agentContactDetail = isProjectAgentLoading
         ? 'Loading contact...'
         : (projectAgentContact?.phoneNumber || 'Not configured')
@@ -94,7 +96,7 @@ const Sidebar = () => {
                             <span>Agent Contact</span>
                         </div>
                         <div className="am-agent-card-name">
-                            {projectName || 'Project'} Agent
+                            {agentFirstName} Agent
                         </div>
                         <div className="am-agent-card-detail">{agentContactDetail}</div>
                     </div>
