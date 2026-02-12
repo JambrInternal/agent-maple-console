@@ -7,7 +7,7 @@ import QueryError from '../components/QueryError';
 import ContactsTable from '../features/contacts/components/ContactsTable'
 
 const Contacts = () => {
-    const { orgId } = useParams()
+    const { orgId, projId } = useParams()
 
     const {
         data: contacts = [],
@@ -15,9 +15,13 @@ const Contacts = () => {
         error,
         refetch
     } = useApiQuery(
-        orgId ? ['contacts', orgId] : ['contacts', 'none'],
-        () => orgId ? getContacts(orgId) : Promise.resolve([]),
-        { enabled: !!orgId }
+        orgId && projId ? ['contacts', orgId, projId] : ['contacts', 'none'],
+        () => (
+            orgId && projId
+                ? getContacts({ organizationId: orgId, projectId: projId })
+                : Promise.resolve([])
+        ),
+        { enabled: !!orgId && !!projId }
     )
     return (
         <div className="am-page-content">

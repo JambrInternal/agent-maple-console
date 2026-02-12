@@ -3,6 +3,7 @@ import { Link, useParams, useLocation } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import { getOrganization } from '../services/organizations'
 import { getProject } from '../services/projects'
+import logger from '../utils/verboseLogger'
 
 const Breadcrumbs = () => {
     const { orgId, projId } = useParams()
@@ -63,7 +64,7 @@ const Breadcrumbs = () => {
                     localStorage.setItem(cacheKey, name)
                 }
             } catch (error) {
-                console.warn('Failed to load organization name:', error)
+                logger.warn('Failed to load organization name:', error)
                 if (isActive) setOrgName('')
             }
         }
@@ -98,7 +99,7 @@ const Breadcrumbs = () => {
                     localStorage.setItem(cacheKey, name)
                 }
             } catch (error) {
-                console.warn('Failed to load project name:', error)
+                logger.warn('Failed to load project name:', error)
                 if (isActive) setProjectName('')
             }
         }

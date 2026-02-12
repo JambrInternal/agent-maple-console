@@ -1,5 +1,7 @@
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { getProjectAgentContact } from '../services/agentFacade'
 import {
     LayoutGrid,
     MessageSquare,
@@ -42,6 +44,7 @@ const Sidebar = () => {
         {
             title: 'Agent',
             items: [
+                { icon: Settings, label: 'Personality', path: `/${orgId}/${projId}/personality` },
                 { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice` },
@@ -63,6 +66,23 @@ const Sidebar = () => {
     const currentNavItems = isProjectContext ? [] : orgNavItems
 
     const projectName = formatLabel(projId)
+    const {
+        data: projectAgentContact,
+        isLoading: isProjectAgentLoading,
+    } = useApiQuery(
+        orgId && projId
+            ? ['projectAgentContact', orgId, projId]
+            : ['projectAgentContact', 'none'],
+        () => (
+            orgId && projId
+                ? getProjectAgentContact({ organizationId: orgId, projectId: projId })
+                : Promise.resolve({ phoneNumber: null, source: 'unconfigured' })
+        ),
+        { enabled: !!orgId && !!projId }
+    )
+    const agentContactDetail = isProjectAgentLoading
+        ? 'Loading contact...'
+        : (projectAgentContact?.phoneNumber || 'Not configured')
 
     return (
         <aside className="am-nav-panel">
@@ -76,7 +96,7 @@ const Sidebar = () => {
                         <div className="am-agent-card-name">
                             {projectName || 'Project'} Agent
                         </div>
-                        <div className="am-agent-card-detail">Not configured</div>
+                        <div className="am-agent-card-detail">{agentContactDetail}</div>
                     </div>
                 )}
 

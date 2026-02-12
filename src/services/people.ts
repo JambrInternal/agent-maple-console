@@ -2,6 +2,11 @@
 import { apiFetch } from '../api/client';
 import type { Contact, User } from '../api/types';
 import {
+    resolveTenantIdFromScopedInput,
+    resolveTenantIdFromScopedInputOptional,
+    type ProjectScopedInput,
+} from './projectFacade';
+import {
     mapTenantUserToContact,
     mapTenantUserToConsoleUser,
     toConsoleRole,
@@ -120,12 +125,14 @@ const listTenantUsers = async (tenantId?: string): Promise<ApiTenantUser[]> => {
     return unwrapData(response, []);
 };
 
-export async function getContacts(tenantId: string): Promise<Contact[]> {
+export async function getContacts(scope: ProjectScopedInput): Promise<Contact[]> {
+    const tenantId = resolveTenantIdFromScopedInput(scope, 'contact list');
     const data = await listTenantUsers(tenantId);
     return data.map(mapTenantUserToContact);
 }
 
-export async function getContact(id: string, tenantId?: string): Promise<Contact> {
+export async function getContact(id: string, scope?: ProjectScopedInput): Promise<Contact> {
+    const tenantId = resolveTenantIdFromScopedInputOptional(scope, 'contact lookup');
     const data = await listTenantUsers(tenantId);
     const contact = data.map(mapTenantUserToContact).find((item) => item.id === id);
 

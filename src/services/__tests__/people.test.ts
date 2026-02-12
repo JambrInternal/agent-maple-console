@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { acceptInvitation, getContact, getContacts, getUser, getUsers, inviteUser, removeUser } from '../people';
 import { ApiError, apiFetch } from '../../api/client';
+import { PROJECT_TENANT_MAP_STORAGE_KEY } from '../projectFacade';
 
 vi.mock('../../api/client', () => ({
     API_CONFIG: { baseUrl: '' },
@@ -22,6 +23,7 @@ vi.mock('../../api/client', () => ({
 
 describe('people service', () => {
     beforeEach(() => {
+        localStorage.clear();
         vi.clearAllMocks();
     });
 
@@ -46,6 +48,22 @@ describe('people service', () => {
             headers: { 'x-tenant-id': '1' },
         });
         expect(result[0].name).toBe('Jamie Ng');
+    });
+
+    it('lists contacts using project facade scope and stores project mapping', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [],
+        });
+
+        await getContacts({
+            organizationId: 'tenant_9',
+            projectId: 'proj_9',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/tenants/users', {
+            headers: { 'x-tenant-id': 'tenant_9' },
+        });
+        expect(localStorage.getItem(PROJECT_TENANT_MAP_STORAGE_KEY)).toContain('"proj_9":"tenant_9"');
     });
 
     it('gets a contact by id', async () => {

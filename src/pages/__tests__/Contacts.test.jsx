@@ -35,7 +35,10 @@ describe('Contacts page', () => {
             </QueryClientProvider>
         )
 
-        expect(getContacts).toHaveBeenCalledWith('org_1')
+        expect(getContacts).toHaveBeenCalledWith({
+            organizationId: 'org_1',
+            projectId: 'proj_1',
+        })
         expect(await screen.findByRole('heading', { name: 'Contacts' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Add Contact' })).toBeDisabled()
 

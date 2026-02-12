@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 const BuildTag = () => {
     const commit = import.meta.env.VITE_GIT_COMMIT || 'dev';

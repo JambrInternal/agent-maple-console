@@ -13,6 +13,7 @@ import {
 } from '../features/organization/orgSelectionUtils'
 import { withStatus } from '../utils/errors'
 import { getAdminMode } from '../utils/admin'
+import logger from '../utils/verboseLogger'
 
 const OrgSelection = () => {
     const {
@@ -71,7 +72,7 @@ const OrgSelection = () => {
             setIsCreateOpen(false)
             navigate(`/${org.id}/projects`)
         } catch (error) {
-            console.error('Failed to create organization:', error)
+            logger.error('Failed to create organization:', error)
             setCreateError(withStatus('Organization could not be created. Try again.', error))
         } finally {
             setIsCreating(false)

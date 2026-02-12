@@ -2,6 +2,7 @@
 import { apiFetch, getErrorStatus } from '../api/client';
 import logger from '../utils/verboseLogger';
 import { getAdminMode, setAdminMode } from '../utils/admin';
+import { rememberProjectTenantMapping, rememberProjectTenantMappings } from './projectFacade';
 import type { Project, AgentStatus } from '../api/types';
 import {
     mapProjectResponse,
@@ -25,6 +26,15 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
     }
     logger.info('Fetching projects for organization', { organizationId });
 
+    const rememberTenantMappingsForProjects = (projects: Project[]): void => {
+        rememberProjectTenantMappings(
+            projects.map((project) => ({
+                projectId: project.id,
+                tenantId: project.organizationId,
+            }))
+        );
+    };
+
     const fetchCurrentTenantProjects = async (): Promise<Project[]> => {
         const response = await apiFetch<ApiResponse<ApiProject[]>>('/projects/', {
             headers: {
@@ -34,7 +44,9 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         logger.debug('Raw projects response', response);
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
-        return data.map(mapProjectResponse);
+        const projects = data.map(mapProjectResponse);
+        rememberTenantMappingsForProjects(projects);
+        return projects;
     };
 
     if (!getAdminMode()) {
@@ -48,7 +60,9 @@ export async function getProjects(organizationId: string): Promise<Project[]> {
         logger.debug('Raw projects response', response);
         const data = unwrapData(response, []);
         logger.info('Projects fetched', { count: data.length });
-        return data.map(mapProjectResponse);
+        const projects = data.map(mapProjectResponse);
+        rememberTenantMappingsForProjects(projects);
+        return projects;
     } catch (error) {
         const status = getErrorStatus(error);
         // Admin mode can be stale between sessions.
@@ -88,7 +102,9 @@ export async function createProject(
     logger.debug('Raw createProject response', response);
     const data = unwrapData(response);
     logger.info('Project created via API', { id: data?.id, name: data?.name });
-    return mapProjectResponse(data);
+    const project = mapProjectResponse(data);
+    rememberProjectTenantMapping(project.id, project.organizationId);
+    return project;
 }
 
 /**
@@ -101,7 +117,9 @@ export async function getProject(id: string): Promise<Project> {
         logger.debug('Raw getProject response', response);
         const data = unwrapData(response);
         logger.info('Project fetched', { id: data?.id, name: data?.name });
-        return mapProjectResponse(data);
+        const project = mapProjectResponse(data);
+        rememberProjectTenantMapping(project.id, project.organizationId);
+        return project;
     } catch (error) {
         const status = getErrorStatus(error);
         logger.error('Error fetching project by ID', { id, error, status });
@@ -120,7 +138,9 @@ export async function getProject(id: string): Promise<Project> {
         throw new Error(`Project not found: ${id}`);
     }
     logger.info('Project found in tenants', { id: tenant.id, name: tenant.name });
-    return mapTenantToProject(tenant);
+    const project = mapTenantToProject(tenant);
+    rememberProjectTenantMapping(project.id, project.organizationId);
+    return project;
 }
 
 /**

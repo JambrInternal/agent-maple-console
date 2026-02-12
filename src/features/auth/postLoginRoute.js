@@ -1,3 +1,5 @@
+import logger from '../../utils/verboseLogger'
+
 export const resolvePostLoginRoute = async ({
     redirectTo,
     getOrganizations,
@@ -30,16 +32,15 @@ export const resolvePostLoginRoute = async ({
                 return `/${orgId}/${projects[0].id}`
             }
         } catch (projectError) {
-            console.warn('Post-login project lookup failed:', projectError)
+            logger.warn('Post-login project lookup failed:', projectError)
             pushDebug?.('Post-login project lookup failed', projectError)
         }
 
         return `/${orgId}/projects`
     } catch (orgError) {
-        console.warn('Post-login organization lookup failed:', orgError)
+        logger.warn('Post-login organization lookup failed:', orgError)
         pushDebug?.('Post-login organization lookup failed', orgError)
         setTheme('dark')
         return redirectTo !== '/' ? redirectTo : '/'
     }
 }
-

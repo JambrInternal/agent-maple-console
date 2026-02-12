@@ -12,6 +12,7 @@ import {
 import type { User, UserRole } from './types';
 import { apiFetch } from './client';
 import { clearAdminMode, setAdminMode } from '../utils/admin';
+import logger from '../utils/verboseLogger';
 
 export interface AuthSession {
     user: User | null;
@@ -63,7 +64,7 @@ async function determineRoleAndSetAdminMode(): Promise<UserRole> {
                 setAdminMode(true);
                 return 'admin';
             } catch (error) {
-                console.warn('Failed to verify admin status, falling back to member mode', error);
+                logger.warn('Failed to verify admin status, falling back to member mode', error);
                 setAdminMode(false);
                 return 'member';
             }
@@ -72,7 +73,7 @@ async function determineRoleAndSetAdminMode(): Promise<UserRole> {
         setAdminMode(false);
         return 'member';
     } catch (error) {
-        console.warn('Failed to fetch user attributes', error);
+        logger.warn('Failed to fetch user attributes', error);
         setAdminMode(false);
         return 'member';
     }
@@ -105,9 +106,9 @@ export async function login(email: string, password: string): Promise<AuthSessio
         return {
             user: {
                 id: cognitoUser.userId,
-                email: email,
+                email,
                 name: email,
-                role: role,
+                role,
                 organizationId: null,
                 tenantId: null,
                 mfaEnabled: false,
@@ -210,9 +211,9 @@ export async function getSessionUser(): Promise<User | null> {
 
         return {
             id: cognitoUser.userId,
-            email: email,
+            email,
             name: email,
-            role: role,
+            role,
             organizationId: null,
             tenantId: null,
             mfaEnabled: false,

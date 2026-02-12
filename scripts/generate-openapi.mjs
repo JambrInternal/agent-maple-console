@@ -89,8 +89,6 @@ function generateOperations(spec) {
                 const hasQueryParams = operation.parameters?.some(p => p.in === 'query');
                 const hasBody = !!operation.requestBody;
                 
-                // Determine parameter type
-                let paramsType = '';
                 const parts = [];
                 if (hasPathParams) {
                     pathParams.forEach(p => parts.push(`${p}: string | number`));

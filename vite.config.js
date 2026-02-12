@@ -15,7 +15,7 @@ export default defineConfig({
       (() => {
         try {
           return execSync('git rev-parse --short HEAD').toString().trim();
-        } catch (e) {
+        } catch (_error) {
           return 'unknown';
         }
       })()
