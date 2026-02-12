@@ -18,8 +18,11 @@ export const configureAmplify = () => {
     });
 };
 
-export const getAmplifyAuthConfig = () => ({
-    region: getAppConfig().AWS_REGION,
-    userPoolId: getAppConfig().COGNITO_USER_POOL_ID,
-    userPoolClientId: getAppConfig().COGNITO_APP_CLIENT_ID,
-});
+export const getAmplifyAuthConfig = () => {
+    const config = getAppConfig();
+    return {
+        region: config.AWS_REGION,
+        userPoolId: config.COGNITO_USER_POOL_ID,
+        userPoolClientId: config.COGNITO_APP_CLIENT_ID,
+    };
+};
