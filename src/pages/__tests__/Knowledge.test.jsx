@@ -25,7 +25,10 @@ describe('Knowledge page', () => {
             </QueryClientProvider>
         )
 
-        expect(getKnowledgeSources).toHaveBeenCalledWith('org_1')
+        expect(getKnowledgeSources).toHaveBeenCalledWith({
+            organizationId: 'org_1',
+            projectId: 'proj_1',
+        })
         expect(screen.getByRole('heading', { name: 'Knowledge Base' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Upload File' })).toBeDisabled()
 

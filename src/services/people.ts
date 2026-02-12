@@ -1,6 +1,7 @@
 // People Service (Contacts + Console Users)
 import { apiFetch } from '../api/client';
 import type { Contact, User } from '../api/types';
+import { resolveTenantIdOrThrow, type ProjectFacadeScope } from './projectFacade';
 import {
     mapTenantUserToContact,
     mapTenantUserToConsoleUser,
@@ -16,6 +17,7 @@ import {
 export type TeamInviteStatus = 'pending' | 'accepted' | 'expired';
 
 const ACCEPT_INVITE_ALIAS_FIELDS = ['invitation_token', 'invite_token'] as const;
+type ProjectScopedInput = string | ProjectFacadeScope;
 
 export interface TeamInvite {
     id: string;
@@ -120,12 +122,34 @@ const listTenantUsers = async (tenantId?: string): Promise<ApiTenantUser[]> => {
     return unwrapData(response, []);
 };
 
-export async function getContacts(tenantId: string): Promise<Contact[]> {
+const resolveTenantId = (input: ProjectScopedInput, context: string): string => {
+    if (typeof input === 'string') {
+        const tenantId = input.trim();
+        if (!tenantId) {
+            throw new Error(`Organization ID is required for ${context}.`);
+        }
+        return tenantId;
+    }
+
+    return resolveTenantIdOrThrow(input, context);
+};
+
+const resolveTenantIdOptional = (
+    input: ProjectScopedInput | undefined,
+    context: string
+): string | undefined => {
+    if (input === undefined) return undefined;
+    return resolveTenantId(input, context);
+};
+
+export async function getContacts(scope: ProjectScopedInput): Promise<Contact[]> {
+    const tenantId = resolveTenantId(scope, 'contact list');
     const data = await listTenantUsers(tenantId);
     return data.map(mapTenantUserToContact);
 }
 
-export async function getContact(id: string, tenantId?: string): Promise<Contact> {
+export async function getContact(id: string, scope?: ProjectScopedInput): Promise<Contact> {
+    const tenantId = resolveTenantIdOptional(scope, 'contact lookup');
     const data = await listTenantUsers(tenantId);
     const contact = data.map(mapTenantUserToContact).find((item) => item.id === id);
 

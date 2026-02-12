@@ -44,6 +44,7 @@ export type ApiOrganization = {
     name?: ApiNullableString
     project_count?: ApiNullableNumber
     member_count?: ApiNullableNumber
+    twilio_number?: ApiNullableString
     created_at?: ApiTimestamp
 }
 

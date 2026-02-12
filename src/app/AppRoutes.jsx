@@ -48,6 +48,7 @@ const AppRoutes = () => {
                             <Route path="insights" element={<ComingSoon title="Insights" />} />
                             <Route path="sms" element={<ComingSoon title="SMS" />} />
                             <Route path="voice" element={<Voice />} />
+                            <Route path="personality" element={<ComingSoon title="Personality" />} />
                             <Route path="email" element={<ComingSoon title="Email" />} />
                         </Route>
                     </Route>

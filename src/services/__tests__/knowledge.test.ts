@@ -7,6 +7,7 @@ import {
     uploadKnowledgeSource,
 } from '../knowledge';
 import { apiFetch } from '../../api/client';
+import { PROJECT_TENANT_MAP_STORAGE_KEY } from '../projectFacade';
 
 vi.mock('../../api/client', () => ({
     API_CONFIG: { baseUrl: '' },
@@ -15,6 +16,7 @@ vi.mock('../../api/client', () => ({
 
 describe('knowledge service', () => {
     beforeEach(() => {
+        localStorage.clear();
         vi.clearAllMocks();
     });
 
@@ -39,6 +41,22 @@ describe('knowledge service', () => {
             headers: { 'x-tenant-id': '2' },
         });
         expect(result[0].status).toBe('ready');
+    });
+
+    it('lists knowledge sources using project facade scope and stores project mapping', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [],
+        });
+
+        await getKnowledgeSources({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(localStorage.getItem(PROJECT_TENANT_MAP_STORAGE_KEY)).toContain('"proj_1":"tenant_1"');
     });
 
     it('gets a knowledge source', async () => {

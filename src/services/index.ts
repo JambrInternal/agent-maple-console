@@ -6,3 +6,4 @@ export * from './issues';
 export * from './people';
 export * from './knowledge';
 export * from './insights';
+export * from './agentFacade';

@@ -34,6 +34,7 @@ export interface Organization {
     name: string;
     projectCount?: number;
     memberCount?: number;
+    twilioNumber?: string;
     plan?: 'starter' | 'professional' | 'enterprise';
     createdAt: string;
 }

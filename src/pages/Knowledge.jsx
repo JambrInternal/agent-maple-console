@@ -7,7 +7,7 @@ import QueryError from '../components/QueryError';
 import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
 
 const Knowledge = () => {
-    const { orgId } = useParams()
+    const { orgId, projId } = useParams()
 
     const {
         data: sources = [],
@@ -15,9 +15,13 @@ const Knowledge = () => {
         error,
         refetch
     } = useApiQuery(
-        orgId ? ['knowledgeSources', orgId] : ['knowledgeSources', 'none'],
-        () => orgId ? getKnowledgeSources(orgId) : Promise.resolve([]),
-        { enabled: !!orgId }
+        orgId && projId ? ['knowledgeSources', orgId, projId] : ['knowledgeSources', 'none'],
+        () => (
+            orgId && projId
+                ? getKnowledgeSources({ organizationId: orgId, projectId: projId })
+                : Promise.resolve([])
+        ),
+        { enabled: !!orgId && !!projId }
     )
     const rows = useMemo(() => sources, [sources])
 
