@@ -34,8 +34,55 @@ export interface ResetPasswordStartResult {
 
 const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
 
+let syncUserInFlight: Promise<void> | null = null;
+
+const SYNC_USER_RETRY_DELAY_MS = 200;
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isTransientSyncConcurrencyError = (error: unknown): boolean => {
+    const message = String(
+        error && typeof error === 'object' && 'message' in error
+            ? (error as { message?: unknown }).message
+            : error ?? ''
+    ).toLowerCase();
+
+    return (
+        message.includes('provisioning a new connection') ||
+        message.includes('concurrent operations are not permitted') ||
+        message.includes('sqlalche.me/e/20/isce')
+    );
+};
+
+const performSyncUser = async (): Promise<void> => {
+    try {
+        await apiFetch('/user/sync', { method: 'POST' });
+    } catch (error) {
+        if (!isTransientSyncConcurrencyError(error)) {
+            throw error;
+        }
+
+        logger.warn('Retrying user sync after transient concurrent connection provisioning error');
+        await sleep(SYNC_USER_RETRY_DELAY_MS);
+        await apiFetch('/user/sync', { method: 'POST' });
+    }
+};
+
 const syncUser = async (): Promise<void> => {
-    await apiFetch('/user/sync', { method: 'POST' });
+    if (syncUserInFlight) {
+        return syncUserInFlight;
+    }
+
+    syncUserInFlight = performSyncUser().finally(() => {
+        syncUserInFlight = null;
+    });
+
+    return syncUserInFlight;
+};
+
+// Test hook to clear module-level sync state between unit tests.
+export const __resetAuthSyncStateForTests = (): void => {
+    syncUserInFlight = null;
 };
 
 type CodeDeliveryDetails = {

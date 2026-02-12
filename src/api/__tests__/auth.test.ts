@@ -31,7 +31,14 @@ vi.mock('../../utils/admin', () => ({
     setAdminMode: (...args: unknown[]) => mockSetAdminMode(...args),
 }))
 
-import { confirmForgotPassword, forgotPassword, getSessionUser, login, register } from '../auth'
+import {
+    __resetAuthSyncStateForTests,
+    confirmForgotPassword,
+    forgotPassword,
+    getSessionUser,
+    login,
+    register,
+} from '../auth'
 
 const buildSignedInResult = () => ({
     isSignedIn: true,
@@ -50,6 +57,7 @@ describe('api auth', () => {
     beforeEach(() => {
         localStorage.clear()
         vi.clearAllMocks()
+        __resetAuthSyncStateForTests()
     })
 
     it('sends custom role attribute for post-confirmation user creation', async () => {
@@ -178,5 +186,56 @@ describe('api auth', () => {
             confirmationCode: '123456',
             newPassword: 'NewPass123!',
         })
+    })
+
+    it('deduplicates concurrent user sync calls across login and session hydration', async () => {
+        mockSignIn.mockResolvedValue(buildSignedInResult())
+        mockFetchAuthSession.mockResolvedValue(buildSession('id-token-shared-sync'))
+        mockGetCurrentUser.mockResolvedValue({ userId: 'u_shared', username: 'shared@example.com' })
+        mockFetchUserAttributes.mockResolvedValue({
+            'custom:role': 'LEARNER',
+            email: 'shared@example.com',
+        })
+
+        let resolveSync: (() => void) | null = null
+        const syncPromise = new Promise<void>((resolve) => {
+            resolveSync = resolve
+        })
+
+        mockApiFetch.mockImplementation((endpoint: unknown) => {
+            if (endpoint === '/user/sync') {
+                return syncPromise.then(() => ({ data: {} }))
+            }
+            return Promise.resolve({ data: {} })
+        })
+
+        const loginPromise = login('shared@example.com', 'Password123!')
+        const sessionPromise = getSessionUser()
+
+        await new Promise((resolve) => setTimeout(resolve, 25))
+        const syncCallsDuringInflight = mockApiFetch.mock.calls.filter(
+            (call) => call[0] === '/user/sync'
+        )
+        expect(syncCallsDuringInflight).toHaveLength(1)
+
+        resolveSync?.()
+        await Promise.all([loginPromise, sessionPromise])
+    })
+
+    it('retries user sync once when backend returns transient concurrency provisioning error', async () => {
+        mockSignIn.mockResolvedValue(buildSignedInResult())
+        mockFetchAuthSession.mockResolvedValue(buildSession('id-token-retry-sync'))
+        mockGetCurrentUser.mockResolvedValue({ userId: 'u_retry', username: 'retry@example.com' })
+        mockFetchUserAttributes.mockResolvedValue({ 'custom:role': 'LEARNER' })
+
+        mockApiFetch
+            .mockRejectedValueOnce(new Error('This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)'))
+            .mockResolvedValueOnce({ data: {} })
+
+        const result = await login('retry@example.com', 'Password123!')
+
+        expect(result.user?.role).toBe('member')
+        const syncCalls = mockApiFetch.mock.calls.filter((call) => call[0] === '/user/sync')
+        expect(syncCalls).toHaveLength(2)
     })
 })
