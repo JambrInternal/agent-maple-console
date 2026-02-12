@@ -65,9 +65,12 @@ describe('Personality page', () => {
             projectId: 'proj_1',
         })
         expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
-        expect(await screen.findByDisplayValue('Be concise and polite.')).toBeInTheDocument()
-        expect(screen.getByLabelText('Template Type')).toHaveValue('PARAMETERIZED')
+        expect(await screen.findByDisplayValue('assistant')).toBeInTheDocument()
+        expect(screen.queryByLabelText('Template Type')).not.toBeInTheDocument()
         expect(screen.queryByRole('option', { name: 'Full Controlled' })).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('Agent Instructions')).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('Runner Instructions')).not.toBeInTheDocument()
+        expect(screen.getByLabelText('User Role')).toBeInTheDocument()
     })
 
     it('saves updates through the personality facade', async () => {
@@ -111,8 +114,9 @@ describe('Personality page', () => {
         renderPage()
 
         const user = userEvent.setup()
-        const instructionsField = await screen.findByLabelText('Agent Instructions')
-        await user.type(instructionsField, 'Use practical language.')
+        const aiRoleField = await screen.findByLabelText('AI Role')
+        await user.clear(aiRoleField)
+        await user.type(aiRoleField, 'site_assistant')
         await user.click(screen.getByRole('button', { name: 'Save Personality' }))
 
         await waitFor(() => {
@@ -120,7 +124,7 @@ describe('Personality page', () => {
                 { organizationId: 'org_1', projectId: 'proj_1' },
                 expect.objectContaining({
                     templateType: 'PARAMETERIZED',
-                    agentInstructions: 'Use practical language.',
+                    aiRole: 'site_assistant',
                 })
             )
         })
@@ -153,5 +157,8 @@ describe('Personality page', () => {
         expect(await screen.findByRole('heading', { name: 'Personality' })).toBeInTheDocument()
         expect(await screen.findByLabelText('Template Type')).toHaveValue('FULL_CONTROLLED')
         expect(screen.getByRole('option', { name: 'Full Controlled' })).toBeInTheDocument()
+        expect(screen.getByLabelText('Agent Instructions')).toBeInTheDocument()
+        expect(screen.getByLabelText('Runner Instructions')).toBeInTheDocument()
+        expect(screen.queryByLabelText('User Role')).not.toBeInTheDocument()
     })
 })
