@@ -26,6 +26,11 @@ export interface RegisterResult {
     codeDeliveryMedium: string | null;
 }
 
+export interface RegisterProfile {
+    givenName?: string | null;
+    familyName?: string | null;
+}
+
 export interface ResetPasswordStartResult {
     nextStep: string;
     codeDeliveryDestination: string | null;
@@ -40,6 +45,32 @@ let signOutInFlight: Promise<void> | null = null;
 const SYNC_USER_RETRY_DELAY_MS = 200;
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+const DEFAULT_GIVEN_NAME = 'Invited';
+const DEFAULT_FAMILY_NAME = 'User';
+
+const toTitleCase = (value: string): string => {
+    if (!value) {
+        return '';
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
+const buildSignupNameAttributes = (email: string): { givenName: string; familyName: string } => {
+    const localPart = email.split('@')[0] || '';
+    const tokens = localPart
+        .replace(/[^a-zA-Z0-9]+/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((token) => toTitleCase(token));
+
+    const givenName = tokens[0] || DEFAULT_GIVEN_NAME;
+    const familyName = tokens.slice(1).join(' ') || DEFAULT_FAMILY_NAME;
+
+    return { givenName, familyName };
+};
 
 const isTransientSyncConcurrencyError = (error: unknown): boolean => {
     const message = String(
@@ -182,8 +213,18 @@ export async function login(email: string, password: string): Promise<AuthSessio
     throw new Error(`Login failed: ${nextStep.signInStep}`);
 }
 
-export async function register(email: string, password: string): Promise<RegisterResult> {
+export async function register(
+    email: string,
+    password: string,
+    profile?: RegisterProfile
+): Promise<RegisterResult> {
     const normalizedEmail = email.trim();
+    const { givenName: derivedGivenName, familyName: derivedFamilyName } = buildSignupNameAttributes(normalizedEmail);
+    const providedGivenName = profile?.givenName?.trim() || '';
+    const providedFamilyName = profile?.familyName?.trim() || '';
+    const givenName = providedGivenName || derivedGivenName;
+    const familyName = providedFamilyName || derivedFamilyName;
+
     const result = await signUp({
         username: normalizedEmail,
         password,
@@ -191,6 +232,8 @@ export async function register(email: string, password: string): Promise<Registe
             userAttributes: {
                 email: normalizedEmail,
                 'custom:role': DEFAULT_SIGNUP_ROLE,
+                given_name: givenName,
+                family_name: familyName,
             },
         },
     });

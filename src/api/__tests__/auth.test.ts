@@ -83,6 +83,59 @@ describe('api auth', () => {
                 userAttributes: {
                     email: 'invitee@example.com',
                     'custom:role': 'INSTRUCTOR',
+                    given_name: 'Invitee',
+                    family_name: 'User',
+                },
+            },
+        })
+    })
+
+    it('derives required Cognito name attributes from invite email aliases', async () => {
+        mockSignUp.mockResolvedValue({
+            isSignUpComplete: true,
+            nextStep: {
+                signUpStep: 'DONE',
+            },
+        })
+
+        await register(' jeremy+rcs@jambr.ca ', 'Temporary123!')
+
+        expect(mockSignUp).toHaveBeenCalledWith({
+            username: 'jeremy+rcs@jambr.ca',
+            password: 'Temporary123!',
+            options: {
+                userAttributes: {
+                    email: 'jeremy+rcs@jambr.ca',
+                    'custom:role': 'INSTRUCTOR',
+                    given_name: 'Jeremy',
+                    family_name: 'Rcs',
+                },
+            },
+        })
+    })
+
+    it('uses provided invited profile names when present', async () => {
+        mockSignUp.mockResolvedValue({
+            isSignUpComplete: true,
+            nextStep: {
+                signUpStep: 'DONE',
+            },
+        })
+
+        await register('invitee@example.com', 'Temporary123!', {
+            givenName: 'Jamie',
+            familyName: 'Ng',
+        })
+
+        expect(mockSignUp).toHaveBeenCalledWith({
+            username: 'invitee@example.com',
+            password: 'Temporary123!',
+            options: {
+                userAttributes: {
+                    email: 'invitee@example.com',
+                    'custom:role': 'INSTRUCTOR',
+                    given_name: 'Jamie',
+                    family_name: 'Ng',
                 },
             },
         })

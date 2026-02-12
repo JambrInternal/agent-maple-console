@@ -30,6 +30,8 @@ const AcceptInvitation = () => {
     const [status, setStatus] = useState('checking')
     const [authMode, setAuthMode] = useState('password')
     const [email, setEmail] = useState('')
+    const [givenName, setGivenName] = useState('')
+    const [familyName, setFamilyName] = useState('')
     const [password, setPassword] = useState('')
     const [confirmationCode, setConfirmationCode] = useState('')
     const [error, setError] = useState('')
@@ -142,6 +144,29 @@ const AcceptInvitation = () => {
         return normalizedEmail
     }, [email])
 
+    const getValidatedRegisterProfile = useCallback(() => {
+        const normalizedGivenName = givenName.trim()
+        const normalizedFamilyName = familyName.trim()
+
+        if (!normalizedGivenName) {
+            setError('First name is required to create your account')
+            return null
+        }
+
+        if (!normalizedFamilyName) {
+            setError('Last name is required to create your account')
+            return null
+        }
+
+        setGivenName(normalizedGivenName)
+        setFamilyName(normalizedFamilyName)
+
+        return {
+            givenName: normalizedGivenName,
+            familyName: normalizedFamilyName,
+        }
+    }, [familyName, givenName])
+
     useEffect(() => {
         if (loading) return
 
@@ -204,7 +229,12 @@ const AcceptInvitation = () => {
             // for users that do not exist. For invite onboarding, attempt registration once.
             if (signInReason === 'user_not_found' || signInReason === 'invalid_credentials') {
                 try {
-                    const registerResult = await register(normalizedEmail, password)
+                    const registerProfile = getValidatedRegisterProfile()
+                    if (!registerProfile) {
+                        return
+                    }
+
+                    const registerResult = await register(normalizedEmail, password, registerProfile)
 
                     if (registerResult.isComplete) {
                         await login(normalizedEmail, password)
@@ -305,6 +335,8 @@ const AcceptInvitation = () => {
     return (
         <InvitationAuthCard
             email={email}
+            givenName={givenName}
+            familyName={familyName}
             authMode={authMode}
             password={password}
             confirmationCode={confirmationCode}
@@ -312,6 +344,8 @@ const AcceptInvitation = () => {
             error={error}
             isSubmitting={isSubmitting}
             onEmailChange={setEmail}
+            onGivenNameChange={setGivenName}
+            onFamilyNameChange={setFamilyName}
             onPasswordChange={setPassword}
             onConfirmationCodeChange={setConfirmationCode}
             onSubmitPassword={handlePasswordSubmit}
