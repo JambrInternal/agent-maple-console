@@ -71,16 +71,43 @@ describe('tokenService', () => {
   });
 
   it('preserves existing token when refresh fails', async () => {
-    localStorageMock.setItem(TOKEN_KEY, 'old-token');
+    const futureExp = Math.floor(Date.now() / 1000) + 300;
+    const payload = btoa(JSON.stringify({ exp: futureExp }))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/g, '');
+    const token = `header.${payload}.signature`;
+
+    localStorageMock.setItem(TOKEN_KEY, token);
     localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
     const { fetchAuthSession } = await import('aws-amplify/auth');
     vi.mocked(fetchAuthSession).mockRejectedValue(new Error('fail'));
 
-    const token = await tokenService.getFreshToken();
+    const freshToken = await tokenService.getFreshToken();
 
-    expect(token).toBe('old-token');
+    expect(freshToken).toBe(token);
     expect(localStorageMock.removeItem).not.toHaveBeenCalledWith(TOKEN_KEY);
-    expect(localStorageMock.removeItem).not.toHaveBeenCalledWith(EXP_KEY);
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(EXP_KEY, String(futureExp));
+  });
+
+  it('clears expired token when refresh fails', async () => {
+    const pastExp = Math.floor(Date.now() / 1000) - 300;
+    const payload = btoa(JSON.stringify({ exp: pastExp }))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/g, '');
+    const token = `header.${payload}.signature`;
+
+    localStorageMock.setItem(TOKEN_KEY, token);
+    localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
+    const { fetchAuthSession } = await import('aws-amplify/auth');
+    vi.mocked(fetchAuthSession).mockRejectedValue(new Error('fail'));
+
+    const freshToken = await tokenService.getFreshToken();
+
+    expect(freshToken).toBeNull();
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith(EXP_KEY);
   });
 
   it('clears token', () => {

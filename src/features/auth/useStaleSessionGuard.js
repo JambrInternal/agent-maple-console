@@ -17,6 +17,9 @@ export default function useStaleSessionGuard({
 
     useEffect(() => {
         if (!enabled || loading || user) {
+            // Reset the guard while disabled, loading, or authenticated so
+            // it can run again when conditions become eligible.
+            hasCheckedRef.current = false
             return
         }
         if (hasCheckedRef.current) return
