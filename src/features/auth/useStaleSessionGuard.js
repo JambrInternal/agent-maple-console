@@ -14,16 +14,24 @@ export default function useStaleSessionGuard({
     enabled = true,
 }) {
     const hasCheckedRef = useRef(false)
+    const inFlightRef = useRef(false)
 
     useEffect(() => {
-        if (!enabled || loading || user) {
-            // Reset the guard while disabled, loading, or authenticated so
-            // it can run again when conditions become eligible.
-            hasCheckedRef.current = false;
+        // Do not reset guard state while temporarily disabled (e.g. submit in-flight),
+        // otherwise the check can re-arm immediately after submit and race with login.
+        if (!enabled) {
             return
         }
-        if (hasCheckedRef.current) return
+
+        if (loading || user) {
+            hasCheckedRef.current = false
+            inFlightRef.current = false
+            return
+        }
+
+        if (hasCheckedRef.current || inFlightRef.current) return
         hasCheckedRef.current = true
+        inFlightRef.current = true
 
         let cancelled = false
 
@@ -46,6 +54,8 @@ export default function useStaleSessionGuard({
                     if (cancelled) return
                     await logout()
                 }
+            } finally {
+                inFlightRef.current = false
             }
         })()
 

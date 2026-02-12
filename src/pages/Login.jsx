@@ -47,6 +47,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [info, setInfo] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [suppressStaleGuard, setSuppressStaleGuard] = useState(false)
     const navigate = useNavigate();
     const location = useLocation();
     const loginInProgressRef = useRef(false);
@@ -55,7 +56,7 @@ const Login = () => {
         loading,
         user,
         logout,
-        enabled: !isSubmitting,
+        enabled: !suppressStaleGuard && !isSubmitting,
     })
 
     const redirectTo = getRedirectToFromLocation(location)
@@ -77,6 +78,7 @@ const Login = () => {
         e.preventDefault()
         setError('')
         setInfo('')
+        setSuppressStaleGuard(true)
         setIsSubmitting(true)
         loginInProgressRef.current = true
 
@@ -118,6 +120,7 @@ const Login = () => {
 
         setError('')
         setInfo('')
+        setSuppressStaleGuard(true)
         setIsSubmitting(true)
         try {
             const result = await register(normalizedEmail, password)
@@ -155,6 +158,7 @@ const Login = () => {
 
         setError('')
         setInfo('')
+        setSuppressStaleGuard(true)
         setIsSubmitting(true)
         try {
             await confirmRegistration(normalizedEmail, normalizedCode)
@@ -182,6 +186,7 @@ const Login = () => {
 
         setError('')
         setInfo('')
+        setSuppressStaleGuard(true)
         setIsSubmitting(true)
         try {
             const result = await forgotPassword(normalizedEmail)
@@ -220,6 +225,7 @@ const Login = () => {
 
         setError('')
         setInfo('')
+        setSuppressStaleGuard(true)
         setIsSubmitting(true)
         try {
             await confirmForgotPassword(normalizedEmail, normalizedCode, password)

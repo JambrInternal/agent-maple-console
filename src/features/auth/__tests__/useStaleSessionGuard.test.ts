@@ -93,7 +93,7 @@ describe('useStaleSessionGuard', () => {
         expect(logout).not.toHaveBeenCalled()
     })
 
-    it('can run again after being re-enabled', async () => {
+    it('does not re-run only because enabled toggles false -> true', async () => {
         const getCurrentUser = vi.fn().mockResolvedValue({ id: 'u_1' })
         const loadCurrentUser = vi.fn().mockResolvedValue(getCurrentUser)
         const logout = vi.fn().mockResolvedValue(undefined)
@@ -112,7 +112,7 @@ describe('useStaleSessionGuard', () => {
         // Initially disabled - should not run
         expect(loadCurrentUser).not.toHaveBeenCalled()
 
-        // Re-enable - should run
+        // Re-enable - should run once.
         rerender({ enabled: true })
 
         await waitFor(() => {
@@ -120,5 +120,89 @@ describe('useStaleSessionGuard', () => {
             expect(getCurrentUser).toHaveBeenCalledTimes(1)
             expect(logout).toHaveBeenCalledTimes(1)
         })
+
+        // Disable and re-enable should not re-arm within the same stale session.
+        rerender({ enabled: false })
+        rerender({ enabled: true })
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+            expect(logout).toHaveBeenCalledTimes(1)
+        })
+    })
+
+    it('can run again after authenticated -> unauthenticated transition', async () => {
+        const getCurrentUser = vi.fn().mockResolvedValue({ id: 'u_1' })
+        const loadCurrentUser = vi.fn().mockResolvedValue(getCurrentUser)
+        const logout = vi.fn().mockResolvedValue(undefined)
+
+        const { rerender } = renderHook(
+            ({ user }) => useStaleSessionGuard({
+                loading: false,
+                user,
+                logout,
+                loadCurrentUser,
+            }),
+            { initialProps: { user: null } }
+        )
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+            expect(logout).toHaveBeenCalledTimes(1)
+        })
+
+        rerender({ user: { id: 'active-user' } })
+        rerender({ user: null })
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(2)
+            expect(getCurrentUser).toHaveBeenCalledTimes(2)
+            expect(logout).toHaveBeenCalledTimes(2)
+        })
+    })
+
+    it('does not start concurrent stale-session checks while temporarily disabled in flight', async () => {
+        const getCurrentUser = vi.fn()
+        let resolveCurrentUser: ((value: { id: string }) => void) | null = null
+        const currentUserPromise = new Promise((resolve) => {
+            resolveCurrentUser = resolve
+        })
+        getCurrentUser.mockReturnValue(currentUserPromise)
+
+        const loadCurrentUser = vi.fn().mockResolvedValue(getCurrentUser)
+        const logout = vi.fn().mockResolvedValue(undefined)
+
+        const { rerender } = renderHook(
+            ({ enabled }) => useStaleSessionGuard({
+                loading: false,
+                user: null,
+                logout,
+                loadCurrentUser,
+                enabled,
+            }),
+            { initialProps: { enabled: true } }
+        )
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+        })
+
+        // Disable and re-enable while first check is unresolved.
+        rerender({ enabled: false })
+        rerender({ enabled: true })
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+        })
+
+        resolveCurrentUser?.({ id: 'stale-user' })
+        await Promise.resolve()
+
+        expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+        expect(getCurrentUser).toHaveBeenCalledTimes(1)
     })
 })
