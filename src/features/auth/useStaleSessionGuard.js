@@ -19,7 +19,7 @@ export default function useStaleSessionGuard({
         if (!enabled || loading || user) {
             // Reset the guard while disabled, loading, or authenticated so
             // it can run again when conditions become eligible.
-            hasCheckedRef.current = false
+            hasCheckedRef.current = false;
             return
         }
         if (hasCheckedRef.current) return
