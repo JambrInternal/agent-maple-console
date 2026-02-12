@@ -22,8 +22,7 @@ declare global {
 
 const clean = (value: unknown): string => {
     if (typeof value !== 'string') return '';
-    const trimmed = value.trim();
-    return trimmed;
+    return value.trim();
 };
 
 const readRuntimeConfig = (): RuntimeConfig => {
