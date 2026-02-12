@@ -91,10 +91,17 @@ async function fetchAndStoreToken(): Promise<string | null> {
     } else {
       // Log event: token hydrate failed
       logger.warn('[Token] Hydration failed: missing token/exp');
-      // Keep existing token if present; backend 401 is the source of truth for invalidation.
+      // Keep existing token only if it is still valid.
       if (existingToken) {
-        logger.warn('[Token] Preserving existing token after hydration miss');
-        return existingToken;
+        const decodedExp = getExpFromJwt(existingToken);
+        if (isTokenValid(existingToken, decodedExp)) {
+          logger.warn('[Token] Preserving valid existing token after hydration miss');
+          if (decodedExp) {
+            localStorage.setItem(EXP_KEY, String(decodedExp));
+          }
+          return existingToken;
+        }
+        logger.warn('[Token] Existing token is expired, clearing');
       }
       clearToken();
       return null;
@@ -102,10 +109,17 @@ async function fetchAndStoreToken(): Promise<string | null> {
   } catch (err) {
     // Log event: token hydrate failed
     logger.error('[Token] Hydration failed', err);
-    // Keep existing token if present; this can be a transient Cognito failure.
+    // Keep existing token only if it is still valid; this can be a transient Cognito failure.
     if (existingToken) {
-      logger.warn('[Token] Preserving existing token after hydration error');
-      return existingToken;
+      const decodedExp = getExpFromJwt(existingToken);
+      if (isTokenValid(existingToken, decodedExp)) {
+        logger.warn('[Token] Preserving valid existing token after hydration error');
+        if (decodedExp) {
+          localStorage.setItem(EXP_KEY, String(decodedExp));
+        }
+        return existingToken;
+      }
+      logger.warn('[Token] Existing token is expired, clearing');
     }
     clearToken();
     return null;

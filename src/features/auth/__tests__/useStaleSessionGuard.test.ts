@@ -92,4 +92,33 @@ describe('useStaleSessionGuard', () => {
         expect(loadCurrentUser).not.toHaveBeenCalled()
         expect(logout).not.toHaveBeenCalled()
     })
+
+    it('can run again after being re-enabled', async () => {
+        const getCurrentUser = vi.fn().mockResolvedValue({ id: 'u_1' })
+        const loadCurrentUser = vi.fn().mockResolvedValue(getCurrentUser)
+        const logout = vi.fn().mockResolvedValue(undefined)
+
+        const { rerender } = renderHook(
+            ({ enabled }) => useStaleSessionGuard({
+                loading: false,
+                user: null,
+                logout,
+                loadCurrentUser,
+                enabled,
+            }),
+            { initialProps: { enabled: false } }
+        )
+
+        // Initially disabled - should not run
+        expect(loadCurrentUser).not.toHaveBeenCalled()
+
+        // Re-enable - should run
+        rerender({ enabled: true })
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+            expect(logout).toHaveBeenCalledTimes(1)
+        })
+    })
 })
