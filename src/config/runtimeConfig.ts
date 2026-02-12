@@ -1,10 +1,32 @@
-const clean = (value) => {
+interface RuntimeConfig {
+    API_URL?: string;
+    AWS_REGION?: string;
+    COGNITO_USER_POOL_ID?: string;
+    COGNITO_APP_CLIENT_ID?: string;
+    SENTRY_DSN?: string;
+}
+
+interface AppConfig {
+    API_URL: string;
+    AWS_REGION: string;
+    COGNITO_USER_POOL_ID: string;
+    COGNITO_APP_CLIENT_ID: string;
+    SENTRY_DSN: string;
+}
+
+declare global {
+    interface Window {
+        __APP_CONFIG__?: RuntimeConfig;
+    }
+}
+
+const clean = (value: unknown): string => {
     if (typeof value !== 'string') return '';
     const trimmed = value.trim();
     return trimmed;
 };
 
-const readRuntimeConfig = () => {
+const readRuntimeConfig = (): RuntimeConfig => {
     if (typeof window === 'undefined') {
         return {};
     }
@@ -17,7 +39,7 @@ const readRuntimeConfig = () => {
     return config;
 };
 
-const resolveValue = (...values) => {
+const resolveValue = (...values: unknown[]): string => {
     for (const value of values) {
         const resolved = clean(value);
         if (resolved !== '') {
@@ -27,7 +49,7 @@ const resolveValue = (...values) => {
     return '';
 };
 
-export const getAppConfig = () => {
+export const getAppConfig = (): AppConfig => {
     const runtime = readRuntimeConfig();
     return {
         API_URL: resolveValue(runtime.API_URL, import.meta.env.VITE_API_URL, 'https://api.dev.agentmaple.ca'),

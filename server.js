@@ -58,18 +58,32 @@ const getRuntimeConfig = () => ({
 });
 
 const sendFile = (res, filePath, method) => {
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
-    const stat = statSync(filePath);
-    res.writeHead(200, {
-        'Content-Type': contentType,
-        'Content-Length': stat.size,
-    });
-    if (method === 'HEAD') {
-        res.end();
-        return;
+    try {
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = mimeTypes[ext] || 'application/octet-stream';
+        const stat = statSync(filePath);
+        res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Length': stat.size,
+        });
+        if (method === 'HEAD') {
+            res.end();
+            return;
+        }
+        const stream = createReadStream(filePath);
+        stream.on('error', () => {
+            if (!res.headersSent) {
+                res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end('Not Found');
+            }
+        });
+        stream.pipe(res);
+    } catch (_error) {
+        if (!res.headersSent) {
+            res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('Not Found');
+        }
     }
-    createReadStream(filePath).pipe(res);
 };
 
 const serveStaticAsset = (pathname, method, res) => {
@@ -85,17 +99,17 @@ const serveStaticAsset = (pathname, method, res) => {
         return true;
     }
 
-    if (!existsSync(normalizedPath)) {
+    try {
+        const stat = statSync(normalizedPath);
+        if (!stat.isFile()) {
+            return false;
+        }
+
+        sendFile(res, normalizedPath, method);
+        return true;
+    } catch (_error) {
         return false;
     }
-
-    const stat = statSync(normalizedPath);
-    if (!stat.isFile()) {
-        return false;
-    }
-
-    sendFile(res, normalizedPath, method);
-    return true;
 };
 
 const server = createServer(async (req, res) => {
@@ -110,6 +124,11 @@ const server = createServer(async (req, res) => {
     const pathname = parsedUrl.pathname;
 
     if (pathname === '/healthz') {
+        if (method !== 'GET' && method !== 'HEAD') {
+            res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('Method Not Allowed');
+            return;
+        }
         res.writeHead(200, {
             'Cache-Control': 'no-store',
             'Content-Type': 'text/plain; charset=utf-8',
@@ -123,6 +142,11 @@ const server = createServer(async (req, res) => {
     }
 
     if (pathname === '/env.js') {
+        if (method !== 'GET' && method !== 'HEAD') {
+            res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('Method Not Allowed');
+            return;
+        }
         const payload = `window.__APP_CONFIG__ = ${JSON.stringify(getRuntimeConfig())};`;
         res.writeHead(200, {
             'Cache-Control': 'no-store',
