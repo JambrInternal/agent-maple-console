@@ -91,6 +91,25 @@ describe('auth service', () => {
         expect(result.nextStep).toBe('CONFIRM_SIGN_UP');
     });
 
+    it('passes invited user profile fields to api register when provided', async () => {
+        vi.mocked(authApi.register).mockResolvedValue({
+            isComplete: true,
+            nextStep: 'DONE',
+            codeDeliveryDestination: null,
+            codeDeliveryMedium: null,
+        });
+
+        await authService.register('invitee@example.com', 'Temporary123!', {
+            givenName: 'Jamie',
+            familyName: 'Ng',
+        });
+
+        expect(authApi.register).toHaveBeenCalledWith('invitee@example.com', 'Temporary123!', {
+            givenName: 'Jamie',
+            familyName: 'Ng',
+        });
+    });
+
     it('confirms invited user registration code', async () => {
         vi.mocked(authApi.confirmRegistration).mockResolvedValue();
 

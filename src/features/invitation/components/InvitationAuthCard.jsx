@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertCircle, Lock, Mail, Loader2 } from 'lucide-react'
+import { AlertCircle, Lock, Mail, Loader2, User } from 'lucide-react'
 
 const fieldStyle = {
     display: 'flex',
@@ -52,6 +52,8 @@ const submitButtonStyle = {
 
 export default function InvitationAuthCard({
     email,
+    givenName,
+    familyName,
     authMode,
     password,
     confirmationCode,
@@ -59,6 +61,8 @@ export default function InvitationAuthCard({
     error,
     isSubmitting,
     onEmailChange,
+    onGivenNameChange,
+    onFamilyNameChange,
     onPasswordChange,
     onConfirmationCodeChange,
     onSubmitPassword,
@@ -114,6 +118,64 @@ export default function InvitationAuthCard({
                                 required
                             />
                         </div>
+                    </div>
+
+                    <div style={fieldStyle}>
+                        <label htmlFor="invite-given-name" style={labelStyle}>First Name</label>
+                        <div style={{ position: 'relative' }}>
+                            <User
+                                size={16}
+                                style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: 'var(--am-text-2)',
+                                }}
+                            />
+                            <input
+                                id="invite-given-name"
+                                type="text"
+                                className="am-input"
+                                style={{ width: '100%', paddingLeft: '2.45rem' }}
+                                placeholder="First name"
+                                value={givenName}
+                                onChange={(event) => onGivenNameChange(event.target.value)}
+                                autoComplete="given-name"
+                                disabled={isSubmitting || isConfirmMode}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={fieldStyle}>
+                        <label htmlFor="invite-family-name" style={labelStyle}>Last Name</label>
+                        <div style={{ position: 'relative' }}>
+                            <User
+                                size={16}
+                                style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: 'var(--am-text-2)',
+                                }}
+                            />
+                            <input
+                                id="invite-family-name"
+                                type="text"
+                                className="am-input"
+                                style={{ width: '100%', paddingLeft: '2.45rem' }}
+                                placeholder="Last name"
+                                value={familyName}
+                                onChange={(event) => onFamilyNameChange(event.target.value)}
+                                autoComplete="family-name"
+                                disabled={isSubmitting || isConfirmMode}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ fontSize: '0.8rem', color: 'var(--am-text-2)' }}>
+                        We use these fields when creating a new invited account.
                     </div>
 
                     <div style={fieldStyle}>

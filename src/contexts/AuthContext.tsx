@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as authService from '../services/auth';
 import type { User } from '../api/types';
+import type { RegisterProfile } from '../api/auth';
 import logger from '../utils/verboseLogger';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<User>;
-    register: (email: string, password: string) => ReturnType<typeof authService.register>;
+    register: (email: string, password: string, profile?: RegisterProfile) => ReturnType<typeof authService.register>;
     confirmRegistration: (email: string, confirmationCode: string) => Promise<void>;
     forgotPassword: (email: string) => ReturnType<typeof authService.forgotPassword>;
     confirmForgotPassword: (email: string, confirmationCode: string, newPassword: string) => Promise<void>;
@@ -61,8 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
     };
 
-    const register = async (email: string, password: string) => {
-        return authService.register(email, password);
+    const register = async (email: string, password: string, profile?: RegisterProfile) => {
+        return authService.register(email, password, profile);
     };
 
     const confirmRegistration = async (email: string, confirmationCode: string) => {

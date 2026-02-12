@@ -62,6 +62,8 @@ describe('AcceptInvitation', () => {
 
         expect(await screen.findByText('Accept Invitation')).toBeInTheDocument()
         expect(screen.getByLabelText('Email')).toHaveValue('invitee@example.com')
+        expect(screen.getByLabelText('First Name')).toBeInTheDocument()
+        expect(screen.getByLabelText('Last Name')).toBeInTheDocument()
         expect(screen.getByLabelText('Password')).toBeInTheDocument()
         expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -147,12 +149,17 @@ describe('AcceptInvitation', () => {
         )
 
         await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Example')
         await user.type(screen.getByLabelText('Password'), 'CreatePass123!')
         await user.click(screen.getByRole('button', { name: 'Continue' }))
 
         await waitFor(() => {
             expect(mockLogin).toHaveBeenNthCalledWith(1, 'invitee@example.com', 'CreatePass123!')
-            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'CreatePass123!')
+            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'CreatePass123!', {
+                givenName: 'Invitee',
+                familyName: 'Example',
+            })
             expect(mockLogin).toHaveBeenNthCalledWith(2, 'invitee@example.com', 'CreatePass123!')
             expect(acceptInvitation).toHaveBeenCalledWith('tok_create')
             expect(mockNavigate).toHaveBeenCalledWith('/org_11/projects', { replace: true })
@@ -192,12 +199,17 @@ describe('AcceptInvitation', () => {
         )
 
         await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Masked')
         await user.type(screen.getByLabelText('Password'), 'CreatePass123!')
         await user.click(screen.getByRole('button', { name: 'Continue' }))
 
         await waitFor(() => {
             expect(mockLogin).toHaveBeenNthCalledWith(1, 'invitee@example.com', 'CreatePass123!')
-            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'CreatePass123!')
+            expect(mockRegister).toHaveBeenCalledWith('invitee@example.com', 'CreatePass123!', {
+                givenName: 'Invitee',
+                familyName: 'Masked',
+            })
             expect(mockLogin).toHaveBeenNthCalledWith(2, 'invitee@example.com', 'CreatePass123!')
             expect(acceptInvitation).toHaveBeenCalledWith('tok_masked')
             expect(mockNavigate).toHaveBeenCalledWith('/org_11b/projects', { replace: true })
@@ -238,12 +250,16 @@ describe('AcceptInvitation', () => {
         )
 
         await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Confirm')
         await user.type(screen.getByLabelText('Password'), 'ConfirmPass123!')
         await user.click(screen.getByRole('button', { name: 'Continue' }))
 
         expect(await screen.findByLabelText('Confirmation Code')).toBeInTheDocument()
         expect(screen.getByText(/Account created\. Enter the confirmation code/i)).toBeInTheDocument()
         expect(screen.getByLabelText('Email')).toBeDisabled()
+        expect(screen.getByLabelText('First Name')).toBeDisabled()
+        expect(screen.getByLabelText('Last Name')).toBeDisabled()
 
         await user.type(screen.getByLabelText('Confirmation Code'), '654321')
         await user.click(screen.getByRole('button', { name: 'Confirm & Continue' }))
@@ -254,6 +270,26 @@ describe('AcceptInvitation', () => {
             expect(acceptInvitation).toHaveBeenCalledWith('tok_confirm')
             expect(mockNavigate).toHaveBeenCalledWith('/org_12/projects', { replace: true })
         })
+    })
+
+    it('requires first and last name before creating an invited account', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+        mockLogin.mockRejectedValueOnce(notFoundError)
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_missing_names']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('Password'), 'CreatePass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        expect(await screen.findByText('First name is required to create your account')).toBeInTheDocument()
+        expect(mockRegister).not.toHaveBeenCalled()
     })
 
     it('shows invitation email mismatch as inline validation error', async () => {
