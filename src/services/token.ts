@@ -73,6 +73,8 @@ export async function getFreshToken(): Promise<string | null> {
 }
 
 async function fetchAndStoreToken(): Promise<string | null> {
+  const { token: existingToken } = getTokenFromStorage();
+
   try {
     const session = await fetchAuthSession();
     const tokens = (session as any).tokens || {};
@@ -89,14 +91,36 @@ async function fetchAndStoreToken(): Promise<string | null> {
     } else {
       // Log event: token hydrate failed
       logger.warn('[Token] Hydration failed: missing token/exp');
-      // Optionally: metrics hook
+      // Keep existing token only if it is still valid.
+      if (existingToken) {
+        const decodedExp = getExpFromJwt(existingToken);
+        if (isTokenValid(existingToken, decodedExp)) {
+          logger.warn('[Token] Preserving valid existing token after hydration miss');
+          if (decodedExp) {
+            localStorage.setItem(EXP_KEY, String(decodedExp));
+          }
+          return existingToken;
+        }
+        logger.warn('[Token] Existing token is expired, clearing');
+      }
       clearToken();
       return null;
     }
   } catch (err) {
     // Log event: token hydrate failed
     logger.error('[Token] Hydration failed', err);
-    // Optionally: metrics hook
+    // Keep existing token only if it is still valid; this can be a transient Cognito failure.
+    if (existingToken) {
+      const decodedExp = getExpFromJwt(existingToken);
+      if (isTokenValid(existingToken, decodedExp)) {
+        logger.warn('[Token] Preserving valid existing token after hydration error');
+        if (decodedExp) {
+          localStorage.setItem(EXP_KEY, String(decodedExp));
+        }
+        return existingToken;
+      }
+      logger.warn('[Token] Existing token is expired, clearing');
+    }
     clearToken();
     return null;
   }
