@@ -35,6 +35,7 @@ export interface ResetPasswordStartResult {
 const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
 
 let syncUserInFlight: Promise<void> | null = null;
+let signOutInFlight: Promise<void> | null = null;
 
 const SYNC_USER_RETRY_DELAY_MS = 200;
 
@@ -80,9 +81,22 @@ const syncUser = async (): Promise<void> => {
     return syncUserInFlight;
 };
 
+const signOutOnce = async (): Promise<void> => {
+    if (signOutInFlight) {
+        return signOutInFlight;
+    }
+
+    signOutInFlight = signOut().finally(() => {
+        signOutInFlight = null;
+    });
+
+    return signOutInFlight;
+};
+
 // Test hook to clear module-level sync state between unit tests.
 export const __resetAuthSyncStateForTests = (): void => {
     syncUserInFlight = null;
+    signOutInFlight = null;
 };
 
 type CodeDeliveryDetails = {
@@ -134,7 +148,7 @@ export async function login(email: string, password: string): Promise<AuthSessio
     } catch (e: any) {
         const msg = String(e?.message || e);
         if (msg.includes('already signed in user')) {
-            await signOut();
+            await signOutOnce();
             signInResult = await signIn({ username: email, password });
         } else {
             throw e;
@@ -237,7 +251,7 @@ export async function confirmForgotPassword(
 }
 
 export async function logout(): Promise<void> {
-    await signOut();
+    await signOutOnce();
     localStorage.removeItem('am_auth_token');
     clearAdminMode();
 }

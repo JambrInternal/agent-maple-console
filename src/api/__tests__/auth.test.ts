@@ -4,6 +4,7 @@ const mockSignUp = vi.fn()
 const mockResetPassword = vi.fn()
 const mockConfirmResetPassword = vi.fn()
 const mockSignIn = vi.fn()
+const mockSignOut = vi.fn()
 const mockFetchAuthSession = vi.fn()
 const mockGetCurrentUser = vi.fn()
 const mockFetchUserAttributes = vi.fn()
@@ -16,7 +17,7 @@ vi.mock('aws-amplify/auth', () => ({
     confirmResetPassword: (...args: unknown[]) => mockConfirmResetPassword(...args),
     confirmSignUp: vi.fn(),
     signIn: (...args: unknown[]) => mockSignIn(...args),
-    signOut: vi.fn(),
+    signOut: (...args: unknown[]) => mockSignOut(...args),
     fetchAuthSession: (...args: unknown[]) => mockFetchAuthSession(...args),
     getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
     fetchUserAttributes: (...args: unknown[]) => mockFetchUserAttributes(...args),
@@ -37,6 +38,7 @@ import {
     forgotPassword,
     getSessionUser,
     login,
+    logout,
     register,
 } from '../auth'
 
@@ -237,5 +239,20 @@ describe('api auth', () => {
         expect(result.user?.role).toBe('member')
         const syncCalls = mockApiFetch.mock.calls.filter((call) => call[0] === '/user/sync')
         expect(syncCalls).toHaveLength(2)
+    })
+
+    it('deduplicates concurrent logout calls to a single Cognito signOut', async () => {
+        let resolveSignOut: (() => void) | null = null
+        const signOutPromise = new Promise<void>((resolve) => {
+            resolveSignOut = resolve
+        })
+        mockSignOut.mockReturnValue(signOutPromise)
+
+        const p1 = logout()
+        const p2 = logout()
+
+        expect(mockSignOut).toHaveBeenCalledTimes(1)
+        resolveSignOut?.()
+        await Promise.all([p1, p2])
     })
 })
