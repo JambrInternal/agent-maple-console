@@ -55,4 +55,25 @@ describe('useStaleSessionGuard', () => {
         })
         expect(logout).not.toHaveBeenCalled()
     })
+
+    it('logs out when Cognito reports revoked access token', async () => {
+        const getCurrentUser = vi
+            .fn()
+            .mockRejectedValue(new Error('NotAuthorizedException: Access Token has been revoked'))
+        const loadCurrentUser = vi.fn().mockResolvedValue(getCurrentUser)
+        const logout = vi.fn().mockResolvedValue(undefined)
+
+        renderHook(() => useStaleSessionGuard({
+            loading: false,
+            user: null,
+            logout,
+            loadCurrentUser,
+        }))
+
+        await waitFor(() => {
+            expect(loadCurrentUser).toHaveBeenCalledTimes(1)
+            expect(getCurrentUser).toHaveBeenCalledTimes(1)
+            expect(logout).toHaveBeenCalledTimes(1)
+        })
+    })
 })

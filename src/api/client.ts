@@ -59,7 +59,8 @@ export async function apiFetch<T>(
 ): Promise<T> {
     // Use token provider for freshest token
     const { getFreshToken, clearToken } = await import('../services/token');
-    const token = await getFreshToken();
+    const storedToken = getAuthToken();
+    const token = (await getFreshToken()) || storedToken;
     const tenantId = getTenantId();
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
 

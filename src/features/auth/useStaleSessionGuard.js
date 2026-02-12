@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useRef } from 'react'
 
 const defaultLoadCurrentUser = async () => {
     const module = await import('aws-amplify/auth')
@@ -11,8 +12,15 @@ export default function useStaleSessionGuard({
     logout,
     loadCurrentUser = defaultLoadCurrentUser,
 }) {
+    const hasCheckedRef = useRef(false)
+
     useEffect(() => {
-        if (loading || user) return
+        if (loading || user) {
+            hasCheckedRef.current = false
+            return
+        }
+        if (hasCheckedRef.current) return
+        hasCheckedRef.current = true
 
         let cancelled = false
 
@@ -23,8 +31,18 @@ export default function useStaleSessionGuard({
                 await getCurrentUser()
                 if (cancelled) return
                 await logout()
-            } catch {
-                // No stale session found.
+            } catch (error) {
+                const message = String(
+                    error && typeof error === 'object' && 'message' in error
+                        ? error.message
+                        : error ?? ''
+                ).toLowerCase()
+
+                // Revoked token means stale Cognito state; clear it.
+                if (message.includes('access token has been revoked')) {
+                    if (cancelled) return
+                    await logout()
+                }
             }
         })()
 
