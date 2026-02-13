@@ -2,19 +2,34 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { UploadCloud } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import QueryError from '../components/QueryError'
+import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
+import KnowledgeCloudSyncDialog from '../features/knowledge/components/KnowledgeCloudSyncDialog'
+import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
+import {
+    applyKnowledgeSourceTabToSearch,
+    getKnowledgeSourceFilterFromTab,
+    getKnowledgeSourceTabFromSearch,
+    KNOWLEDGE_SOURCE_TABS,
+    parseFolderIdsInput,
+    removeOAuthParamsFromSearch,
+} from '../features/knowledge/knowledgeFilters'
+import { useApiQuery } from '../hooks/useApiQuery'
 import {
     completeKnowledgeCloudCallback,
+    deleteKnowledgeSource,
+    disconnectKnowledgeCloudProvider,
     getKnowledgeCloudAuthorizeUrl,
+    getKnowledgeSourceDownloadUrl,
     getKnowledgeSources,
     listKnowledgeCloudTokens,
+    listKnowledgeGoogleDriveConfig,
+    listKnowledgeSharePointConfig,
+    reindexKnowledgeSource,
     syncKnowledgeGoogleDrive,
     syncKnowledgeSharePoint,
     uploadKnowledgeSource,
 } from '../services/knowledge'
-import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
-import { useApiQuery } from '../hooks/useApiQuery'
-import QueryError from '../components/QueryError';
-import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
 import { withStatus } from '../utils/errors'
 
 const OAUTH_STATE_STORAGE_PREFIX = 'am_knowledge_oauth_state'
@@ -35,6 +50,8 @@ const buildOAuthRedirectUri = (pathname, provider) => {
     return redirectUrl.toString()
 }
 
+const isScopeReady = (scope) => Boolean(scope?.organizationId && scope?.projectId)
+
 const Knowledge = () => {
     const fileInputRef = useRef(null)
     const handledOAuthSearchRef = useRef('')
@@ -46,8 +63,18 @@ const Knowledge = () => {
 
     const [isUploading, setIsUploading] = useState(false)
     const [connectingProvider, setConnectingProvider] = useState('')
+    const [disconnectingProvider, setDisconnectingProvider] = useState('')
     const [isHandlingOAuthCallback, setIsHandlingOAuthCallback] = useState(false)
+    const [isSyncSubmitting, setIsSyncSubmitting] = useState(false)
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+    const [rowActionBusyId, setRowActionBusyId] = useState('')
+    const [openSyncProvider, setOpenSyncProvider] = useState('')
+    const [syncFolderInput, setSyncFolderInput] = useState('')
+    const [syncRecursive, setSyncRecursive] = useState(false)
+    const [selectedRowIds, setSelectedRowIds] = useState(new Set())
+
     const [uploadSummary, setUploadSummary] = useState(null)
+    const [bulkDeleteSummary, setBulkDeleteSummary] = useState(null)
     const [cloudMessage, setCloudMessage] = useState('')
     const [cloudError, setCloudError] = useState('')
 
@@ -59,28 +86,39 @@ const Knowledge = () => {
         ),
         [orgId, projId]
     )
+    const selectedSourceTab = useMemo(() => getKnowledgeSourceTabFromSearch(location.search), [location.search])
+    const sourceFilter = useMemo(() => getKnowledgeSourceFilterFromTab(selectedSourceTab), [selectedSourceTab])
     const knowledgeQueryKey = useMemo(
-        () => (orgId && projId ? ['knowledgeSources', orgId, projId] : ['knowledgeSources', 'none']),
-        [orgId, projId]
+        () => (orgId && projId
+            ? ['knowledgeSources', orgId, projId, sourceFilter || 'all']
+            : ['knowledgeSources', 'none']),
+        [orgId, projId, sourceFilter]
     )
     const cloudTokensQueryKey = useMemo(
         () => (orgId && projId ? ['knowledgeCloudTokens', orgId, projId] : ['knowledgeCloudTokens', 'none']),
         [orgId, projId]
     )
-
+    const googleDriveConfigQueryKey = useMemo(
+        () => (orgId && projId ? ['knowledgeGoogleDriveConfig', orgId, projId] : ['knowledgeGoogleDriveConfig', 'none']),
+        [orgId, projId]
+    )
+    const sharePointConfigQueryKey = useMemo(
+        () => (orgId && projId ? ['knowledgeSharePointConfig', orgId, projId] : ['knowledgeSharePointConfig', 'none']),
+        [orgId, projId]
+    )
     const {
         data: sources = [],
         isLoading: loading,
         error,
-        refetch
+        refetch,
     } = useApiQuery(
         knowledgeQueryKey,
         () => (
             scope
-                ? getKnowledgeSources(scope)
+                ? getKnowledgeSources(scope, { source: sourceFilter })
                 : Promise.resolve([])
         ),
-        { enabled: !!orgId && !!projId }
+        { enabled: isScopeReady(scope) }
     )
     const {
         data: cloudTokens = [],
@@ -92,26 +130,96 @@ const Knowledge = () => {
                 ? listKnowledgeCloudTokens(scope)
                 : Promise.resolve([])
         ),
-        { enabled: !!orgId && !!projId }
+        { enabled: isScopeReady(scope) }
     )
+    const {
+        data: googleDriveConfig = [],
+        error: googleDriveConfigError,
+        isLoading: isGoogleDriveConfigLoading,
+    } = useApiQuery(
+        googleDriveConfigQueryKey,
+        () => (
+            scope
+                ? listKnowledgeGoogleDriveConfig(scope)
+                : Promise.resolve([])
+        ),
+        { enabled: isScopeReady(scope) && knowledgeCloudActionsFlag.enabled }
+    )
+    const {
+        data: sharePointConfig = [],
+        error: sharePointConfigError,
+        isLoading: isSharePointConfigLoading,
+    } = useApiQuery(
+        sharePointConfigQueryKey,
+        () => (
+            scope
+                ? listKnowledgeSharePointConfig(scope)
+                : Promise.resolve([])
+        ),
+        { enabled: isScopeReady(scope) && knowledgeCloudActionsFlag.enabled }
+    )
+
     const rows = useMemo(() => sources, [sources])
     const connectedProviders = useMemo(
         () => new Set(cloudTokens.map((token) => (token.provider || '').toLowerCase())),
         [cloudTokens]
     )
+    const syncDialogProviderLabel = getCloudProviderLabel(openSyncProvider)
+    const syncConfigLoading = openSyncProvider === 'google_drive'
+        ? isGoogleDriveConfigLoading
+        : isSharePointConfigLoading
+    const syncConfigError = openSyncProvider === 'google_drive'
+        ? googleDriveConfigError
+        : sharePointConfigError
+    const existingSyncFolderIds = useMemo(() => {
+        const config = openSyncProvider === 'google_drive' ? googleDriveConfig : sharePointConfig
+        return Array.from(new Set(
+            config
+                .map((item) => item.folderId)
+                .filter(Boolean)
+        ))
+    }, [googleDriveConfig, openSyncProvider, sharePointConfig])
 
     const refreshKnowledgeData = useCallback(
         async () => {
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: knowledgeQueryKey }),
                 queryClient.invalidateQueries({ queryKey: cloudTokensQueryKey }),
+                queryClient.invalidateQueries({ queryKey: googleDriveConfigQueryKey }),
+                queryClient.invalidateQueries({ queryKey: sharePointConfigQueryKey }),
             ])
         },
-        [cloudTokensQueryKey, knowledgeQueryKey, queryClient]
+        [cloudTokensQueryKey, googleDriveConfigQueryKey, knowledgeQueryKey, queryClient, sharePointConfigQueryKey]
     )
+
+    useEffect(() => {
+        setSelectedRowIds((previous) => {
+            const visibleIds = new Set(rows.map((row) => row.id))
+            const next = new Set(Array.from(previous).filter((id) => visibleIds.has(id)))
+            if (next.size === previous.size) {
+                let changed = false
+                previous.forEach((id) => {
+                    if (!next.has(id)) changed = true
+                })
+                if (!changed) return previous
+            }
+            return next
+        })
+    }, [rows])
+
+    const clearInlineMessages = () => {
+        setCloudMessage('')
+        setCloudError('')
+        setBulkDeleteSummary(null)
+    }
 
     const handleUploadButtonClick = () => {
         fileInputRef.current?.click()
+    }
+
+    const handleSourceTabChange = (nextTab) => {
+        const nextSearch = applyKnowledgeSourceTabToSearch(location.search, nextTab)
+        navigate(`${location.pathname}${nextSearch}`)
     }
 
     const handleFilesSelected = async (event) => {
@@ -119,9 +227,8 @@ const Knowledge = () => {
         event.target.value = ''
         if (!scope || files.length === 0) return
 
+        clearInlineMessages()
         setUploadSummary(null)
-        setCloudError('')
-        setCloudMessage('')
         setIsUploading(true)
 
         try {
@@ -154,20 +261,15 @@ const Knowledge = () => {
 
     const startCloudConnect = async (provider) => {
         if (!scope || !isCloudProvider(provider)) return
-        if (knowledgeCloudActionsFlag.loading) {
-            setCloudMessage('')
-            setCloudError('Loading feature flags...')
-            return
-        }
         if (!knowledgeCloudActionsFlag.enabled) {
+            setUploadSummary(null)
             setCloudMessage('')
             setCloudError('Cloud actions are disabled by feature flag.')
             return
         }
 
         setUploadSummary(null)
-        setCloudMessage('')
-        setCloudError('')
+        clearInlineMessages()
         setConnectingProvider(provider)
 
         try {
@@ -192,6 +294,207 @@ const Knowledge = () => {
         }
     }
 
+    const openCloudSyncDialog = (provider) => {
+        if (!scope || !isCloudProvider(provider)) return
+        if (!knowledgeCloudActionsFlag.enabled) {
+            setCloudMessage('')
+            setCloudError('Cloud actions are disabled by feature flag.')
+            return
+        }
+
+        setOpenSyncProvider(provider)
+        setSyncFolderInput('')
+        setSyncRecursive(false)
+        setUploadSummary(null)
+        clearInlineMessages()
+    }
+
+    const closeCloudSyncDialog = () => {
+        if (isSyncSubmitting) return
+        setOpenSyncProvider('')
+        setSyncFolderInput('')
+        setSyncRecursive(false)
+    }
+
+    const handleCloudSyncSubmit = async (event) => {
+        event.preventDefault()
+        if (!scope || !openSyncProvider || !isCloudProvider(openSyncProvider)) return
+
+        setIsSyncSubmitting(true)
+        setUploadSummary(null)
+        clearInlineMessages()
+
+        try {
+            const folderIds = parseFolderIdsInput(syncFolderInput)
+            if (openSyncProvider === 'google_drive') {
+                await syncKnowledgeGoogleDrive(scope, {
+                    recursive: syncRecursive,
+                    folderIds,
+                })
+            } else {
+                await syncKnowledgeSharePoint(scope, {
+                    recursive: syncRecursive,
+                    folderIds,
+                })
+            }
+            await refreshKnowledgeData()
+            setCloudMessage(`${syncDialogProviderLabel} sync started.`)
+            setOpenSyncProvider('')
+            setSyncFolderInput('')
+            setSyncRecursive(false)
+        } catch (syncError) {
+            setCloudError(withStatus(`Failed to start ${syncDialogProviderLabel} sync.`, syncError))
+        } finally {
+            setIsSyncSubmitting(false)
+        }
+    }
+
+    const handleCloudDisconnect = async (provider) => {
+        if (!scope || !isCloudProvider(provider)) return
+        if (!window.confirm(`Disconnect ${getCloudProviderLabel(provider)} for this project?`)) return
+
+        setDisconnectingProvider(provider)
+        setUploadSummary(null)
+        clearInlineMessages()
+        try {
+            await disconnectKnowledgeCloudProvider(scope, provider)
+            await refreshKnowledgeData()
+            setCloudMessage(`${getCloudProviderLabel(provider)} disconnected.`)
+        } catch (disconnectError) {
+            setCloudError(withStatus(`Failed to disconnect ${getCloudProviderLabel(provider)}.`, disconnectError))
+        } finally {
+            setDisconnectingProvider('')
+        }
+    }
+
+    const runRowAction = async (rowId, action) => {
+        setUploadSummary(null)
+        clearInlineMessages()
+        setRowActionBusyId(rowId)
+        try {
+            await action()
+        } catch (error) {
+            setCloudError(withStatus('Action failed. Please try again.', error))
+        } finally {
+            setRowActionBusyId('')
+        }
+    }
+
+    const handleViewChunks = (row) => {
+        if (!scope) return
+        navigate(`/${orgId}/${projId}/datasources/${row.id}/chunks`)
+    }
+
+    const handleDownloadSource = async (row) => {
+        if (!scope) return
+        await runRowAction(row.id, async () => {
+            const result = await getKnowledgeSourceDownloadUrl(scope, row.id)
+            if (!result.downloadUrl) {
+                throw new Error('Download URL was empty')
+            }
+            window.open(result.downloadUrl, '_blank', 'noopener,noreferrer')
+            setCloudMessage(`Download link opened for ${row.name}.`)
+        })
+    }
+
+    const handleReprocessSource = async (row) => {
+        if (!scope) return
+        await runRowAction(row.id, async () => {
+            await reindexKnowledgeSource(row.id, scope)
+            await refreshKnowledgeData()
+            setCloudMessage(`Reprocess started for ${row.name}.`)
+        })
+    }
+
+    const handleDeleteSource = async (row) => {
+        if (!scope) return
+        if (!window.confirm(`Delete ${row.name}?`)) return
+
+        await runRowAction(row.id, async () => {
+            await deleteKnowledgeSource(row.id, scope)
+            await refreshKnowledgeData()
+            setSelectedRowIds((previous) => {
+                const next = new Set(previous)
+                next.delete(row.id)
+                return next
+            })
+            setCloudMessage(`${row.name} deleted.`)
+        })
+    }
+
+    const handleToggleRowSelection = (rowId) => {
+        setSelectedRowIds((previous) => {
+            const next = new Set(previous)
+            if (next.has(rowId)) {
+                next.delete(rowId)
+            } else {
+                next.add(rowId)
+            }
+            return next
+        })
+    }
+
+    const handleToggleAllRowSelection = () => {
+        setSelectedRowIds((previous) => {
+            if (rows.length === 0) return previous
+            const allIds = rows.map((row) => row.id)
+            const areAllSelected = allIds.every((id) => previous.has(id))
+            if (areAllSelected) return new Set()
+            return new Set(allIds)
+        })
+    }
+
+    const handleBulkDelete = async () => {
+        if (!scope || selectedRowIds.size === 0) return
+
+        const selectedIds = Array.from(selectedRowIds)
+        const confirmation = `Delete ${selectedIds.length} selected source(s)?`
+        if (!window.confirm(confirmation)) return
+
+        setIsBulkDeleting(true)
+        setUploadSummary(null)
+        clearInlineMessages()
+
+        try {
+            const results = await Promise.allSettled(
+                selectedIds.map((rowId) => deleteKnowledgeSource(rowId, scope))
+            )
+
+            const failedIds = []
+            const failures = []
+            let successCount = 0
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    successCount += 1
+                    return
+                }
+                const failedId = selectedIds[index]
+                failedIds.push(failedId)
+                failures.push(withStatus(`Failed to delete source ${failedId}.`, result.reason))
+            })
+
+            await refreshKnowledgeData()
+            setSelectedRowIds(new Set(failedIds))
+            setBulkDeleteSummary({
+                successCount,
+                failures,
+            })
+            if (failures.length === 0) {
+                setCloudMessage(`Deleted ${successCount} source(s).`)
+            } else {
+                setCloudError(`${failures.length} source delete action(s) failed.`)
+            }
+        } catch (bulkDeleteError) {
+            setCloudError(withStatus('Failed to complete bulk delete.', bulkDeleteError))
+        } finally {
+            setIsBulkDeleting(false)
+        }
+    }
+
+    const handleClearSelected = () => {
+        setSelectedRowIds(new Set())
+    }
+
     useEffect(() => {
         if (!scope) return
 
@@ -208,13 +511,10 @@ const Knowledge = () => {
         handledOAuthSearchRef.current = location.search
 
         const clearCallbackParams = () => {
-            navigate(location.pathname, { replace: true })
+            const nextSearch = removeOAuthParamsFromSearch(location.search)
+            navigate(`${location.pathname}${nextSearch}`, { replace: true })
         }
 
-        if (knowledgeCloudActionsFlag.loading) {
-            // Wait for flags to load before blocking OAuth callback
-            return
-        }
         if (!knowledgeCloudActionsFlag.enabled) {
             setCloudMessage('')
             setCloudError('Cloud actions are disabled by feature flag.')
@@ -251,7 +551,6 @@ const Knowledge = () => {
         const stateStorageKey = buildOAuthStateStorageKey(orgId, projId, provider)
         const expectedState = sessionStorage.getItem(stateStorageKey)
 
-        // Always require a returned state and a stored expected state.
         if (!returnedState) {
             sessionStorage.removeItem(stateStorageKey)
             setCloudMessage('')
@@ -280,7 +579,7 @@ const Knowledge = () => {
         let cancelled = false
         const finalizeOAuthFlow = async () => {
             setUploadSummary(null)
-            setCloudError('')
+            clearInlineMessages()
             setCloudMessage(`Finalizing ${getCloudProviderLabel(provider)} connection...`)
             setIsHandlingOAuthCallback(true)
 
@@ -326,6 +625,15 @@ const Knowledge = () => {
         scope,
     ])
 
+    const selectedCount = selectedRowIds.size
+    const isRowActionBusy = (rowId) => (
+        rowActionBusyId === rowId ||
+        isBulkDeleting ||
+        isUploading ||
+        isHandlingOAuthCallback ||
+        isSyncSubmitting
+    )
+
     return (
         <div className="am-page-content">
             <div className="am-knowledge-container">
@@ -354,6 +662,20 @@ const Knowledge = () => {
                     />
                 </div>
 
+                <div className="am-tabs" role="tablist" aria-label="Knowledge source filters">
+                    {KNOWLEDGE_SOURCE_TABS.map((tab) => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            className={`am-tab ${selectedSourceTab === tab.key ? 'active' : ''}`}
+                            aria-pressed={selectedSourceTab === tab.key}
+                            onClick={() => handleSourceTabChange(tab.key)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
                 {knowledgeCloudActionsFlag.enabled && (
                     <>
                         <div className="am-table-card" style={{ marginBottom: '1rem' }}>
@@ -361,7 +683,8 @@ const Knowledge = () => {
                                 {Object.entries(CLOUD_PROVIDER_META).map(([provider, meta]) => {
                                     const isConnected = connectedProviders.has(provider)
                                     const isConnecting = connectingProvider === provider
-                                    const disabled = isConnecting || isHandlingOAuthCallback || !scope
+                                    const isDisconnecting = disconnectingProvider === provider
+                                    const disabled = isConnecting || isHandlingOAuthCallback || !scope || isSyncSubmitting
 
                                     return (
                                         <div
@@ -382,14 +705,34 @@ const Knowledge = () => {
                                                     {isConnected ? 'Connected' : 'Not Connected'}
                                                 </span>
                                             </div>
-                                            <button
-                                                type="button"
-                                                className="am-btn-secondary"
-                                                disabled={disabled}
-                                                onClick={() => startCloudConnect(provider)}
-                                            >
-                                                {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
-                                            </button>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                <button
+                                                    type="button"
+                                                    className="am-btn-secondary"
+                                                    disabled={disabled}
+                                                    onClick={() => startCloudConnect(provider)}
+                                                >
+                                                    {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="am-btn-secondary"
+                                                    disabled={disabled || !isConnected}
+                                                    onClick={() => openCloudSyncDialog(provider)}
+                                                >
+                                                    Sync
+                                                </button>
+                                                {isConnected && (
+                                                    <button
+                                                        type="button"
+                                                        className="am-btn-secondary"
+                                                        disabled={disabled || isDisconnecting}
+                                                        onClick={() => handleCloudDisconnect(provider)}
+                                                    >
+                                                        {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     )
                                 })}
@@ -408,6 +751,32 @@ const Knowledge = () => {
                     </>
                 )}
 
+                {selectedCount > 0 && (
+                    <div className="am-table-card" style={{ marginBottom: '1rem', padding: '0.85rem 1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div className="am-text-2">{selectedCount} source(s) selected</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <button
+                                    type="button"
+                                    className="am-btn-secondary"
+                                    onClick={handleClearSelected}
+                                    disabled={isBulkDeleting}
+                                >
+                                    Clear Selection
+                                </button>
+                                <button
+                                    type="button"
+                                    className="am-btn-secondary"
+                                    onClick={handleBulkDelete}
+                                    disabled={isBulkDeleting}
+                                >
+                                    {isBulkDeleting ? 'Deleting...' : 'Delete Selected'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {uploadSummary && (
                     <div className="am-text-2" style={{ paddingBottom: '1rem', color: uploadSummary.failures.length ? '#f59e0b' : '#22c55e' }}>
                         Uploaded {uploadSummary.successCount} file(s)
@@ -415,6 +784,20 @@ const Knowledge = () => {
                         {uploadSummary.failures.length > 0 && (
                             <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.2rem', color: '#ef4444' }}>
                                 {uploadSummary.failures.map((failure, index) => (
+                                    <li key={index}>{failure}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                )}
+
+                {bulkDeleteSummary && (
+                    <div className="am-text-2" style={{ paddingBottom: '1rem', color: bulkDeleteSummary.failures.length ? '#f59e0b' : '#22c55e' }}>
+                        Deleted {bulkDeleteSummary.successCount} source(s)
+                        {bulkDeleteSummary.failures.length ? `, ${bulkDeleteSummary.failures.length} failed.` : ' successfully.'}
+                        {bulkDeleteSummary.failures.length > 0 && (
+                            <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.2rem', color: '#ef4444' }}>
+                                {bulkDeleteSummary.failures.map((failure, index) => (
                                     <li key={index}>{failure}</li>
                                 ))}
                             </ul>
@@ -447,8 +830,33 @@ const Knowledge = () => {
                 )}
 
                 {!loading && !error && (
-                    <KnowledgeTable rows={rows} />
+                    <KnowledgeTable
+                        rows={rows}
+                        selectedRowIds={selectedRowIds}
+                        onToggleRowSelection={handleToggleRowSelection}
+                        onToggleAllRowSelection={handleToggleAllRowSelection}
+                        onViewChunks={handleViewChunks}
+                        onDownload={handleDownloadSource}
+                        onReprocess={handleReprocessSource}
+                        onDelete={handleDeleteSource}
+                        isRowActionBusy={isRowActionBusy}
+                    />
                 )}
+
+                <KnowledgeCloudSyncDialog
+                    isOpen={Boolean(openSyncProvider)}
+                    providerLabel={syncDialogProviderLabel}
+                    folderInput={syncFolderInput}
+                    recursive={syncRecursive}
+                    isSubmitting={isSyncSubmitting}
+                    configLoading={syncConfigLoading}
+                    configError={syncConfigError ? withStatus('Failed to load sync folder config.', syncConfigError) : ''}
+                    existingFolderIds={existingSyncFolderIds}
+                    onFolderInputChange={setSyncFolderInput}
+                    onRecursiveChange={setSyncRecursive}
+                    onClose={closeCloudSyncDialog}
+                    onSubmit={handleCloudSyncSubmit}
+                />
             </div>
         </div>
     )

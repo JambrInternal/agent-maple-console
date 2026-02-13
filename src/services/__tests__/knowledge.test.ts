@@ -1,12 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
     completeKnowledgeCloudCallback,
+    deleteKnowledgeChunksBatch,
     deleteKnowledgeSource,
+    disconnectKnowledgeCloudProvider,
     getKnowledgeCloudAuthorizeUrl,
     getKnowledgeSource,
+    getKnowledgeSourceDownloadUrl,
     getKnowledgeSources,
+    listKnowledgeChunks,
     listKnowledgeCloudTokens,
+    listKnowledgeGoogleDriveConfig,
+    listKnowledgeSharePointConfig,
     reindexKnowledgeSource,
+    reprocessKnowledgeChunk,
+    reprocessKnowledgeChunksBatch,
     syncKnowledgeGoogleDrive,
     syncKnowledgeSharePoint,
     uploadKnowledgeSource,
@@ -25,7 +33,7 @@ describe('knowledge service', () => {
         vi.clearAllMocks();
     });
 
-    it('lists knowledge sources for a project', async () => {
+    it('lists knowledge sources for a tenant', async () => {
         vi.mocked(apiFetch).mockResolvedValue({
             data: [
                 {
@@ -46,6 +54,18 @@ describe('knowledge service', () => {
             headers: { 'x-tenant-id': '2' },
         });
         expect(result[0].status).toBe('ready');
+    });
+
+    it('lists knowledge sources with source filter query', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [],
+        });
+
+        await getKnowledgeSources('2', { source: 'google_drive' });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources?source=google_drive', {
+            headers: { 'x-tenant-id': '2' },
+        });
     });
 
     it('lists knowledge sources using project facade scope and stores project mapping', async () => {
@@ -79,7 +99,9 @@ describe('knowledge service', () => {
 
         const result = await getKnowledgeSource('5');
 
-        expect(apiFetch).toHaveBeenCalledWith('/datasources/5');
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/5', {
+            headers: {},
+        });
         expect(result.status).toBe('indexing');
     });
 
@@ -108,15 +130,21 @@ describe('knowledge service', () => {
         expect(result.name).toBe('doc.pdf');
     });
 
-    it('deletes a knowledge source', async () => {
+    it('deletes a knowledge source with scoped tenant header', async () => {
         vi.mocked(apiFetch).mockResolvedValue({});
 
-        await deleteKnowledgeSource('22');
+        await deleteKnowledgeSource('22', {
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
 
-        expect(apiFetch).toHaveBeenCalledWith('/datasources/22', { method: 'DELETE' });
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/22', {
+            method: 'DELETE',
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
     });
 
-    it('reprocesses a knowledge source', async () => {
+    it('reprocesses a knowledge source and reloads it with scope', async () => {
         vi.mocked(apiFetch)
             .mockResolvedValueOnce({})
             .mockResolvedValueOnce({
@@ -131,10 +159,18 @@ describe('knowledge service', () => {
                 },
             });
 
-        const result = await reindexKnowledgeSource('31');
+        const result = await reindexKnowledgeSource('31', {
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
 
-        expect(apiFetch).toHaveBeenNthCalledWith(1, '/datasources/31/reprocess', { method: 'POST' });
-        expect(apiFetch).toHaveBeenNthCalledWith(2, '/datasources/31');
+        expect(apiFetch).toHaveBeenNthCalledWith(1, '/datasources/31/reprocess', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(apiFetch).toHaveBeenNthCalledWith(2, '/datasources/31', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
         expect(result.status).toBe('indexing');
     });
 
@@ -232,7 +268,77 @@ describe('knowledge service', () => {
         });
     });
 
-    it('triggers google drive sync with recursive disabled by default', async () => {
+    it('lists google drive sync config watches', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    watch_id: 11,
+                    folder: { id: 'root' },
+                    created_at: '2026-02-13T01:00:00Z',
+                },
+            ],
+        });
+
+        const result = await listKnowledgeGoogleDriveConfig({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/google-drive-config', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(result).toEqual([
+            {
+                watchId: '11',
+                folderId: 'root',
+                createdAt: '2026-02-13T01:00:00.000Z',
+            },
+        ]);
+    });
+
+    it('lists sharepoint sync config watches', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    watch_id: 22,
+                    folder: { id: 'sp_folder' },
+                    created_at: '2026-02-13T02:00:00Z',
+                },
+            ],
+        });
+
+        const result = await listKnowledgeSharePointConfig({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/sharepoint-config', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(result).toEqual([
+            {
+                watchId: '22',
+                folderId: 'sp_folder',
+                createdAt: '2026-02-13T02:00:00.000Z',
+            },
+        ]);
+    });
+
+    it('disconnects cloud provider token', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await disconnectKnowledgeCloudProvider(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            'google_drive'
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/oauth2/unauthorize/google_drive', {
+            method: 'DELETE',
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+    });
+
+    it('triggers google drive sync with folder IDs and recursive option', async () => {
         vi.mocked(apiFetch).mockResolvedValue({
             data: {
                 watches_created: 1,
@@ -241,15 +347,24 @@ describe('knowledge service', () => {
             },
         });
 
-        const result = await syncKnowledgeGoogleDrive({
-            organizationId: 'tenant_1',
-            projectId: 'proj_1',
-        });
+        const result = await syncKnowledgeGoogleDrive(
+            {
+                organizationId: 'tenant_1',
+                projectId: 'proj_1',
+            },
+            {
+                recursive: true,
+                folderIds: [' root ', 'sub', 'root'],
+            }
+        );
 
         expect(apiFetch).toHaveBeenCalledWith('/datasources/sync-google-drive', {
             method: 'POST',
             headers: { 'x-tenant-id': 'tenant_1' },
-            body: JSON.stringify({ recursive: false }),
+            body: JSON.stringify({
+                recursive: true,
+                folder_ids: ['root', 'sub'],
+            }),
         });
         expect(result).toEqual({
             watchesCreated: 1,
@@ -275,12 +390,135 @@ describe('knowledge service', () => {
         expect(apiFetch).toHaveBeenCalledWith('/datasources/sync-sharepoint', {
             method: 'POST',
             headers: { 'x-tenant-id': 'tenant_1' },
-            body: JSON.stringify({ recursive: false }),
+            body: JSON.stringify({
+                recursive: false,
+                folder_ids: undefined,
+            }),
         });
         expect(result).toEqual({
             watchesCreated: 2,
             syncStatus: 'processing',
             message: 'sync started',
+        });
+    });
+
+    it('gets datasource download URL', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                download_url: 'https://signed.example.com/datasource.pdf',
+                expires_in: 3600,
+            },
+        });
+
+        const result = await getKnowledgeSourceDownloadUrl(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            '44'
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/44/download-url', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(result).toEqual({
+            downloadUrl: 'https://signed.example.com/datasource.pdf',
+            expiresIn: 3600,
+        });
+    });
+
+    it('lists chunks for a datasource with filters', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    id: 91,
+                    datasource_id: 44,
+                    chunk_index: 3,
+                    chunk_title: 'Intro',
+                    element_type: 'TEXT',
+                    always_handle: false,
+                    text: 'First paragraph',
+                    page: '1',
+                    status: 'COMPLETED',
+                    error_message: null,
+                    created_at: '2026-02-13T00:00:00Z',
+                    updated_at: '2026-02-13T00:30:00Z',
+                },
+            ],
+        });
+
+        const result = await listKnowledgeChunks(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            {
+                datasourceId: '44',
+                sortBy: 'created_at',
+                sortOrder: 'desc',
+            }
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/file-chunks?datasource_id=44&sort_by=created_at&sort_order=desc', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(result).toEqual([
+            {
+                id: '91',
+                datasourceId: '44',
+                chunkIndex: 3,
+                chunkTitle: 'Intro',
+                elementType: 'TEXT',
+                alwaysHandle: false,
+                text: 'First paragraph',
+                page: '1',
+                status: 'ready',
+                errorMessage: null,
+                createdAt: '2026-02-13T00:00:00.000Z',
+                updatedAt: '2026-02-13T00:30:00.000Z',
+            },
+        ]);
+    });
+
+    it('reprocesses a single chunk', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await reprocessKnowledgeChunk(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            '99'
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/file-chunks/99/reprocess', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+    });
+
+    it('reprocesses chunk batch with normalized IDs', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await reprocessKnowledgeChunksBatch(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            ['42', 42, '77', 'bad']
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/file-chunks/reprocess-batch', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({
+                chunk_ids: [42, 77],
+            }),
+        });
+    });
+
+    it('deletes chunk batch with normalized IDs', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({});
+
+        await deleteKnowledgeChunksBatch(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            ['51', 51, '88', 'oops']
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/file-chunks/delete-batch', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({
+                chunk_ids: [51, 88],
+            }),
         });
     });
 });
