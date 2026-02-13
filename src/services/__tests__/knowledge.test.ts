@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+    completeKnowledgeCloudCallback,
     deleteKnowledgeSource,
+    getKnowledgeCloudAuthorizeUrl,
     getKnowledgeSource,
     getKnowledgeSources,
+    listKnowledgeCloudTokens,
     reindexKnowledgeSource,
+    syncKnowledgeGoogleDrive,
+    syncKnowledgeSharePoint,
     uploadKnowledgeSource,
 } from '../knowledge';
 import { apiFetch } from '../../api/client';
@@ -131,5 +136,151 @@ describe('knowledge service', () => {
         expect(apiFetch).toHaveBeenNthCalledWith(1, '/datasources/31/reprocess', { method: 'POST' });
         expect(apiFetch).toHaveBeenNthCalledWith(2, '/datasources/31');
         expect(result.status).toBe('indexing');
+    });
+
+    it('lists cloud tokens for knowledge integrations', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: [
+                {
+                    provider: 'google_drive',
+                    access_token: 'secret',
+                    expires_at: '2026-02-15T00:00:00Z',
+                    created_at: '2026-02-13T00:00:00Z',
+                    updated_at: '2026-02-13T00:00:00Z',
+                },
+            ],
+        });
+
+        const result = await listKnowledgeCloudTokens({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/oauth2/tokens', {
+            headers: { 'x-tenant-id': 'tenant_1' },
+        });
+        expect(result).toEqual([
+            {
+                provider: 'google_drive',
+                accessToken: 'secret',
+                expiresAt: '2026-02-15T00:00:00Z',
+                createdAt: '2026-02-13T00:00:00Z',
+                updatedAt: '2026-02-13T00:00:00Z',
+            },
+        ]);
+    });
+
+    it('requests OAuth authorization URL with tenant scope', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                authorization_url: 'https://auth.example.com/connect',
+                state: 'state_123',
+            },
+        });
+
+        const result = await getKnowledgeCloudAuthorizeUrl(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            'google_drive',
+            'http://localhost:5173/org/proj/knowledge?oauth_provider=google_drive'
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/oauth2/authorize', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({
+                provider: 'google_drive',
+                redirect_uri: 'http://localhost:5173/org/proj/knowledge?oauth_provider=google_drive',
+            }),
+        });
+        expect(result).toEqual({
+            authorizationUrl: 'https://auth.example.com/connect',
+            state: 'state_123',
+        });
+    });
+
+    it('completes OAuth callback with tenant scope', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                access_token: 'access_token_1',
+                refresh_token: 'refresh_token_1',
+                expires_in: 3600,
+                token_type: 'Bearer',
+            },
+        });
+
+        const result = await completeKnowledgeCloudCallback(
+            { organizationId: 'tenant_1', projectId: 'proj_1' },
+            'sharepoint',
+            'oauth_code',
+            'http://localhost:5173/org/proj/knowledge?oauth_provider=sharepoint'
+        );
+
+        expect(apiFetch).toHaveBeenCalledWith('/oauth2/callback', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({
+                provider: 'sharepoint',
+                code: 'oauth_code',
+                redirect_uri: 'http://localhost:5173/org/proj/knowledge?oauth_provider=sharepoint',
+            }),
+        });
+        expect(result).toEqual({
+            accessToken: 'access_token_1',
+            refreshToken: 'refresh_token_1',
+            expiresIn: 3600,
+            tokenType: 'Bearer',
+        });
+    });
+
+    it('triggers google drive sync with recursive disabled by default', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                watches_created: 1,
+                sync_status: 'processing',
+                message: 'sync started',
+            },
+        });
+
+        const result = await syncKnowledgeGoogleDrive({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/sync-google-drive', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({ recursive: false }),
+        });
+        expect(result).toEqual({
+            watchesCreated: 1,
+            syncStatus: 'processing',
+            message: 'sync started',
+        });
+    });
+
+    it('triggers sharepoint sync with recursive disabled by default', async () => {
+        vi.mocked(apiFetch).mockResolvedValue({
+            data: {
+                watches_created: 2,
+                sync_status: 'processing',
+                message: 'sync started',
+            },
+        });
+
+        const result = await syncKnowledgeSharePoint({
+            organizationId: 'tenant_1',
+            projectId: 'proj_1',
+        });
+
+        expect(apiFetch).toHaveBeenCalledWith('/datasources/sync-sharepoint', {
+            method: 'POST',
+            headers: { 'x-tenant-id': 'tenant_1' },
+            body: JSON.stringify({ recursive: false }),
+        });
+        expect(result).toEqual({
+            watchesCreated: 2,
+            syncStatus: 'processing',
+            message: 'sync started',
+        });
     });
 });

@@ -10,7 +10,7 @@ export type IssueStatus = 'open' | 'in_progress' | 'resolved';
 export type Channel = 'voice' | 'sms' | 'email';
 export type MessageDirection = 'inbound' | 'outbound';
 export type UserRole = 'owner' | 'admin' | 'member' | 'viewer';
-export type KnowledgeSourceType = 'pdf' | 'doc' | 'google_drive' | 'dropbox';
+export type KnowledgeSourceType = 'pdf' | 'doc' | 'google_drive' | 'sharepoint' | 'dropbox';
 export type KnowledgeSourceStatus = 'pending' | 'indexing' | 'ready' | 'error';
 
 // ============================================

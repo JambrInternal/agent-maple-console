@@ -4,6 +4,7 @@ interface RuntimeConfig {
     COGNITO_USER_POOL_ID?: string;
     COGNITO_APP_CLIENT_ID?: string;
     SENTRY_DSN?: string;
+    GIT_COMMIT?: string;
 }
 
 interface AppConfig {
@@ -12,6 +13,7 @@ interface AppConfig {
     COGNITO_USER_POOL_ID: string;
     COGNITO_APP_CLIENT_ID: string;
     SENTRY_DSN: string;
+    GIT_COMMIT: string;
 }
 
 declare global {
@@ -64,5 +66,6 @@ export const getAppConfig = (): AppConfig => {
             '2j77g0duot54vs8461u4tbbenp'
         ),
         SENTRY_DSN: resolveValue(runtime.SENTRY_DSN, import.meta.env.VITE_SENTRY_DSN, ''),
+        GIT_COMMIT: resolveValue(runtime.GIT_COMMIT, import.meta.env.VITE_GIT_COMMIT, ''),
     };
 };

@@ -5,5 +5,9 @@ export default function KnowledgeSourceBadge({ type }) {
         return <span className="am-source-badge is-google-drive">Google Drive</span>
     }
 
+    if (type === 'sharepoint') {
+        return <span className="am-source-badge is-sharepoint">SharePoint</span>
+    }
+
     return <span className="am-pill is-upload">Upload</span>
 }

@@ -172,6 +172,7 @@ describe('getAppConfig', () => {
             expect(config).toHaveProperty('COGNITO_USER_POOL_ID');
             expect(config).toHaveProperty('COGNITO_APP_CLIENT_ID');
             expect(config).toHaveProperty('SENTRY_DSN');
+            expect(config).toHaveProperty('GIT_COMMIT');
         });
     });
 
@@ -205,6 +206,25 @@ describe('getAppConfig', () => {
             expect(config.API_URL).toBe('https://api.prod.example.com');
             expect(config.AWS_REGION).toBe('eu-central-1');
             expect(config.COGNITO_USER_POOL_ID).toBe('us-east-1_dDp9djoZz');
+        });
+
+        it('prefers runtime git commit over build-time env commit', () => {
+            (window as any).__APP_CONFIG__ = {
+                GIT_COMMIT: 'runtime123',
+            };
+            (import.meta.env as any).VITE_GIT_COMMIT = 'env456';
+
+            const config = getAppConfig();
+
+            expect(config.GIT_COMMIT).toBe('runtime123');
+        });
+
+        it('uses build-time env git commit when runtime commit is missing', () => {
+            (import.meta.env as any).VITE_GIT_COMMIT = 'env456';
+
+            const config = getAppConfig();
+
+            expect(config.GIT_COMMIT).toBe('env456');
         });
     });
 });

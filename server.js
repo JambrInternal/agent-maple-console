@@ -55,6 +55,12 @@ const getRuntimeConfig = () => ({
         '2j77g0duot54vs8461u4tbbenp'
     ),
     SENTRY_DSN: resolveConfigValue(process.env.SENTRY_DSN, process.env.VITE_SENTRY_DSN, ''),
+    GIT_COMMIT: resolveConfigValue(
+        process.env.GIT_COMMIT,
+        process.env.RAILWAY_GIT_COMMIT_SHA,
+        process.env.VITE_GIT_COMMIT,
+        ''
+    ),
 });
 
 const sendFile = (res, filePath, method) => {
