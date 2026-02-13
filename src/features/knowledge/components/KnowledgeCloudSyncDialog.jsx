@@ -18,7 +18,11 @@ export default function KnowledgeCloudSyncDialog({
     if (!isOpen) return null
 
     return (
-        <div className="am-modal-backdrop" role="presentation" onClick={onClose}>
+        <div
+            className="am-modal-backdrop"
+            role="presentation"
+            onClick={isSubmitting ? undefined : onClose}
+        >
             <div
                 className="am-modal"
                 role="dialog"
@@ -30,7 +34,13 @@ export default function KnowledgeCloudSyncDialog({
                     <h2 className="am-modal-title" id="knowledge-sync-title">
                         Sync {providerLabel}
                     </h2>
-                    <button type="button" className="am-icon-button" onClick={onClose} aria-label="Close">
+                    <button
+                        type="button"
+                        className="am-icon-button"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                        aria-label="Close"
+                    >
                         <X size={16} />
                     </button>
                 </div>
