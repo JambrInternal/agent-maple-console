@@ -8,6 +8,7 @@ import ComingSoon from '../pages/ComingSoon'
 import Contacts from '../pages/Contacts'
 import FeatureGateRoute from '../featureFlags/FeatureGateRoute'
 import Knowledge from '../pages/Knowledge'
+import KnowledgeChunks from '../pages/KnowledgeChunks'
 import Login from '../pages/Login'
 import OrgSelection from '../pages/OrgSelection'
 import OrgTeam from '../pages/OrgTeam'
@@ -46,6 +47,7 @@ const AppRoutes = () => {
                             <Route path="issues" element={<ComingSoon title="Issues" />} />
                             <Route path="tools-skills" element={<ComingSoon title="Skills & Tools" />} />
                             <Route path="knowledge" element={<Knowledge />} />
+                            <Route path="datasources/:datasourceId/chunks" element={<KnowledgeChunks />} />
                             <Route path="contacts" element={<Contacts />} />
                             <Route path="insights" element={<ComingSoon title="Insights" />} />
                             <Route path="sms" element={<ComingSoon title="SMS" />} />
