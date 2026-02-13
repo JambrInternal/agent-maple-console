@@ -90,6 +90,7 @@ The repo is configured for Railway Docker deployments:
 - `Dockerfile`: builds Vite assets and runs the Node runtime server.
 - `server.js`: serves `dist/`, dynamic `/env.js`, and `/healthz`.
 - `.dockerignore`: trims deployment context for faster builds.
+- Vercel support/config has been removed from this repository.
 
 Railway service expectations:
 - Internal app port: `3000` (Railway injects `PORT` at runtime).
