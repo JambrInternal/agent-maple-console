@@ -47,7 +47,7 @@ describe('Knowledge page', () => {
         vi.mocked(listKnowledgeCloudTokens).mockResolvedValue([])
         vi.mocked(uploadKnowledgeSource).mockResolvedValue({
             id: '1',
-            projectId: 'org_1',
+            projectId: 'proj_1',
             name: 'doc.pdf',
             type: 'pdf',
             status: 'pending',
@@ -105,7 +105,7 @@ describe('Knowledge page', () => {
         vi.mocked(uploadKnowledgeSource)
             .mockResolvedValueOnce({
                 id: '1',
-                projectId: 'org_1',
+                projectId: 'proj_1',
                 name: 'good.pdf',
                 type: 'pdf',
                 status: 'pending',
@@ -142,7 +142,8 @@ describe('Knowledge page', () => {
     it('starts cloud OAuth connect flow and redirects to authorization URL', async () => {
         renderKnowledge()
 
-        await userEvent.click(screen.getAllByRole('button', { name: 'Connect' })[0])
+        const user = userEvent.setup()
+        await user.click(screen.getAllByRole('button', { name: 'Connect' })[0])
 
         await waitFor(() =>
             expect(getKnowledgeCloudAuthorizeUrl).toHaveBeenCalledWith(
