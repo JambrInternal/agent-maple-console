@@ -5,6 +5,7 @@ import Breadcrumbs from './Breadcrumbs'
 import { useAuth } from '../contexts/AuthContext'
 import { getAdminMode } from '../utils/admin'
 import { applyThemeForAdminMode } from '../utils/theme'
+import { dispatchTenantChange } from '../featureFlags/featureFlagService'
 
 const Layout = () => {
     const { orgId } = useParams()
@@ -43,6 +44,7 @@ const Layout = () => {
     useEffect(() => {
         if (orgId) {
             localStorage.setItem('am_tenant_id', orgId)
+            dispatchTenantChange(orgId)
         }
     }, [orgId])
 

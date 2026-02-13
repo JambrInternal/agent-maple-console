@@ -6,6 +6,7 @@ import BuildTag from '../components/BuildTag'
 import AcceptInvitation from '../pages/AcceptInvitation'
 import ComingSoon from '../pages/ComingSoon'
 import Contacts from '../pages/Contacts'
+import FeatureGateRoute from '../featureFlags/FeatureGateRoute'
 import Knowledge from '../pages/Knowledge'
 import Login from '../pages/Login'
 import OrgSelection from '../pages/OrgSelection'
@@ -49,7 +50,18 @@ const AppRoutes = () => {
                             <Route path="insights" element={<ComingSoon title="Insights" />} />
                             <Route path="sms" element={<ComingSoon title="SMS" />} />
                             <Route path="voice" element={<Voice />} />
-                            <Route path="personality" element={<Personality />} />
+                            <Route
+                                path="personality"
+                                element={(
+                                    <FeatureGateRoute
+                                        flagKey="ff_personality_editor"
+                                        title="Personality Unavailable"
+                                        description="Personality is disabled for this deployment or rollout target."
+                                    >
+                                        <Personality />
+                                    </FeatureGateRoute>
+                                )}
+                            />
                             <Route path="email" element={<ComingSoon title="Email" />} />
                         </Route>
                     </Route>

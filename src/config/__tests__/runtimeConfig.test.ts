@@ -52,6 +52,11 @@ describe('getAppConfig', () => {
             expect(config.COGNITO_USER_POOL_ID).toBe('us-east-1_dDp9djoZz');
             expect(config.COGNITO_APP_CLIENT_ID).toBe('2j77g0duot54vs8461u4tbbenp');
             expect(config.SENTRY_DSN).toBe('');
+            expect(config.POSTHOG_KEY).toBe('');
+            expect(config.POSTHOG_HOST).toBe('https://us.i.posthog.com');
+            expect(config.POSTHOG_ENABLED).toBe('true');
+            expect(config.APP_ENV).toBe('');
+            expect(config.POSTHOG_TARGETING_MODE).toBe('auto');
         });
 
         it('uses import.meta.env when runtime config value is empty string', () => {
@@ -173,6 +178,11 @@ describe('getAppConfig', () => {
             expect(config).toHaveProperty('COGNITO_APP_CLIENT_ID');
             expect(config).toHaveProperty('SENTRY_DSN');
             expect(config).toHaveProperty('GIT_COMMIT');
+            expect(config).toHaveProperty('POSTHOG_KEY');
+            expect(config).toHaveProperty('POSTHOG_HOST');
+            expect(config).toHaveProperty('POSTHOG_ENABLED');
+            expect(config).toHaveProperty('APP_ENV');
+            expect(config).toHaveProperty('POSTHOG_TARGETING_MODE');
         });
     });
 
@@ -184,6 +194,11 @@ describe('getAppConfig', () => {
                 COGNITO_USER_POOL_ID: 'us-west-2_prodPoolId',
                 COGNITO_APP_CLIENT_ID: 'prodClientId123',
                 SENTRY_DSN: 'https://sentry.prod.example.com',
+                POSTHOG_KEY: 'phc_prod_123',
+                POSTHOG_HOST: 'https://us.i.posthog.com',
+                POSTHOG_ENABLED: 'true',
+                APP_ENV: 'prod',
+                POSTHOG_TARGETING_MODE: 'group_and_person',
             };
 
             const config = getAppConfig();
@@ -193,6 +208,11 @@ describe('getAppConfig', () => {
             expect(config.COGNITO_USER_POOL_ID).toBe('us-west-2_prodPoolId');
             expect(config.COGNITO_APP_CLIENT_ID).toBe('prodClientId123');
             expect(config.SENTRY_DSN).toBe('https://sentry.prod.example.com');
+            expect(config.POSTHOG_KEY).toBe('phc_prod_123');
+            expect(config.POSTHOG_HOST).toBe('https://us.i.posthog.com');
+            expect(config.POSTHOG_ENABLED).toBe('true');
+            expect(config.APP_ENV).toBe('prod');
+            expect(config.POSTHOG_TARGETING_MODE).toBe('group_and_person');
         });
 
         it('allows mixed sources (some runtime, some env, some defaults)', () => {
@@ -206,6 +226,9 @@ describe('getAppConfig', () => {
             expect(config.API_URL).toBe('https://api.prod.example.com');
             expect(config.AWS_REGION).toBe('eu-central-1');
             expect(config.COGNITO_USER_POOL_ID).toBe('us-east-1_dDp9djoZz');
+            expect(config.POSTHOG_HOST).toBe('https://us.i.posthog.com');
+            expect(config.POSTHOG_ENABLED).toBe('true');
+            expect(config.POSTHOG_TARGETING_MODE).toBe('auto');
         });
 
         it('prefers runtime git commit over build-time env commit', () => {

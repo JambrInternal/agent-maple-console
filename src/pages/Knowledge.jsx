@@ -11,6 +11,7 @@ import {
     syncKnowledgeSharePoint,
     uploadKnowledgeSource,
 } from '../services/knowledge'
+import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
 import { useApiQuery } from '../hooks/useApiQuery'
 import QueryError from '../components/QueryError';
 import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
@@ -41,6 +42,7 @@ const Knowledge = () => {
     const location = useLocation()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
+    const knowledgeCloudActionsFlag = useFeatureFlag('ff_knowledge_cloud_actions')
 
     const [isUploading, setIsUploading] = useState(false)
     const [connectingProvider, setConnectingProvider] = useState('')
@@ -152,6 +154,16 @@ const Knowledge = () => {
 
     const startCloudConnect = async (provider) => {
         if (!scope || !isCloudProvider(provider)) return
+        if (knowledgeCloudActionsFlag.loading) {
+            setCloudMessage('')
+            setCloudError('Loading feature flags...')
+            return
+        }
+        if (!knowledgeCloudActionsFlag.enabled) {
+            setCloudMessage('')
+            setCloudError('Cloud actions are disabled by feature flag.')
+            return
+        }
 
         setUploadSummary(null)
         setCloudMessage('')
@@ -197,6 +209,17 @@ const Knowledge = () => {
 
         const clearCallbackParams = () => {
             navigate(location.pathname, { replace: true })
+        }
+
+        if (knowledgeCloudActionsFlag.loading) {
+            // Wait for flags to load before blocking OAuth callback
+            return
+        }
+        if (!knowledgeCloudActionsFlag.enabled) {
+            setCloudMessage('')
+            setCloudError('Cloud actions are disabled by feature flag.')
+            clearCallbackParams()
+            return
         }
 
         if (!isCloudProvider(provider)) {
@@ -292,7 +315,16 @@ const Knowledge = () => {
         return () => {
             cancelled = true
         }
-    }, [location.pathname, location.search, navigate, orgId, projId, refreshKnowledgeData, scope])
+    }, [
+        knowledgeCloudActionsFlag.enabled,
+        location.pathname,
+        location.search,
+        navigate,
+        orgId,
+        projId,
+        refreshKnowledgeData,
+        scope,
+    ])
 
     return (
         <div className="am-page-content">
@@ -322,54 +354,58 @@ const Knowledge = () => {
                     />
                 </div>
 
-                <div className="am-table-card" style={{ marginBottom: '1rem' }}>
-                    <div style={{ display: 'grid', gap: '0.75rem' }}>
-                        {Object.entries(CLOUD_PROVIDER_META).map(([provider, meta]) => {
-                            const isConnected = connectedProviders.has(provider)
-                            const isConnecting = connectingProvider === provider
-                            const disabled = isConnecting || isHandlingOAuthCallback || !scope
+                {knowledgeCloudActionsFlag.enabled && (
+                    <>
+                        <div className="am-table-card" style={{ marginBottom: '1rem' }}>
+                            <div style={{ display: 'grid', gap: '0.75rem' }}>
+                                {Object.entries(CLOUD_PROVIDER_META).map(([provider, meta]) => {
+                                    const isConnected = connectedProviders.has(provider)
+                                    const isConnecting = connectingProvider === provider
+                                    const disabled = isConnecting || isHandlingOAuthCallback || !scope
 
-                            return (
-                                <div
-                                    key={provider}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '1rem',
-                                        padding: '0.75rem 1rem',
-                                        border: '1px solid var(--am-border)',
-                                        borderRadius: '10px',
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <div className="am-text-1" style={{ fontWeight: 600 }}>{meta.label}</div>
-                                        <span className={`am-pill ${isConnected ? 'is-ready' : 'is-pending'}`}>
-                                            {isConnected ? 'Connected' : 'Not Connected'}
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="am-btn-secondary"
-                                        disabled={disabled}
-                                        onClick={() => startCloudConnect(provider)}
-                                    >
-                                        {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
-                                    </button>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+                                    return (
+                                        <div
+                                            key={provider}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: '1rem',
+                                                padding: '0.75rem 1rem',
+                                                border: '1px solid var(--am-border)',
+                                                borderRadius: '10px',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <div className="am-text-1" style={{ fontWeight: 600 }}>{meta.label}</div>
+                                                <span className={`am-pill ${isConnected ? 'is-ready' : 'is-pending'}`}>
+                                                    {isConnected ? 'Connected' : 'Not Connected'}
+                                                </span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="am-btn-secondary"
+                                                disabled={disabled}
+                                                onClick={() => startCloudConnect(provider)}
+                                            >
+                                                {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
 
-                {cloudTokensError && (
-                    <div className="am-text-2" style={{ paddingBottom: '1rem', color: '#ef4444' }}>
-                        <QueryError
-                            message="Failed to load cloud connection status."
-                            error={cloudTokensError}
-                            onRetry={refreshKnowledgeData}
-                        />
-                    </div>
+                        {cloudTokensError && (
+                            <div className="am-text-2" style={{ paddingBottom: '1rem', color: '#ef4444' }}>
+                                <QueryError
+                                    message="Failed to load cloud connection status."
+                                    error={cloudTokensError}
+                                    onRetry={refreshKnowledgeData}
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {uploadSummary && (

@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
 import { getProjectAgentContact } from '../services/agentFacade'
 import {
     LayoutGrid,
@@ -21,6 +22,7 @@ import {
 
 const Sidebar = () => {
     const { orgId, projId } = useParams()
+    const personalityEditorFlag = useFeatureFlag('ff_personality_editor')
 
     // Determine current section (Org vs Project)
     const isProjectContext = !!projId
@@ -45,7 +47,9 @@ const Sidebar = () => {
         {
             title: 'Agent',
             items: [
-                { icon: Lightbulb, label: 'Personality', path: `/${orgId}/${projId}/personality` },
+                ...(personalityEditorFlag.enabled
+                    ? [{ icon: Lightbulb, label: 'Personality', path: `/${orgId}/${projId}/personality` }]
+                    : []),
                 { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 { icon: MessageSquare, label: 'SMS', path: `/${orgId}/${projId}/sms`, comingSoon: true },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice` },

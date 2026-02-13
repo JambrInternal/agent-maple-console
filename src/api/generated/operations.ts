@@ -139,9 +139,18 @@ export async function deleteChunksBatchFileChunksDeleteBatchPost(options?: any) 
 }
 
 /** Get Template Audio Conversations */
-export async function getTemplateAudioConversationsAudioConversations_TemplateId_Get(template_id: string | number) {
+export async function getTemplateAudioConversationsAudioConversations_TemplateId_Get(template_id: string | number, options?: any) {
   const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>(`/audio-conversations/${template_id}`, fetchOptions);
+  let url = `/audio-conversations/${template_id}`;
+  if (options?.query) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query)) {
+      if (value !== undefined && value !== null) searchParams.append(key, String(value));
+    }
+    const queryString = searchParams.toString();
+    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
+  }
+  return apiFetch<any>(url, fetchOptions);
 }
 
 /** Get Audio Conversation By Session */
@@ -314,6 +323,18 @@ export async function createAndInviteUserTenantsCreateAndInviteUserPost(options?
   const fetchOptions: any = { method: 'POST' };
   if (options?.body) fetchOptions.body = JSON.stringify(options.body);
   return apiFetch<any>('/tenants/create-and-invite-user', fetchOptions);
+}
+
+/** Resend Invitation */
+export async function resendInvitationTenantsInvitations_InvitationId_ResendPost(invitation_id: string | number) {
+  const fetchOptions: any = { method: 'POST' };
+  return apiFetch<any>(`/tenants/invitations/${invitation_id}/resend`, fetchOptions);
+}
+
+/** Cancel Invitation */
+export async function cancelInvitationTenantsInvitations_InvitationId_Delete(invitation_id: string | number) {
+  const fetchOptions: any = { method: 'DELETE' };
+  return apiFetch<any>(`/tenants/invitations/${invitation_id}`, fetchOptions);
 }
 
 /** Oauth2 Authorize */
