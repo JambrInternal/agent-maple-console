@@ -38,7 +38,7 @@ describe('Sidebar feature gating', () => {
     it('shows Personality nav item when flag is enabled', () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: true,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
 
@@ -50,7 +50,7 @@ describe('Sidebar feature gating', () => {
     it('hides Personality nav item when flag is disabled', () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
 

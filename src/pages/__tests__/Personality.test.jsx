@@ -45,7 +45,7 @@ describe('Personality page', () => {
         vi.clearAllMocks()
         mockUseFeatureFlag.mockReturnValue({
             enabled: true,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
     })
@@ -53,7 +53,7 @@ describe('Personality page', () => {
     it('blocks route access when personality flag is disabled', async () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
 
@@ -86,7 +86,7 @@ describe('Personality page', () => {
     it('shows loading state while feature flags are loading', async () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: true,
         })
 
@@ -245,7 +245,7 @@ describe('Personality page', () => {
     it('blocks save action when personality flag is disabled', async () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
         vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({
@@ -280,7 +280,7 @@ describe('Personality page', () => {
     it('shows loading message when attempting to save while flags are loading', async () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: true,
         })
         vi.mocked(getProjectPersonalityTemplate).mockResolvedValue({

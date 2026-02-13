@@ -69,7 +69,7 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
     useEffect(() => {
         const syncOrganizationId = () => {
             const nextValue = readCurrentOrganizationId()
-            setOrganizationId((previous) => (previous === nextValue ? previous : nextValue))
+            setOrganizationId((previous: string | null) => (previous === nextValue ? previous : nextValue))
         }
 
         syncOrganizationId()
@@ -96,7 +96,7 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
         if (!shouldInitializePostHog) {
             setPosthogReady(true)
             setPosthogValues({})
-            setRefreshVersion((current) => current + 1)
+            setRefreshVersion((current: number) => current + 1)
             return
         }
 
@@ -120,7 +120,7 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
             const values = syncPostHogValues()
             setPosthogValues(values)
             setPosthogReady(true)
-            setRefreshVersion((current) => current + 1)
+            setRefreshVersion((current: number) => current + 1)
         })
 
         posthog.reloadFeatureFlags()
@@ -141,7 +141,7 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
             setPosthogValues({})
             setPosthogReady(false)
             posthog.reloadFeatureFlags()
-            setRefreshVersion((current) => current + 1)
+            setRefreshVersion((current: number) => current + 1)
         }
 
         previousUserIdRef.current = currentUserId
