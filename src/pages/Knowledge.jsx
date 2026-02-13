@@ -226,12 +226,14 @@ const Knowledge = () => {
         const returnedState = params.get('state')
         const stateStorageKey = buildOAuthStateStorageKey(orgId, projId, provider)
         const expectedState = sessionStorage.getItem(stateStorageKey)
-        if (returnedState && returnedState !== expectedState) {
-            sessionStorage.removeItem(stateStorageKey)
-            setCloudMessage('')
-            setCloudError(`OAuth state mismatch for ${getCloudProviderLabel(provider)}. Please reconnect.`)
-            clearCallbackParams()
-            return
+        if (expectedState !== null) {
+            if (!returnedState || returnedState !== expectedState) {
+                sessionStorage.removeItem(stateStorageKey)
+                setCloudMessage('')
+                setCloudError(`OAuth state mismatch for ${getCloudProviderLabel(provider)}. Please reconnect.`)
+                clearCallbackParams()
+                return
+            }
         }
         sessionStorage.removeItem(stateStorageKey)
 
