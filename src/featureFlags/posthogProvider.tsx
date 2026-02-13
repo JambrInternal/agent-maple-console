@@ -106,10 +106,10 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
         setPosthogReady(false)
         posthog.init(appConfig.POSTHOG_KEY, {
             api_host: posthogHost,
-            autocapture: false,
+            autocapture: true,
             rageclick: false,
-            capture_pageview: false,
-            capture_pageleave: false,
+            capture_pageview: 'history_change',
+            capture_pageleave: 'if_capture_pageview',
             disable_session_recording: true,
             disable_surveys: true,
             disable_surveys_automatic_display: true,

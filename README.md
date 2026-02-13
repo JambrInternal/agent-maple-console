@@ -40,7 +40,7 @@ Runtime keys supported:
 - `COGNITO_APP_CLIENT_ID`
 - `SENTRY_DSN`
 - `GIT_COMMIT` (recommended for production footer build tag)
-- `POSTHOG_KEY` (public key for PostHog feature flags)
+- `POSTHOG_KEY` (public key for PostHog feature flags + analytics events)
 - `POSTHOG_HOST` (default `https://us.i.posthog.com`)
 - `POSTHOG_ENABLED` (`true`/`false`, default `true`)
 - `APP_ENV` (optional override for environment detection: `dev`/`beta`/`prod`)
