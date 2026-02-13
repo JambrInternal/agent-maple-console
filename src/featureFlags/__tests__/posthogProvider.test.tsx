@@ -75,8 +75,9 @@ describe('PostHogFeatureFlagProvider', () => {
             'phc_test_key',
             expect.objectContaining({
                 api_host: 'https://us.i.posthog.com',
-                autocapture: false,
-                capture_pageview: false,
+                autocapture: true,
+                capture_pageview: 'history_change',
+                capture_pageleave: 'if_capture_pageview',
             })
         )
         expect(testState.mockPosthog.identify).toHaveBeenCalledWith(
