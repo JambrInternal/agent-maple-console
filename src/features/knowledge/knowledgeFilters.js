@@ -1,16 +1,18 @@
 export const KNOWLEDGE_SOURCE_TABS = [
-    'all',
-    'upload',
-    'knowledge_extraction',
-    'google_drive',
-    'sharepoint',
+    { key: 'all', label: 'All' },
+    { key: 'upload', label: 'Upload' },
+    { key: 'knowledge_extraction', label: 'Knowledge Extraction' },
+    { key: 'google_drive', label: 'Google Drive' },
+    { key: 'sharepoint', label: 'SharePoint' },
 ]
+
+export const KNOWLEDGE_SOURCE_TAB_KEYS = KNOWLEDGE_SOURCE_TABS.map((tab) => tab.key)
 
 export const DEFAULT_KNOWLEDGE_SOURCE_TAB = 'all'
 
 const OAUTH_QUERY_KEYS = ['oauth_provider', 'code', 'state', 'error', 'error_description']
 
-export const isKnowledgeSourceTab = (value) => KNOWLEDGE_SOURCE_TABS.includes(value)
+export const isKnowledgeSourceTab = (value) => KNOWLEDGE_SOURCE_TAB_KEYS.includes(value)
 
 export const normalizeKnowledgeSourceTab = (value) => (
     isKnowledgeSourceTab(value) ? value : DEFAULT_KNOWLEDGE_SOURCE_TAB

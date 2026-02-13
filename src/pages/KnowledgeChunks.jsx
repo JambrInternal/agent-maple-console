@@ -87,6 +87,8 @@ const KnowledgeChunks = () => {
         clearInlineMessages()
         try {
             await action()
+        } catch (error) {
+            setActionError(withStatus('Action failed. Please try again.', error))
         } finally {
             setRowActionBusyId('')
         }

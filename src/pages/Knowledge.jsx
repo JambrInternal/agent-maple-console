@@ -10,6 +10,7 @@ import {
     applyKnowledgeSourceTabToSearch,
     getKnowledgeSourceFilterFromTab,
     getKnowledgeSourceTabFromSearch,
+    KNOWLEDGE_SOURCE_TABS,
     parseFolderIdsInput,
     removeOAuthParamsFromSearch,
 } from '../features/knowledge/knowledgeFilters'
@@ -32,13 +33,6 @@ import {
 import { withStatus } from '../utils/errors'
 
 const OAUTH_STATE_STORAGE_PREFIX = 'am_knowledge_oauth_state'
-const KNOWLEDGE_SOURCE_TABS = [
-    { key: 'all', label: 'All' },
-    { key: 'upload', label: 'Upload' },
-    { key: 'knowledge_extraction', label: 'Knowledge Extraction' },
-    { key: 'google_drive', label: 'Google Drive' },
-    { key: 'sharepoint', label: 'SharePoint' },
-]
 const CLOUD_PROVIDER_META = {
     google_drive: { label: 'Google Drive' },
     sharepoint: { label: 'SharePoint' },
@@ -379,6 +373,8 @@ const Knowledge = () => {
         setRowActionBusyId(rowId)
         try {
             await action()
+        } catch (error) {
+            setCloudError(withStatus('Action failed. Please try again.', error))
         } finally {
             setRowActionBusyId('')
         }
