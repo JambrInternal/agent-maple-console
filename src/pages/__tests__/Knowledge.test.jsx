@@ -121,7 +121,8 @@ describe('Knowledge page', () => {
         const badFile = new File(['bad'], 'bad.pdf', { type: 'application/pdf' })
 
         expect(fileInput).not.toBeNull()
-        await userEvent.upload(fileInput, [goodFile, badFile])
+        const user = userEvent.setup()
+        await user.upload(fileInput, [goodFile, badFile])
 
         await waitFor(() => expect(uploadKnowledgeSource).toHaveBeenCalledTimes(2))
         expect(uploadKnowledgeSource).toHaveBeenNthCalledWith(
