@@ -13,6 +13,7 @@ import {
 } from '../features/organization/orgSelectionUtils'
 import { withStatus } from '../utils/errors'
 import { getAdminMode } from '../utils/admin'
+import { dispatchTenantChange } from '../featureFlags/featureFlagService'
 import logger from '../utils/verboseLogger'
 
 const OrgSelection = () => {
@@ -69,6 +70,7 @@ const OrgSelection = () => {
         try {
             const org = await createOrganization(request)
             localStorage.setItem('am_tenant_id', org.id)
+            dispatchTenantChange(org.id)
             setIsCreateOpen(false)
             navigate(`/${org.id}/projects`)
         } catch (error) {
@@ -106,6 +108,7 @@ const OrgSelection = () => {
                         organization={org}
                         onSelect={() => {
                             localStorage.setItem('am_tenant_id', org.id)
+                            dispatchTenantChange(org.id)
                             navigate(`/${org.id}/projects`)
                         }}
                     />

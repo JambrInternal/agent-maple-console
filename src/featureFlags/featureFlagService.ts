@@ -192,6 +192,13 @@ export const readCurrentOrganizationId = (storage?: StorageLike): string | null 
     return value || null
 }
 
+export const TENANT_CHANGE_EVENT = 'am_tenant_change'
+
+export const dispatchTenantChange = (newTenantId: string | null): void => {
+    if (typeof window === 'undefined') return
+    window.dispatchEvent(new CustomEvent(TENANT_CHANGE_EVENT, { detail: { tenantId: newTenantId } }))
+}
+
 export const coerceFlagKey = (value: string): FeatureFlagKey | null => {
     if (!isFeatureFlagKey(value)) return null
     return value

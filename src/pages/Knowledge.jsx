@@ -154,6 +154,11 @@ const Knowledge = () => {
 
     const startCloudConnect = async (provider) => {
         if (!scope || !isCloudProvider(provider)) return
+        if (knowledgeCloudActionsFlag.loading) {
+            setCloudMessage('')
+            setCloudError('Loading feature flags...')
+            return
+        }
         if (!knowledgeCloudActionsFlag.enabled) {
             setCloudMessage('')
             setCloudError('Cloud actions are disabled by feature flag.')
@@ -206,6 +211,10 @@ const Knowledge = () => {
             navigate(location.pathname, { replace: true })
         }
 
+        if (knowledgeCloudActionsFlag.loading) {
+            // Wait for flags to load before blocking OAuth callback
+            return
+        }
         if (!knowledgeCloudActionsFlag.enabled) {
             setCloudMessage('')
             setCloudError('Cloud actions are disabled by feature flag.')
