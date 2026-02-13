@@ -67,7 +67,7 @@ The build number shown in the UI comes from commit values in this order:
 - Build-time `VITE_GIT_COMMIT` fallback.
 - `window.__APP_COMMIT__` fallback.
 
-To avoid `Version unknown`, set a real commit SHA at runtime (`GIT_COMMIT`) in deployment.
+To ensure a meaningful version (instead of the default `dev`/fallback value), set a real commit SHA at runtime (`GIT_COMMIT`) in deployment.
 
 ### Testing
 
