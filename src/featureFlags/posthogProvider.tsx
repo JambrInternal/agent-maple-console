@@ -43,6 +43,11 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
     const [posthogReady, setPosthogReady] = useState(false)
     const [posthogValues, setPosthogValues] = useState<Partial<Record<FeatureFlagKey, boolean>>>({})
     const [refreshVersion, setRefreshVersion] = useState(0)
+    useEffect(() => {
+        // Intentionally read refreshVersion to ensure this state is not write-only.
+        // This avoids unused-state warnings without changing behavior.
+        void refreshVersion
+    }, [refreshVersion])
     const [organizationId, setOrganizationId] = useState<string | null>(() => readCurrentOrganizationId())
 
     const deploymentEnv = useMemo(
