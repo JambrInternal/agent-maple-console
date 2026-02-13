@@ -361,8 +361,8 @@ const Knowledge = () => {
                         {uploadSummary.failures.length ? `, ${uploadSummary.failures.length} failed.` : ' successfully.'}
                         {uploadSummary.failures.length > 0 && (
                             <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.2rem', color: '#ef4444' }}>
-                                {uploadSummary.failures.map((failure) => (
-                                    <li key={failure}>{failure}</li>
+                                {uploadSummary.failures.map((failure, index) => (
+                                    <li key={index}>{failure}</li>
                                 ))}
                             </ul>
                         )}
