@@ -39,6 +39,7 @@ Runtime keys supported:
 - `COGNITO_USER_POOL_ID`
 - `COGNITO_APP_CLIENT_ID`
 - `SENTRY_DSN`
+- `GIT_COMMIT` (recommended for production footer build tag)
 
 ### Build
 
@@ -60,12 +61,13 @@ curl http://localhost:3000/healthz
 ```
 
 #### Build Commit Hash
-The build number shown in the UI is always accurate to the current Git commit. This is injected automatically at build time using Vite:
+The build number shown in the UI comes from commit values in this order:
 
-- The current commit hash is available as `import.meta.env.VITE_GIT_COMMIT` in the app.
-- The `BuildTag` component displays this value in the UI.
+- Runtime config `/env.js` key `GIT_COMMIT` (for example Railway `RAILWAY_GIT_COMMIT_SHA` wired by `server.js`).
+- Build-time `VITE_GIT_COMMIT` fallback.
+- `window.__APP_COMMIT__` fallback.
 
-No manual steps are required; this is handled by the Vite config.
+To ensure a meaningful version (instead of the default `dev`/fallback value), set a real commit SHA at runtime (`GIT_COMMIT`) in deployment.
 
 ### Testing
 
@@ -88,6 +90,7 @@ The repo is configured for Railway Docker deployments:
 - `Dockerfile`: builds Vite assets and runs the Node runtime server.
 - `server.js`: serves `dist/`, dynamic `/env.js`, and `/healthz`.
 - `.dockerignore`: trims deployment context for faster builds.
+- Vercel support/config has been removed from this repository.
 
 Railway service expectations:
 - Internal app port: `3000` (Railway injects `PORT` at runtime).

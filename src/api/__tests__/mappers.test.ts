@@ -72,4 +72,20 @@ describe('api mappers', () => {
         expect(source.status).toBe('ready');
         expect(source.type).toBe('pdf');
     });
+
+    it('maps sharepoint datasource sources to sharepoint type', () => {
+        const source = mapDatasourceResponse({
+            id: 6,
+            tenant_id: 2,
+            file_name: 'Runbook.docx',
+            content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            source: 'sharepoint',
+            embedding_status: 'IN_PROGRESS',
+            created_at: '2026-02-02T10:00:00Z',
+            updated_at: '2026-02-02T10:10:00Z',
+        });
+
+        expect(source.type).toBe('sharepoint');
+        expect(source.status).toBe('indexing');
+    });
 });

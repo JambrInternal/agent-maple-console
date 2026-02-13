@@ -70,6 +70,7 @@ export const toKnowledgeStatus = (value: unknown): KnowledgeSourceStatus => {
 export const toKnowledgeType = (source?: string | null, contentType?: string | null): KnowledgeSourceType => {
     const normalized = `${source || ''} ${contentType || ''}`.toLowerCase()
     if (normalized.includes('google')) return 'google_drive'
+    if (normalized.includes('sharepoint') || normalized.includes('onedrive')) return 'sharepoint'
     if (normalized.includes('dropbox')) return 'dropbox'
     if (normalized.includes('pdf')) return 'pdf'
     if (normalized.includes('doc')) return 'doc'
