@@ -14,6 +14,8 @@ import {
     uploadKnowledgeSource,
 } from '../../services/knowledge'
 
+const mockUseFeatureFlag = vi.fn()
+
 vi.mock('../../services/knowledge', () => ({
     getKnowledgeSources: vi.fn(),
     uploadKnowledgeSource: vi.fn(),
@@ -22,6 +24,10 @@ vi.mock('../../services/knowledge', () => ({
     completeKnowledgeCloudCallback: vi.fn(),
     syncKnowledgeGoogleDrive: vi.fn(),
     syncKnowledgeSharePoint: vi.fn(),
+}))
+
+vi.mock('../../featureFlags/useFeatureFlag', () => ({
+    useFeatureFlag: (...args) => mockUseFeatureFlag(...args),
 }))
 
 describe('Knowledge page', () => {
@@ -44,6 +50,11 @@ describe('Knowledge page', () => {
     beforeEach(() => {
         sessionStorage.clear()
         vi.clearAllMocks()
+        mockUseFeatureFlag.mockReturnValue({
+            enabled: true,
+            source: 'fallback',
+            loading: false,
+        })
         vi.mocked(getKnowledgeSources).mockResolvedValue([])
         vi.mocked(listKnowledgeCloudTokens).mockResolvedValue([])
         vi.mocked(uploadKnowledgeSource).mockResolvedValue({
@@ -206,5 +217,21 @@ describe('Knowledge page', () => {
 
         expect(await screen.findAllByText('Connected')).toHaveLength(2)
         expect(screen.getAllByRole('button', { name: 'Reconnect' })).toHaveLength(2)
+    })
+
+    it('hides cloud actions and blocks oauth callback when cloud flag is disabled', async () => {
+        mockUseFeatureFlag.mockReturnValue({
+            enabled: false,
+            source: 'fallback',
+            loading: false,
+        })
+
+        renderKnowledge('/org_1/proj_1/knowledge?oauth_provider=google_drive&code=oauth_code&state=state_123')
+
+        expect(await screen.findByText('Cloud actions are disabled by feature flag.')).toBeInTheDocument()
+        expect(screen.queryByText('Google Drive')).not.toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: 'Connect' })).not.toBeInTheDocument()
+        expect(completeKnowledgeCloudCallback).not.toHaveBeenCalled()
+        expect(syncKnowledgeGoogleDrive).not.toHaveBeenCalled()
     })
 })

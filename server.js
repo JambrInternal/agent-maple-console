@@ -61,6 +61,23 @@ const getRuntimeConfig = () => ({
         process.env.VITE_GIT_COMMIT,
         ''
     ),
+    POSTHOG_KEY: resolveConfigValue(process.env.POSTHOG_KEY, process.env.VITE_POSTHOG_KEY, ''),
+    POSTHOG_HOST: resolveConfigValue(
+        process.env.POSTHOG_HOST,
+        process.env.VITE_POSTHOG_HOST,
+        'https://us.i.posthog.com'
+    ),
+    POSTHOG_ENABLED: resolveConfigValue(
+        process.env.POSTHOG_ENABLED,
+        process.env.VITE_POSTHOG_ENABLED,
+        'true'
+    ),
+    APP_ENV: resolveConfigValue(process.env.APP_ENV, process.env.VITE_APP_ENV, ''),
+    POSTHOG_TARGETING_MODE: resolveConfigValue(
+        process.env.POSTHOG_TARGETING_MODE,
+        process.env.VITE_POSTHOG_TARGETING_MODE,
+        'auto'
+    ),
 });
 
 const sendFile = (res, filePath, method) => {

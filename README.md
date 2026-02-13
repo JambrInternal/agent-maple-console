@@ -40,6 +40,21 @@ Runtime keys supported:
 - `COGNITO_APP_CLIENT_ID`
 - `SENTRY_DSN`
 - `GIT_COMMIT` (recommended for production footer build tag)
+- `POSTHOG_KEY` (public key for PostHog feature flags)
+- `POSTHOG_HOST` (default `https://us.i.posthog.com`)
+- `POSTHOG_ENABLED` (`true`/`false`, default `true`)
+- `APP_ENV` (optional override for environment detection: `dev`/`beta`/`prod`)
+- `POSTHOG_TARGETING_MODE` (`auto` | `group_and_person` | `person_only`, default `auto`)
+
+Feature-flag environment detection defaults:
+- `beta.agentmaple.ca` -> `beta`
+- `app.agentmaple.ca` -> `prod`
+- any other host (including localhost) -> `dev`
+
+Local flag overrides:
+- Query string: `?ff.ff_personality_editor=on` (or `off`)
+- Local storage: `am_flag_override_<flag_key>`
+- Overrides are ignored in production (`APP_ENV=prod` or `app.agentmaple.ca`)
 
 ### Build
 
@@ -96,6 +111,21 @@ Railway service expectations:
 - Internal app port: `3000` (Railway injects `PORT` at runtime).
 - Start command comes from Docker `CMD` (`node server.js`).
 - Configure environment variables per Railway environment (`beta`, `prod`) using the runtime keys above.
+
+### PostHog Setup (One Project, Multi-Environment)
+
+Use one PostHog project and target by `deployment_env` person/group properties:
+
+1. Create flags:
+   - `ff_personality_editor`
+   - `ff_knowledge_cloud_actions`
+2. Add rollout conditions:
+   - `deployment_env = beta` -> enabled
+   - `deployment_env = prod` -> disabled
+3. Add optional targeted rollouts:
+   - Organization-level (group `organization`) when available
+   - User-level (person properties/cohorts)
+4. Keep person-property fallback rules (for example `organization_id`) for projects where group analytics is not configured.
 
 ## Features
 - **Dashboard**: Overview of agent activity.

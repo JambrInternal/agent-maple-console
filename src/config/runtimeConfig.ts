@@ -5,6 +5,11 @@ interface RuntimeConfig {
     COGNITO_APP_CLIENT_ID?: string;
     SENTRY_DSN?: string;
     GIT_COMMIT?: string;
+    POSTHOG_KEY?: string;
+    POSTHOG_HOST?: string;
+    POSTHOG_ENABLED?: string;
+    APP_ENV?: string;
+    POSTHOG_TARGETING_MODE?: string;
 }
 
 interface AppConfig {
@@ -14,6 +19,11 @@ interface AppConfig {
     COGNITO_APP_CLIENT_ID: string;
     SENTRY_DSN: string;
     GIT_COMMIT: string;
+    POSTHOG_KEY: string;
+    POSTHOG_HOST: string;
+    POSTHOG_ENABLED: string;
+    APP_ENV: string;
+    POSTHOG_TARGETING_MODE: string;
 }
 
 declare global {
@@ -67,5 +77,22 @@ export const getAppConfig = (): AppConfig => {
         ),
         SENTRY_DSN: resolveValue(runtime.SENTRY_DSN, import.meta.env.VITE_SENTRY_DSN, ''),
         GIT_COMMIT: resolveValue(runtime.GIT_COMMIT, import.meta.env.VITE_GIT_COMMIT, ''),
+        POSTHOG_KEY: resolveValue(runtime.POSTHOG_KEY, import.meta.env.VITE_POSTHOG_KEY, ''),
+        POSTHOG_HOST: resolveValue(
+            runtime.POSTHOG_HOST,
+            import.meta.env.VITE_POSTHOG_HOST,
+            'https://us.i.posthog.com'
+        ),
+        POSTHOG_ENABLED: resolveValue(
+            runtime.POSTHOG_ENABLED,
+            import.meta.env.VITE_POSTHOG_ENABLED,
+            'true'
+        ),
+        APP_ENV: resolveValue(runtime.APP_ENV, import.meta.env.VITE_APP_ENV, ''),
+        POSTHOG_TARGETING_MODE: resolveValue(
+            runtime.POSTHOG_TARGETING_MODE,
+            import.meta.env.VITE_POSTHOG_TARGETING_MODE,
+            'auto'
+        ),
     };
 };

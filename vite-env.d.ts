@@ -7,6 +7,11 @@ interface ImportMetaEnv {
   readonly VITE_COGNITO_APP_CLIENT_ID?: string;
   readonly VITE_SENTRY_DSN?: string;
   readonly VITE_DEBUG_AUTH?: string;
+  readonly VITE_POSTHOG_KEY?: string;
+  readonly VITE_POSTHOG_HOST?: string;
+  readonly VITE_POSTHOG_ENABLED?: string;
+  readonly VITE_APP_ENV?: string;
+  readonly VITE_POSTHOG_TARGETING_MODE?: string;
 }
 
 interface ImportMeta {
@@ -20,5 +25,11 @@ interface Window {
     COGNITO_USER_POOL_ID?: string;
     COGNITO_APP_CLIENT_ID?: string;
     SENTRY_DSN?: string;
+    GIT_COMMIT?: string;
+    POSTHOG_KEY?: string;
+    POSTHOG_HOST?: string;
+    POSTHOG_ENABLED?: string;
+    APP_ENV?: string;
+    POSTHOG_TARGETING_MODE?: string;
   };
 }
