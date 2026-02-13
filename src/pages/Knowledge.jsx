@@ -164,13 +164,14 @@ const Knowledge = () => {
             if (!authorizeResult.authorizationUrl) {
                 throw new Error('Authorization URL was empty')
             }
-
-            if (authorizeResult.state) {
-                sessionStorage.setItem(
-                    buildOAuthStateStorageKey(orgId, projId, provider),
-                    authorizeResult.state
-                )
+            if (!authorizeResult.state) {
+                throw new Error('Authorization state was empty')
             }
+
+            sessionStorage.setItem(
+                buildOAuthStateStorageKey(orgId, projId, provider),
+                authorizeResult.state
+            )
             window.location.assign(authorizeResult.authorizationUrl)
         } catch (connectError) {
             setCloudError(withStatus(`Failed to start ${getCloudProviderLabel(provider)} connection.`, connectError))
