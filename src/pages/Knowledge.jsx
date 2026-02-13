@@ -171,7 +171,7 @@ const Knowledge = () => {
                     authorizeResult.state
                 )
             }
-            window.open(authorizeResult.authorizationUrl, '_self')
+            window.location.assign(authorizeResult.authorizationUrl)
         } catch (connectError) {
             setCloudError(withStatus(`Failed to start ${getCloudProviderLabel(provider)} connection.`, connectError))
         } finally {
