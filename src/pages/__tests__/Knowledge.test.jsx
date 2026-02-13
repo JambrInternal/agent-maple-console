@@ -25,7 +25,8 @@ vi.mock('../../services/knowledge', () => ({
 }))
 
 describe('Knowledge page', () => {
-    let windowOpenSpy
+    let windowLocationAssignSpy
+    let originalLocation
 
     const renderKnowledge = (initialEntry = '/org_1/proj_1/knowledge') => {
         const queryClient = new QueryClient()
@@ -70,11 +71,19 @@ describe('Knowledge page', () => {
             syncStatus: 'processing',
             message: 'started',
         })
-        windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+        originalLocation = window.location
+        delete window.location
+        windowLocationAssignSpy = vi.fn()
+        window.location = {
+            assign: windowLocationAssignSpy,
+            origin: 'http://localhost:3000',
+            pathname: '/org_1/proj_1/knowledge',
+            href: 'http://localhost:3000/org_1/proj_1/knowledge',
+        }
     })
 
     afterEach(() => {
-        windowOpenSpy.mockRestore()
+        window.location = originalLocation
     })
 
     it('renders knowledge headers, upload action, and cloud connect section', async () => {
@@ -153,7 +162,7 @@ describe('Knowledge page', () => {
             )
         )
         expect(sessionStorage.getItem('am_knowledge_oauth_state:org_1:proj_1:google_drive')).toBe('state_123')
-        expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com/oauth', '_self')
+        expect(windowLocationAssignSpy).toHaveBeenCalledWith('https://example.com/oauth')
     })
 
     it('completes OAuth callback and starts google drive root sync', async () => {
