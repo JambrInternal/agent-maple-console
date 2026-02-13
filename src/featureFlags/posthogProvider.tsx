@@ -12,10 +12,9 @@ import {
     resolvePostHogHost,
     resolvePostHogTargetingMode,
     shouldAttemptGroupTargeting,
+    TENANT_CHANGE_EVENT,
     type PostHogTargetingMode,
 } from './featureFlagService'
-
-const TENANT_POLL_INTERVAL_MS = 1000
 
 type PostHogProviderProps = {
     children: React.ReactNode
@@ -75,16 +74,20 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
 
         syncOrganizationId()
 
-        const intervalId = window.setInterval(syncOrganizationId, TENANT_POLL_INTERVAL_MS)
+        const handleTenantChange = () => {
+            syncOrganizationId()
+        }
+
         const handleStorage = (event: StorageEvent) => {
             if (event.key === null || event.key === 'am_tenant_id') {
                 syncOrganizationId()
             }
         }
 
+        window.addEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
         window.addEventListener('storage', handleStorage)
         return () => {
-            window.clearInterval(intervalId)
+            window.removeEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
             window.removeEventListener('storage', handleStorage)
         }
     }, [])

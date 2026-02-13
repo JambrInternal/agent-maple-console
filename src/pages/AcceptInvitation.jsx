@@ -20,6 +20,7 @@ import { acceptInvitation } from '../services/people'
 import { withStatus } from '../utils/errors'
 import { getAdminMode } from '../utils/admin'
 import { applyThemeForAdminMode } from '../utils/theme'
+import { dispatchTenantChange } from '../featureFlags/featureFlagService'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -96,6 +97,7 @@ const AcceptInvitation = () => {
             setStatus('success')
             if (invitation.tenantId) {
                 localStorage.setItem('am_tenant_id', invitation.tenantId)
+                dispatchTenantChange(invitation.tenantId)
                 scheduleRedirect(`/${invitation.tenantId}/projects`)
                 return true
             }

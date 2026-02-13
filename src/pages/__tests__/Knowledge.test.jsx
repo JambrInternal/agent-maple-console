@@ -234,4 +234,23 @@ describe('Knowledge page', () => {
         expect(completeKnowledgeCloudCallback).not.toHaveBeenCalled()
         expect(syncKnowledgeGoogleDrive).not.toHaveBeenCalled()
     })
+
+    it('waits for flags to load before processing OAuth callback', async () => {
+        sessionStorage.setItem('am_knowledge_oauth_state:org_1:proj_1:google_drive', 'state_123')
+        
+        mockUseFeatureFlag.mockReturnValue({
+            enabled: false,
+            source: 'fallback',
+            loading: true,
+        })
+
+        renderKnowledge('/org_1/proj_1/knowledge?oauth_provider=google_drive&code=oauth_code&state=state_123')
+
+        // Wait a bit to ensure effect runs
+        await screen.findByText('File Name')
+
+        // Should not have processed callback while loading
+        expect(completeKnowledgeCloudCallback).not.toHaveBeenCalled()
+        expect(syncKnowledgeGoogleDrive).not.toHaveBeenCalled()
+    })
 })

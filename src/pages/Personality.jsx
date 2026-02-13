@@ -50,6 +50,11 @@ const Personality = () => {
     const handleSubmit = async (event) => {
         event.preventDefault()
         if (!orgId || !projId) return
+        if (personalityEditorFlag.loading) {
+            setSaveNotice('')
+            setSaveError('Loading feature flags...')
+            return
+        }
         if (!personalityEditorFlag.enabled) {
             setSaveNotice('')
             setSaveError('Personality is currently disabled by feature flag.')
