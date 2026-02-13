@@ -227,14 +227,30 @@ const Knowledge = () => {
         const returnedState = params.get('state')
         const stateStorageKey = buildOAuthStateStorageKey(orgId, projId, provider)
         const expectedState = sessionStorage.getItem(stateStorageKey)
-        if (expectedState !== null) {
-            if (!returnedState || returnedState !== expectedState) {
-                sessionStorage.removeItem(stateStorageKey)
-                setCloudMessage('')
-                setCloudError(`OAuth state mismatch for ${getCloudProviderLabel(provider)}. Please reconnect.`)
-                clearCallbackParams()
-                return
-            }
+
+        // Always require a returned state and a stored expected state.
+        if (!returnedState) {
+            sessionStorage.removeItem(stateStorageKey)
+            setCloudMessage('')
+            setCloudError(`Missing OAuth state for ${getCloudProviderLabel(provider)} callback. Please reconnect.`)
+            clearCallbackParams()
+            return
+        }
+
+        if (expectedState === null) {
+            sessionStorage.removeItem(stateStorageKey)
+            setCloudMessage('')
+            setCloudError(`OAuth state missing or expired for ${getCloudProviderLabel(provider)}. Please reconnect.`)
+            clearCallbackParams()
+            return
+        }
+
+        if (returnedState !== expectedState) {
+            sessionStorage.removeItem(stateStorageKey)
+            setCloudMessage('')
+            setCloudError(`OAuth state mismatch for ${getCloudProviderLabel(provider)}. Please reconnect.`)
+            clearCallbackParams()
+            return
         }
         sessionStorage.removeItem(stateStorageKey)
 
