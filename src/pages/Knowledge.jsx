@@ -374,7 +374,6 @@ const Knowledge = () => {
         try {
             await action()
         } catch (error) {
-            console.error('Row action failed:', error)
             setCloudError(withStatus('Action failed. Please try again.', error))
         } finally {
             setRowActionBusyId('')
