@@ -16,6 +16,16 @@ import Personality from '../pages/Personality'
 import Projects from '../pages/Projects'
 import Voice from '../pages/Voice'
 
+const buildBetaComingSoonRoute = (flagKey, title, description) => (
+    <FeatureGateRoute
+        flagKey={flagKey}
+        title={`${title} Unavailable`}
+        description={description}
+    >
+        <ComingSoon title={title} beta />
+    </FeatureGateRoute>
+)
+
 const AppRoutes = () => {
     return (
         <>
@@ -36,21 +46,77 @@ const AppRoutes = () => {
                         {/* Org Level Pages */}
                         <Route path="projects" element={<Projects />} />
                         <Route path="team" element={<OrgTeam />} />
-                        <Route path="billing" element={<ComingSoon title="Billing" />} />
-                        <Route path="usage" element={<ComingSoon title="Usage" />} />
-                        <Route path="settings" element={<ComingSoon title="Organization Settings" />} />
+                        <Route
+                            path="billing"
+                            element={buildBetaComingSoonRoute(
+                                'ff_billing_page',
+                                'Billing',
+                                'Billing is disabled for this deployment or rollout target.'
+                            )}
+                        />
+                        <Route
+                            path="usage"
+                            element={buildBetaComingSoonRoute(
+                                'ff_usage_page',
+                                'Usage',
+                                'Usage is disabled for this deployment or rollout target.'
+                            )}
+                        />
+                        <Route
+                            path="settings"
+                            element={buildBetaComingSoonRoute(
+                                'ff_org_settings_page',
+                                'Organization Settings',
+                                'Organization Settings is disabled for this deployment or rollout target.'
+                            )}
+                        />
 
                         {/* Project Context */}
                         <Route path=":projId">
                             <Route index element={<Navigate to="contacts" replace />} />
-                            <Route path="threads" element={<ComingSoon title="Threads" />} />
-                            <Route path="issues" element={<ComingSoon title="Issues" />} />
-                            <Route path="tools-skills" element={<ComingSoon title="Skills & Tools" />} />
+                            <Route
+                                path="threads"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_threads_page',
+                                    'Threads',
+                                    'Threads is disabled for this deployment or rollout target.'
+                                )}
+                            />
+                            <Route
+                                path="issues"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_issues_page',
+                                    'Issues',
+                                    'Issues is disabled for this deployment or rollout target.'
+                                )}
+                            />
+                            <Route
+                                path="tools-skills"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_tools_skills_page',
+                                    'Skills & Tools',
+                                    'Skills & Tools is disabled for this deployment or rollout target.'
+                                )}
+                            />
                             <Route path="knowledge" element={<Knowledge />} />
                             <Route path="datasources/:datasourceId/chunks" element={<KnowledgeChunks />} />
                             <Route path="contacts" element={<Contacts />} />
-                            <Route path="insights" element={<ComingSoon title="Insights" />} />
-                            <Route path="sms" element={<ComingSoon title="SMS" />} />
+                            <Route
+                                path="insights"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_insights_page',
+                                    'Insights',
+                                    'Insights is disabled for this deployment or rollout target.'
+                                )}
+                            />
+                            <Route
+                                path="sms"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_sms_page',
+                                    'SMS',
+                                    'SMS is disabled for this deployment or rollout target.'
+                                )}
+                            />
                             <Route path="voice" element={<Voice />} />
                             <Route
                                 path="personality"
@@ -64,7 +130,14 @@ const AppRoutes = () => {
                                     </FeatureGateRoute>
                                 )}
                             />
-                            <Route path="email" element={<ComingSoon title="Email" />} />
+                            <Route
+                                path="email"
+                                element={buildBetaComingSoonRoute(
+                                    'ff_email_page',
+                                    'Email',
+                                    'Email is disabled for this deployment or rollout target.'
+                                )}
+                            />
                         </Route>
                     </Route>
                 </Route>
