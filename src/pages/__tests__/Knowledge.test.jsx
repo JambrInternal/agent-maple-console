@@ -95,7 +95,7 @@ describe('Knowledge page', () => {
         vi.clearAllMocks()
         mockUseFeatureFlag.mockReturnValue({
             enabled: true,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
         vi.mocked(getKnowledgeSources).mockResolvedValue(knowledgeRows)
@@ -355,7 +355,7 @@ describe('Knowledge page', () => {
     it('hides cloud actions and blocks oauth callback when cloud flag is disabled', async () => {
         mockUseFeatureFlag.mockReturnValue({
             enabled: false,
-            source: 'fallback',
+            source: 'posthog',
             loading: false,
         })
 

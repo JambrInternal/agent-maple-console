@@ -21,11 +21,24 @@ vi.mock('../../hooks/useApiQuery', () => ({
 }))
 
 describe('Sidebar feature gating', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
+    const buildFlagState = (enabled) => ({
+        enabled,
+        source: 'posthog',
+        loading: false,
     })
 
-    const renderSidebar = () => {
+    const setFeatureFlags = (overrides = {}) => {
+        mockUseFeatureFlag.mockImplementation((key) => buildFlagState(Boolean(overrides[key])))
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        setFeatureFlags({
+            ff_personality_editor: true,
+        })
+    })
+
+    const renderProjectSidebar = () => {
         render(
             <MemoryRouter initialEntries={['/org_1/proj_1/contacts']}>
                 <Routes>
@@ -35,27 +48,54 @@ describe('Sidebar feature gating', () => {
         )
     }
 
+    const renderOrgSidebar = () => {
+        render(
+            <MemoryRouter initialEntries={['/org_1/projects']}>
+                <Routes>
+                    <Route path="/:orgId/projects" element={<Sidebar />} />
+                </Routes>
+            </MemoryRouter>
+        )
+    }
+
     it('shows Personality nav item when flag is enabled', () => {
-        mockUseFeatureFlag.mockReturnValue({
-            enabled: true,
-            source: 'fallback',
-            loading: false,
+        setFeatureFlags({
+            ff_personality_editor: true,
         })
 
-        renderSidebar()
+        renderProjectSidebar()
 
         expect(screen.getByRole('link', { name: 'Personality' })).toBeInTheDocument()
     })
 
     it('hides Personality nav item when flag is disabled', () => {
-        mockUseFeatureFlag.mockReturnValue({
-            enabled: false,
-            source: 'fallback',
-            loading: false,
+        setFeatureFlags({
+            ff_personality_editor: false,
         })
 
-        renderSidebar()
+        renderProjectSidebar()
 
         expect(screen.queryByRole('link', { name: 'Personality' })).not.toBeInTheDocument()
+    })
+
+    it('shows a beta symbol for Organization Billing when the flag is enabled', () => {
+        setFeatureFlags({
+            ff_billing_page: true,
+        })
+
+        renderOrgSidebar()
+
+        expect(screen.getByRole('link', { name: 'Billing' })).toBeInTheDocument()
+        expect(screen.getByText('β')).toBeInTheDocument()
+    })
+
+    it('hides Organization Billing when its route flag is disabled', () => {
+        setFeatureFlags({
+            ff_billing_page: false,
+        })
+
+        renderOrgSidebar()
+
+        expect(screen.queryByRole('link', { name: 'Billing' })).not.toBeInTheDocument()
     })
 })

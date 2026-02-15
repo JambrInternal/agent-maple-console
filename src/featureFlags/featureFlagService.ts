@@ -1,106 +1,33 @@
 import {
-    getFeatureFlagFallback,
     isFeatureFlagKey,
     type DeploymentEnv,
     type FeatureFlagKey,
 } from './flagCatalog'
 
-type StorageLike = Pick<Storage, 'getItem' | 'removeItem' | 'setItem'>
+type StorageLike = Pick<Storage, 'getItem'>
 
 export type PostHogTargetingMode = 'auto' | 'group_and_person' | 'person_only'
 
-export type FeatureFlagValueSource = 'override' | 'posthog' | 'fallback'
+export type FeatureFlagValueSource = 'posthog' | 'unavailable'
 
 export interface FeatureFlagEvaluation {
     enabled: boolean
     source: FeatureFlagValueSource
 }
 
-export const FEATURE_FLAG_OVERRIDE_QUERY_PREFIX = 'ff.'
-export const FEATURE_FLAG_OVERRIDE_STORAGE_PREFIX = 'am_flag_override_'
 export const ORGANIZATION_STORAGE_KEY = 'am_tenant_id'
 
-const TRUE_OVERRIDE_VALUES = new Set(['1', 'on', 'true', 'enabled', 'yes'])
-const FALSE_OVERRIDE_VALUES = new Set(['0', 'off', 'false', 'disabled', 'no'])
+const FALSE_TEXT_VALUES = new Set(['0', 'off', 'false', 'disabled', 'no'])
 
 const normalizeText = (value: unknown): string => {
     if (typeof value !== 'string') return ''
     return value.trim()
 }
 
-const parseBooleanOverride = (value: unknown): boolean | null => {
-    const normalized = normalizeText(value).toLowerCase()
-    if (!normalized) return null
-    if (TRUE_OVERRIDE_VALUES.has(normalized)) return true
-    if (FALSE_OVERRIDE_VALUES.has(normalized)) return false
-    return null
-}
-
-export const getFlagOverrideStorageKey = (key: FeatureFlagKey): string => {
-    return `${FEATURE_FLAG_OVERRIDE_STORAGE_PREFIX}${key}`
-}
-
-export const setLocalFeatureFlagOverride = (
-    key: FeatureFlagKey,
-    value: boolean,
-    storage?: StorageLike
-): void => {
-    const target = storage || (typeof localStorage !== 'undefined' ? localStorage : null)
-    if (!target) return
-    target.setItem(getFlagOverrideStorageKey(key), value ? 'on' : 'off')
-}
-
-export const clearLocalFeatureFlagOverride = (
-    key: FeatureFlagKey,
-    storage?: StorageLike
-): void => {
-    const target = storage || (typeof localStorage !== 'undefined' ? localStorage : null)
-    if (!target) return
-    target.removeItem(getFlagOverrideStorageKey(key))
-}
-
-const getQueryOverrideValue = (key: FeatureFlagKey, search: string): boolean | null => {
-    const params = new URLSearchParams(search)
-    const raw = params.get(`${FEATURE_FLAG_OVERRIDE_QUERY_PREFIX}${key}`)
-    return parseBooleanOverride(raw)
-}
-
-const getStorageOverrideValue = (
-    key: FeatureFlagKey,
-    storage?: StorageLike
-): boolean | null => {
-    const target = storage || (typeof localStorage !== 'undefined' ? localStorage : null)
-    if (!target) return null
-    return parseBooleanOverride(target.getItem(getFlagOverrideStorageKey(key)))
-}
-
-export const resolveFeatureFlagOverrideValue = ({
-    key,
-    deploymentEnv,
-    search,
-    storage,
-}: {
-    key: FeatureFlagKey
-    deploymentEnv: DeploymentEnv
-    search: string
-    storage?: StorageLike
-}): boolean | null => {
-    if (deploymentEnv === 'prod') {
-        return null
-    }
-
-    const queryOverride = getQueryOverrideValue(key, search)
-    if (queryOverride !== null) {
-        return queryOverride
-    }
-
-    return getStorageOverrideValue(key, storage)
-}
-
 export const resolvePostHogEnabled = (rawValue: unknown): boolean => {
     const normalized = normalizeText(rawValue).toLowerCase()
     if (!normalized) return true
-    if (FALSE_OVERRIDE_VALUES.has(normalized)) return false
+    if (FALSE_TEXT_VALUES.has(normalized)) return false
     return true
 }
 
@@ -147,31 +74,10 @@ export const shouldAttemptGroupTargeting = ({
 }
 
 export const evaluateFeatureFlag = ({
-    key,
-    deploymentEnv,
     posthogValue,
-    search,
-    storage,
 }: {
-    key: FeatureFlagKey
-    deploymentEnv: DeploymentEnv
     posthogValue: boolean | undefined
-    search: string
-    storage?: StorageLike
 }): FeatureFlagEvaluation => {
-    const override = resolveFeatureFlagOverrideValue({
-        key,
-        deploymentEnv,
-        search,
-        storage,
-    })
-    if (override !== null) {
-        return {
-            enabled: override,
-            source: 'override',
-        }
-    }
-
     if (typeof posthogValue === 'boolean') {
         return {
             enabled: posthogValue,
@@ -180,8 +86,8 @@ export const evaluateFeatureFlag = ({
     }
 
     return {
-        enabled: getFeatureFlagFallback(key, deploymentEnv),
-        source: 'fallback',
+        enabled: false,
+        source: 'unavailable',
     }
 }
 

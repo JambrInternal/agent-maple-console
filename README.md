@@ -51,10 +51,9 @@ Feature-flag environment detection defaults:
 - `app.agentmaple.ca` -> `prod`
 - any other host (including localhost) -> `dev`
 
-Local flag overrides:
-- Query string: `?ff.ff_personality_editor=on` (or `off`)
-- Local storage: `am_flag_override_<flag_key>`
-- Overrides are ignored in production (`APP_ENV=prod` or `app.agentmaple.ca`)
+Feature-flag evaluation:
+- Flags are controlled exclusively by PostHog.
+- If a flag value is unavailable from PostHog, the app treats it as disabled.
 
 ### Build
 
