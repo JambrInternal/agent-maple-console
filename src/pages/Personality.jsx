@@ -12,13 +12,11 @@ import {
     personalityFormStateToDraft,
     personalityTemplateToFormState,
 } from '../features/personality/personalityUtils'
-import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
 import { getAdminMode } from '../utils/admin'
 
 const Personality = () => {
     const { orgId, projId } = useParams()
     const isSuperAdmin = getAdminMode()
-    const personalityEditorFlag = useFeatureFlag('ff_personality_editor')
     const [formState, setFormState] = useState(() => createDefaultPersonalityFormState())
     const [saveError, setSaveError] = useState('')
     const [saveNotice, setSaveNotice] = useState('')
@@ -50,16 +48,6 @@ const Personality = () => {
     const handleSubmit = async (event) => {
         event.preventDefault()
         if (!orgId || !projId) return
-        if (personalityEditorFlag.loading) {
-            setSaveNotice('')
-            setSaveError('Loading feature flags...')
-            return
-        }
-        if (!personalityEditorFlag.enabled) {
-            setSaveNotice('')
-            setSaveError('Personality is currently disabled by feature flag.')
-            return
-        }
 
         setIsSaving(true)
         setSaveError('')

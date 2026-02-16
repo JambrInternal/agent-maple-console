@@ -3,7 +3,6 @@ import { UploadCloud } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import QueryError from '../components/QueryError'
-import { useFeatureFlag } from '../featureFlags/useFeatureFlag'
 import KnowledgeCloudSyncDialog from '../features/knowledge/components/KnowledgeCloudSyncDialog'
 import KnowledgeTable from '../features/knowledge/components/KnowledgeTable'
 import {
@@ -59,7 +58,6 @@ const Knowledge = () => {
     const location = useLocation()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const knowledgeCloudActionsFlag = useFeatureFlag('ff_knowledge_cloud_actions')
 
     const [isUploading, setIsUploading] = useState(false)
     const [connectingProvider, setConnectingProvider] = useState('')
@@ -143,7 +141,7 @@ const Knowledge = () => {
                 ? listKnowledgeGoogleDriveConfig(scope)
                 : Promise.resolve([])
         ),
-        { enabled: isScopeReady(scope) && knowledgeCloudActionsFlag.enabled }
+        { enabled: isScopeReady(scope) }
     )
     const {
         data: sharePointConfig = [],
@@ -156,7 +154,7 @@ const Knowledge = () => {
                 ? listKnowledgeSharePointConfig(scope)
                 : Promise.resolve([])
         ),
-        { enabled: isScopeReady(scope) && knowledgeCloudActionsFlag.enabled }
+        { enabled: isScopeReady(scope) }
     )
 
     const rows = useMemo(() => sources, [sources])
@@ -261,12 +259,6 @@ const Knowledge = () => {
 
     const startCloudConnect = async (provider) => {
         if (!scope || !isCloudProvider(provider)) return
-        if (!knowledgeCloudActionsFlag.enabled) {
-            setUploadSummary(null)
-            setCloudMessage('')
-            setCloudError('Cloud actions are disabled by feature flag.')
-            return
-        }
 
         setUploadSummary(null)
         clearInlineMessages()
@@ -296,11 +288,6 @@ const Knowledge = () => {
 
     const openCloudSyncDialog = (provider) => {
         if (!scope || !isCloudProvider(provider)) return
-        if (!knowledgeCloudActionsFlag.enabled) {
-            setCloudMessage('')
-            setCloudError('Cloud actions are disabled by feature flag.')
-            return
-        }
 
         setOpenSyncProvider(provider)
         setSyncFolderInput('')
@@ -515,13 +502,6 @@ const Knowledge = () => {
             navigate(`${location.pathname}${nextSearch}`, { replace: true })
         }
 
-        if (!knowledgeCloudActionsFlag.enabled) {
-            setCloudMessage('')
-            setCloudError('Cloud actions are disabled by feature flag.')
-            clearCallbackParams()
-            return
-        }
-
         if (!isCloudProvider(provider)) {
             setCloudMessage('')
             setCloudError('Unknown cloud provider in OAuth callback.')
@@ -615,7 +595,6 @@ const Knowledge = () => {
             cancelled = true
         }
     }, [
-        knowledgeCloudActionsFlag.enabled,
         location.pathname,
         location.search,
         navigate,
@@ -676,79 +655,75 @@ const Knowledge = () => {
                     ))}
                 </div>
 
-                {knowledgeCloudActionsFlag.enabled && (
-                    <>
-                        <div className="am-table-card" style={{ marginBottom: '1rem' }}>
-                            <div style={{ display: 'grid', gap: '0.75rem' }}>
-                                {Object.entries(CLOUD_PROVIDER_META).map(([provider, meta]) => {
-                                    const isConnected = connectedProviders.has(provider)
-                                    const isConnecting = connectingProvider === provider
-                                    const isDisconnecting = disconnectingProvider === provider
-                                    const disabled = isConnecting || isHandlingOAuthCallback || !scope || isSyncSubmitting
+                <div className="am-table-card" style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'grid', gap: '0.75rem' }}>
+                        {Object.entries(CLOUD_PROVIDER_META).map(([provider, meta]) => {
+                            const isConnected = connectedProviders.has(provider)
+                            const isConnecting = connectingProvider === provider
+                            const isDisconnecting = disconnectingProvider === provider
+                            const disabled = isConnecting || isHandlingOAuthCallback || !scope || isSyncSubmitting
 
-                                    return (
-                                        <div
-                                            key={provider}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                gap: '1rem',
-                                                padding: '0.75rem 1rem',
-                                                border: '1px solid var(--am-border)',
-                                                borderRadius: '10px',
-                                            }}
+                            return (
+                                <div
+                                    key={provider}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: '1rem',
+                                        padding: '0.75rem 1rem',
+                                        border: '1px solid var(--am-border)',
+                                        borderRadius: '10px',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <div className="am-text-1" style={{ fontWeight: 600 }}>{meta.label}</div>
+                                        <span className={`am-pill ${isConnected ? 'is-ready' : 'is-pending'}`}>
+                                            {isConnected ? 'Connected' : 'Not Connected'}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        <button
+                                            type="button"
+                                            className="am-btn-secondary"
+                                            disabled={disabled}
+                                            onClick={() => startCloudConnect(provider)}
                                         >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                <div className="am-text-1" style={{ fontWeight: 600 }}>{meta.label}</div>
-                                                <span className={`am-pill ${isConnected ? 'is-ready' : 'is-pending'}`}>
-                                                    {isConnected ? 'Connected' : 'Not Connected'}
-                                                </span>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                                <button
-                                                    type="button"
-                                                    className="am-btn-secondary"
-                                                    disabled={disabled}
-                                                    onClick={() => startCloudConnect(provider)}
-                                                >
-                                                    {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="am-btn-secondary"
-                                                    disabled={disabled || !isConnected}
-                                                    onClick={() => openCloudSyncDialog(provider)}
-                                                >
-                                                    Sync
-                                                </button>
-                                                {isConnected && (
-                                                    <button
-                                                        type="button"
-                                                        className="am-btn-secondary"
-                                                        disabled={disabled || isDisconnecting}
-                                                        onClick={() => handleCloudDisconnect(provider)}
-                                                    >
-                                                        {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
+                                            {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="am-btn-secondary"
+                                            disabled={disabled || !isConnected}
+                                            onClick={() => openCloudSyncDialog(provider)}
+                                        >
+                                            Sync
+                                        </button>
+                                        {isConnected && (
+                                            <button
+                                                type="button"
+                                                className="am-btn-secondary"
+                                                disabled={disabled || isDisconnecting}
+                                                onClick={() => handleCloudDisconnect(provider)}
+                                            >
+                                                {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
 
-                        {cloudTokensError && (
-                            <div className="am-text-2" style={{ paddingBottom: '1rem', color: '#ef4444' }}>
-                                <QueryError
-                                    message="Failed to load cloud connection status."
-                                    error={cloudTokensError}
-                                    onRetry={refreshKnowledgeData}
-                                />
-                            </div>
-                        )}
-                    </>
+                {cloudTokensError && (
+                    <div className="am-text-2" style={{ paddingBottom: '1rem', color: '#ef4444' }}>
+                        <QueryError
+                            message="Failed to load cloud connection status."
+                            error={cloudTokensError}
+                            onRetry={refreshKnowledgeData}
+                        />
+                    </div>
                 )}
 
                 {selectedCount > 0 && (

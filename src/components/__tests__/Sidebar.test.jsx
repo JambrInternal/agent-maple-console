@@ -34,7 +34,7 @@ describe('Sidebar feature gating', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         setFeatureFlags({
-            ff_personality_editor: true,
+            ff_beta: true,
         })
     })
 
@@ -58,40 +58,26 @@ describe('Sidebar feature gating', () => {
         )
     }
 
-    it('shows Personality nav item when flag is enabled', () => {
-        setFeatureFlags({
-            ff_personality_editor: true,
-        })
-
+    it('shows Personality nav item', () => {
         renderProjectSidebar()
 
         expect(screen.getByRole('link', { name: 'Personality' })).toBeInTheDocument()
     })
 
-    it('hides Personality nav item when flag is disabled', () => {
-        setFeatureFlags({
-            ff_personality_editor: false,
-        })
-
-        renderProjectSidebar()
-
-        expect(screen.queryByRole('link', { name: 'Personality' })).not.toBeInTheDocument()
-    })
-
     it('shows a beta symbol for Organization Billing when the flag is enabled', () => {
         setFeatureFlags({
-            ff_billing_page: true,
+            ff_beta: true,
         })
 
         renderOrgSidebar()
 
         expect(screen.getByRole('link', { name: 'Billing' })).toBeInTheDocument()
-        expect(screen.getByText('β')).toBeInTheDocument()
+        expect(screen.getAllByText('β')).toHaveLength(3)
     })
 
     it('hides Organization Billing when its route flag is disabled', () => {
         setFeatureFlags({
-            ff_billing_page: false,
+            ff_beta: false,
         })
 
         renderOrgSidebar()

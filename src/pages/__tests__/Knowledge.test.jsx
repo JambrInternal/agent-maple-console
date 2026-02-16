@@ -20,8 +20,6 @@ import {
     uploadKnowledgeSource,
 } from '../../services/knowledge'
 
-const mockUseFeatureFlag = vi.fn()
-
 vi.mock('../../services/knowledge', () => ({
     getKnowledgeSources: vi.fn(),
     uploadKnowledgeSource: vi.fn(),
@@ -36,10 +34,6 @@ vi.mock('../../services/knowledge', () => ({
     getKnowledgeSourceDownloadUrl: vi.fn(),
     reindexKnowledgeSource: vi.fn(),
     deleteKnowledgeSource: vi.fn(),
-}))
-
-vi.mock('../../featureFlags/useFeatureFlag', () => ({
-    useFeatureFlag: (...args) => mockUseFeatureFlag(...args),
 }))
 
 describe('Knowledge page', () => {
@@ -93,11 +87,6 @@ describe('Knowledge page', () => {
     beforeEach(() => {
         sessionStorage.clear()
         vi.clearAllMocks()
-        mockUseFeatureFlag.mockReturnValue({
-            enabled: true,
-            source: 'posthog',
-            loading: false,
-        })
         vi.mocked(getKnowledgeSources).mockResolvedValue(knowledgeRows)
         vi.mocked(listKnowledgeCloudTokens).mockResolvedValue([])
         vi.mocked(uploadKnowledgeSource).mockResolvedValue({
@@ -352,19 +341,4 @@ describe('Knowledge page', () => {
         )
     })
 
-    it('hides cloud actions and blocks oauth callback when cloud flag is disabled', async () => {
-        mockUseFeatureFlag.mockReturnValue({
-            enabled: false,
-            source: 'posthog',
-            loading: false,
-        })
-
-        renderKnowledge('/org_1/proj_1/knowledge?oauth_provider=google_drive&code=oauth_code&state=state_123')
-
-        expect(await screen.findByText('Cloud actions are disabled by feature flag.')).toBeInTheDocument()
-        expect(screen.queryByRole('button', { name: 'Connect' })).not.toBeInTheDocument()
-        expect(screen.queryByRole('button', { name: 'Sync' })).not.toBeInTheDocument()
-        expect(completeKnowledgeCloudCallback).not.toHaveBeenCalled()
-        expect(syncKnowledgeGoogleDrive).not.toHaveBeenCalled()
-    })
 })

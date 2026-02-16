@@ -16,9 +16,9 @@ import Personality from '../pages/Personality'
 import Projects from '../pages/Projects'
 import Voice from '../pages/Voice'
 
-const buildBetaComingSoonRoute = (flagKey, title, description) => (
+const buildBetaComingSoonRoute = (title, description) => (
     <FeatureGateRoute
-        flagKey={flagKey}
+        flagKey="ff_beta"
         title={`${title} Unavailable`}
         description={description}
     >
@@ -49,7 +49,6 @@ const AppRoutes = () => {
                         <Route
                             path="billing"
                             element={buildBetaComingSoonRoute(
-                                'ff_billing_page',
                                 'Billing',
                                 'Billing is disabled for this deployment or rollout target.'
                             )}
@@ -57,7 +56,6 @@ const AppRoutes = () => {
                         <Route
                             path="usage"
                             element={buildBetaComingSoonRoute(
-                                'ff_usage_page',
                                 'Usage',
                                 'Usage is disabled for this deployment or rollout target.'
                             )}
@@ -65,7 +63,6 @@ const AppRoutes = () => {
                         <Route
                             path="settings"
                             element={buildBetaComingSoonRoute(
-                                'ff_org_settings_page',
                                 'Organization Settings',
                                 'Organization Settings is disabled for this deployment or rollout target.'
                             )}
@@ -77,7 +74,6 @@ const AppRoutes = () => {
                             <Route
                                 path="threads"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_threads_page',
                                     'Threads',
                                     'Threads is disabled for this deployment or rollout target.'
                                 )}
@@ -85,7 +81,6 @@ const AppRoutes = () => {
                             <Route
                                 path="issues"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_issues_page',
                                     'Issues',
                                     'Issues is disabled for this deployment or rollout target.'
                                 )}
@@ -93,7 +88,6 @@ const AppRoutes = () => {
                             <Route
                                 path="tools-skills"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_tools_skills_page',
                                     'Skills & Tools',
                                     'Skills & Tools is disabled for this deployment or rollout target.'
                                 )}
@@ -104,7 +98,6 @@ const AppRoutes = () => {
                             <Route
                                 path="insights"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_insights_page',
                                     'Insights',
                                     'Insights is disabled for this deployment or rollout target.'
                                 )}
@@ -112,28 +105,15 @@ const AppRoutes = () => {
                             <Route
                                 path="sms"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_sms_page',
                                     'SMS',
                                     'SMS is disabled for this deployment or rollout target.'
                                 )}
                             />
                             <Route path="voice" element={<Voice />} />
-                            <Route
-                                path="personality"
-                                element={(
-                                    <FeatureGateRoute
-                                        flagKey="ff_personality_editor"
-                                        title="Personality Unavailable"
-                                        description="Personality is disabled for this deployment or rollout target."
-                                    >
-                                        <Personality />
-                                    </FeatureGateRoute>
-                                )}
-                            />
+                            <Route path="personality" element={<Personality />} />
                             <Route
                                 path="email"
                                 element={buildBetaComingSoonRoute(
-                                    'ff_email_page',
                                     'Email',
                                     'Email is disabled for this deployment or rollout target.'
                                 )}
