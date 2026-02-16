@@ -10,7 +10,6 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_KEY?: string;
   readonly VITE_POSTHOG_HOST?: string;
   readonly VITE_POSTHOG_ENABLED?: string;
-  readonly VITE_APP_ENV?: string;
   readonly VITE_POSTHOG_TARGETING_MODE?: string;
 }
 

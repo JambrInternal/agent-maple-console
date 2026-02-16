@@ -43,13 +43,15 @@ Runtime keys supported:
 - `POSTHOG_KEY` (public key for PostHog feature flags + analytics events)
 - `POSTHOG_HOST` (default `https://us.i.posthog.com`)
 - `POSTHOG_ENABLED` (`true`/`false`, default `true`)
-- `APP_ENV` (optional override for environment detection: `dev`/`beta`/`prod`)
+- `RAILWAY_ENVIRONMENT_NAME` (Railway-provided; expected values: `beta`, `prod`)
 - `POSTHOG_TARGETING_MODE` (`auto` | `group_and_person` | `person_only`, default `auto`)
 
 Feature-flag environment detection defaults:
 - `beta.agentmaple.ca` -> `beta`
 - `app.agentmaple.ca` -> `prod`
 - any other host (including localhost) -> `dev`
+
+When served by `server.js`, runtime `APP_ENV` is derived from `RAILWAY_ENVIRONMENT_NAME` (`beta` -> `beta`, `prod`/`production` -> `prod`).
 
 Feature-flag evaluation:
 - Flags are controlled exclusively by PostHog.

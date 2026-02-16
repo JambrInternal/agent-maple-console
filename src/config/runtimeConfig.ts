@@ -88,7 +88,7 @@ export const getAppConfig = (): AppConfig => {
             import.meta.env.VITE_POSTHOG_ENABLED,
             'true'
         ),
-        APP_ENV: resolveValue(runtime.APP_ENV, import.meta.env.VITE_APP_ENV, ''),
+        APP_ENV: resolveValue(runtime.APP_ENV, ''),
         POSTHOG_TARGETING_MODE: resolveValue(
             runtime.POSTHOG_TARGETING_MODE,
             import.meta.env.VITE_POSTHOG_TARGETING_MODE,
