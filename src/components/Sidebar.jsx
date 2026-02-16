@@ -22,16 +22,7 @@ import {
 
 const Sidebar = () => {
     const { orgId, projId } = useParams()
-    const personalityEditorFlag = useFeatureFlag('ff_personality_editor')
-    const billingPageFlag = useFeatureFlag('ff_billing_page')
-    const usagePageFlag = useFeatureFlag('ff_usage_page')
-    const orgSettingsPageFlag = useFeatureFlag('ff_org_settings_page')
-    const threadsPageFlag = useFeatureFlag('ff_threads_page')
-    const issuesPageFlag = useFeatureFlag('ff_issues_page')
-    const toolsSkillsPageFlag = useFeatureFlag('ff_tools_skills_page')
-    const insightsPageFlag = useFeatureFlag('ff_insights_page')
-    const smsPageFlag = useFeatureFlag('ff_sms_page')
-    const emailPageFlag = useFeatureFlag('ff_email_page')
+    const betaFlag = useFeatureFlag('ff_beta')
 
     // Determine current section (Org vs Project)
     const isProjectContext = !!projId
@@ -51,21 +42,21 @@ const Sidebar = () => {
             icon: CreditCard,
             label: 'Billing',
             path: `/${orgId}/billing`,
-            enabled: billingPageFlag.enabled,
+            enabled: betaFlag.enabled,
             beta: true,
         },
         {
             icon: Activity,
             label: 'Usage',
             path: `/${orgId}/usage`,
-            enabled: usagePageFlag.enabled,
+            enabled: betaFlag.enabled,
             beta: true,
         },
         {
             icon: Settings,
             label: 'Organization Settings',
             path: `/${orgId}/settings`,
-            enabled: orgSettingsPageFlag.enabled,
+            enabled: betaFlag.enabled,
             beta: true,
         },
     ]
@@ -74,15 +65,13 @@ const Sidebar = () => {
         {
             title: 'Agent',
             items: [
-                ...(personalityEditorFlag.enabled
-                    ? [{ icon: Lightbulb, label: 'Personality', path: `/${orgId}/${projId}/personality` }]
-                    : []),
+                { icon: Lightbulb, label: 'Personality', path: `/${orgId}/${projId}/personality` },
                 { icon: Users, label: 'Contacts', path: `/${orgId}/${projId}/contacts` },
                 {
                     icon: MessageSquare,
                     label: 'SMS',
                     path: `/${orgId}/${projId}/sms`,
-                    enabled: smsPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
                 { icon: Phone, label: 'Voice', path: `/${orgId}/${projId}/voice` },
@@ -90,14 +79,14 @@ const Sidebar = () => {
                     icon: Mail,
                     label: 'Email',
                     path: `/${orgId}/${projId}/email`,
-                    enabled: emailPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
                 {
                     icon: Zap,
                     label: 'Skills & Tools',
                     path: `/${orgId}/${projId}/tools-skills`,
-                    enabled: toolsSkillsPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
             ],
@@ -109,14 +98,14 @@ const Sidebar = () => {
                     icon: MessageSquare,
                     label: 'Threads',
                     path: `/${orgId}/${projId}/threads`,
-                    enabled: threadsPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
                 {
                     icon: AlertCircle,
                     label: 'Issues',
                     path: `/${orgId}/${projId}/issues`,
-                    enabled: issuesPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
                 { icon: Database, label: 'Knowledge', path: `/${orgId}/${projId}/knowledge` },
@@ -124,7 +113,7 @@ const Sidebar = () => {
                     icon: BarChart3,
                     label: 'Insights',
                     path: `/${orgId}/${projId}/insights`,
-                    enabled: insightsPageFlag.enabled,
+                    enabled: betaFlag.enabled,
                     beta: true,
                 },
             ],

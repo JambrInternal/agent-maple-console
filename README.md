@@ -116,8 +116,7 @@ Railway service expectations:
 Use one PostHog project and target by `deployment_env` person/group properties:
 
 1. Create flags:
-   - `ff_personality_editor`
-   - `ff_knowledge_cloud_actions`
+   - `ff_beta`
 2. Add rollout conditions:
    - `deployment_env = beta` -> enabled
    - `deployment_env = prod` -> disabled

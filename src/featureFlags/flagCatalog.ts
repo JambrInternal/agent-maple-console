@@ -1,17 +1,7 @@
 export type DeploymentEnv = 'dev' | 'beta' | 'prod'
 
 export type FeatureFlagKey =
-    | 'ff_billing_page'
-    | 'ff_usage_page'
-    | 'ff_org_settings_page'
-    | 'ff_threads_page'
-    | 'ff_issues_page'
-    | 'ff_tools_skills_page'
-    | 'ff_insights_page'
-    | 'ff_sms_page'
-    | 'ff_email_page'
-    | 'ff_personality_editor'
-    | 'ff_knowledge_cloud_actions'
+    | 'ff_beta'
 
 export type FeatureFlagGateType = 'route' | 'action'
 
@@ -22,60 +12,10 @@ export interface FeatureFlagDefinition {
 }
 
 export const FEATURE_FLAG_CATALOG: Record<FeatureFlagKey, FeatureFlagDefinition> = {
-    ff_billing_page: {
-        key: 'ff_billing_page',
+    ff_beta: {
+        key: 'ff_beta',
         gateType: 'route',
-        description: 'Controls access to the Organization Billing page (currently beta/coming-soon UI).',
-    },
-    ff_usage_page: {
-        key: 'ff_usage_page',
-        gateType: 'route',
-        description: 'Controls access to the Organization Usage page (currently beta/coming-soon UI).',
-    },
-    ff_org_settings_page: {
-        key: 'ff_org_settings_page',
-        gateType: 'route',
-        description: 'Controls access to the Organization Settings page (currently beta/coming-soon UI).',
-    },
-    ff_threads_page: {
-        key: 'ff_threads_page',
-        gateType: 'route',
-        description: 'Controls access to the Project Threads page (currently beta/coming-soon UI).',
-    },
-    ff_issues_page: {
-        key: 'ff_issues_page',
-        gateType: 'route',
-        description: 'Controls access to the Project Issues page (currently beta/coming-soon UI).',
-    },
-    ff_tools_skills_page: {
-        key: 'ff_tools_skills_page',
-        gateType: 'route',
-        description: 'Controls access to the Project Skills & Tools page (currently beta/coming-soon UI).',
-    },
-    ff_insights_page: {
-        key: 'ff_insights_page',
-        gateType: 'route',
-        description: 'Controls access to the Project Insights page (currently beta/coming-soon UI).',
-    },
-    ff_sms_page: {
-        key: 'ff_sms_page',
-        gateType: 'route',
-        description: 'Controls access to the Project SMS page (currently beta/coming-soon UI).',
-    },
-    ff_email_page: {
-        key: 'ff_email_page',
-        gateType: 'route',
-        description: 'Controls access to the Project Email page (currently beta/coming-soon UI).',
-    },
-    ff_personality_editor: {
-        key: 'ff_personality_editor',
-        gateType: 'route',
-        description: 'Controls access to the Project Personality editor route and save actions.',
-    },
-    ff_knowledge_cloud_actions: {
-        key: 'ff_knowledge_cloud_actions',
-        gateType: 'action',
-        description: 'Controls Knowledge cloud connect/reconnect OAuth and sync actions.',
+        description: 'Controls access to all currently beta/coming-soon pages and their beta label rendering.',
     },
 }
 
