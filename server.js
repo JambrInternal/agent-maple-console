@@ -37,6 +37,13 @@ const resolveConfigValue = (...values) => {
     return '';
 };
 
+const resolveAppEnvFromRailway = () => {
+    const railwayEnv = resolveConfigValue(process.env.RAILWAY_ENVIRONMENT_NAME).toLowerCase();
+    if (railwayEnv === 'beta') return 'beta';
+    if (railwayEnv === 'prod' || railwayEnv === 'production') return 'prod';
+    return '';
+};
+
 const getRuntimeConfig = () => ({
     API_URL: resolveConfigValue(
         process.env.API_URL,
@@ -72,7 +79,7 @@ const getRuntimeConfig = () => ({
         process.env.VITE_POSTHOG_ENABLED,
         'true'
     ),
-    APP_ENV: resolveConfigValue(process.env.APP_ENV, process.env.VITE_APP_ENV, ''),
+    APP_ENV: resolveAppEnvFromRailway(),
     POSTHOG_TARGETING_MODE: resolveConfigValue(
         process.env.POSTHOG_TARGETING_MODE,
         process.env.VITE_POSTHOG_TARGETING_MODE,

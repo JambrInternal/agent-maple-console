@@ -8,10 +8,17 @@ import {
 } from '../featureFlagService'
 
 describe('featureFlagService', () => {
-    it('resolves deployment env from APP_ENV override first', () => {
+    it('prefers known hostname mappings over APP_ENV overrides', () => {
         expect(resolveDeploymentEnv({
             appEnv: 'prod',
             hostname: 'beta.agentmaple.ca',
+        })).toBe('beta')
+    })
+
+    it('uses APP_ENV override when hostname does not map to a known deployment env', () => {
+        expect(resolveDeploymentEnv({
+            appEnv: 'prod',
+            hostname: 'localhost',
         })).toBe('prod')
     })
 

@@ -50,14 +50,15 @@ export const resolveDeploymentEnv = ({
     appEnv?: string | null
     hostname?: string | null
 }): DeploymentEnv => {
+    const normalizedHost = normalizeText(hostname).toLowerCase()
+    if (normalizedHost === 'beta.agentmaple.ca') return 'beta'
+    if (normalizedHost === 'app.agentmaple.ca') return 'prod'
+
     const normalizedAppEnv = normalizeText(appEnv).toLowerCase()
     if (normalizedAppEnv === 'beta' || normalizedAppEnv === 'prod' || normalizedAppEnv === 'dev') {
         return normalizedAppEnv
     }
 
-    const normalizedHost = normalizeText(hostname).toLowerCase()
-    if (normalizedHost === 'beta.agentmaple.ca') return 'beta'
-    if (normalizedHost === 'app.agentmaple.ca') return 'prod'
     return 'dev'
 }
 
