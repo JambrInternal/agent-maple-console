@@ -80,19 +80,22 @@ export type ProjectPersonalityTemplate = ProjectPersonalityTemplateDraft & {
 }
 
 export const DEFAULT_PROJECT_PERSONALITY_TEMPLATE: ProjectPersonalityTemplateDraft = {
-    templateType: 'FULL_CONTROLLED',
+    templateType: 'PARAMETERIZED',
     runnerInstructions: '',
     agentInstructions: '',
-    userRole: 'construction_resident',
-    conversationType: 'project_updates',
-    aiRole: 'virtual_site_coordinator',
-    aiRoleCharacteristics: [],
-    aiRoleEmotionalTone: [],
-    aiRoleDialogueStrategy: [],
-    aiRoleConstraints: [],
-    contextContent: '',
-    goals: [],
-    evaluationCriteria: [],
+    userRole: 'on-site manager/worker',
+    conversationType: 'Construction support chat',
+    aiRole: 'Construction Support Manager',
+    aiRoleCharacteristics: ['Kind', 'Active Listening'],
+    aiRoleEmotionalTone: ['calm'],
+    aiRoleDialogueStrategy: ['informative and helpful'],
+    aiRoleConstraints: [
+        'Do not repeat greetings',
+        'Answer questions using internal documentation unless the user requests general information',
+    ],
+    contextContent: 'Always use tools to query the internal database first *silently* before answering every question. Do not mention it in reply.',
+    goals: ['Evaluate user performance in conversation'],
+    evaluationCriteria: ['Active Listening', 'Product Knowledge'],
     isDefault: true,
 }
 

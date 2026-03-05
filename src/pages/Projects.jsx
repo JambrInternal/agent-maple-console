@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Plus } from 'lucide-react'
 import { createProject, getProjects } from '../services/projects'
+import { saveProjectPersonalityTemplate, DEFAULT_PROJECT_PERSONALITY_TEMPLATE } from '../services/agentFacade'
 import logger from '../utils/verboseLogger'
 import { useApiQuery } from '../hooks/useApiQuery'
 import QueryError from '../components/QueryError';
@@ -70,8 +71,19 @@ const Projects = () => {
         setIsCreating(true)
         logger.info('Creating project', { orgId, name: trimmed })
         try {
-            await createProject(orgId, trimmed)
-            logger.info('Project created successfully', { orgId, name: trimmed })
+            const project = await createProject(orgId, trimmed)
+            logger.info('Project created successfully', { orgId, name: trimmed, projectId: project.id })
+
+            try {
+                await saveProjectPersonalityTemplate(
+                    { organizationId: orgId, projectId: project.id },
+                    DEFAULT_PROJECT_PERSONALITY_TEMPLATE
+                )
+                logger.info('Default personality template created for new project', { projectId: project.id })
+            } catch (templateErr) {
+                logger.error('Failed to create default personality template (non-blocking)', templateErr)
+            }
+
             setIsCreateOpen(false)
             refetch()
             navigate(`/${orgId}/projects`)
