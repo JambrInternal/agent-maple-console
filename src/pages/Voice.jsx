@@ -29,7 +29,9 @@ const Voice = () => {
             await navigator.clipboard.writeText(projectAgentContact.phoneNumber)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
-        } catch {}
+        } catch (_e) {
+            // Clipboard failures are intentionally silent (no user feedback needed)
+        }
     }
 
     return (
