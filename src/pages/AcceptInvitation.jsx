@@ -25,7 +25,7 @@ import { dispatchTenantChange } from '../featureFlags/featureFlagService'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const AcceptInvitation = () => {
-    const { user, loading, login, register, confirmRegistration, logout } = useAuth()
+    const { user, loading, login, register, confirmRegistration, logout, resendConfirmationCode } = useAuth()
     const location = useLocation()
     const navigate = useNavigate()
     const [status, setStatus] = useState('checking')
@@ -39,6 +39,9 @@ const AcceptInvitation = () => {
     const [info, setInfo] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const redirectTimeoutRef = useRef(null)
+    const cooldownIntervalRef = useRef(null)
+    const [resendCooldown, setResendCooldown] = useState(0)
+    const [isResending, setIsResending] = useState(false)
     const hasHandledInitialSessionRef = useRef(false)
     const isSuperAdmin = getAdminMode()
 
@@ -70,6 +73,10 @@ const AcceptInvitation = () => {
             if (redirectTimeoutRef.current !== null) {
                 window.clearTimeout(redirectTimeoutRef.current)
                 redirectTimeoutRef.current = null
+            }
+            if (cooldownIntervalRef.current !== null) {
+                window.clearInterval(cooldownIntervalRef.current)
+                cooldownIntervalRef.current = null
             }
         }
     }, [])
@@ -314,6 +321,53 @@ const AcceptInvitation = () => {
         }
     }
 
+    const handleResendCode = async () => {
+        if (resendCooldown > 0 || isResending) return
+
+        const normalizedEmail = getValidatedEmail()
+        if (!normalizedEmail) return
+
+        setIsResending(true)
+        setError('')
+
+        try {
+            await resendConfirmationCode(normalizedEmail)
+
+            setConfirmationCode('')
+
+            setInfo(`New code sent to ${normalizedEmail}.`)
+
+            setResendCooldown(30)
+            if (cooldownIntervalRef.current !== null) {
+                window.clearInterval(cooldownIntervalRef.current)
+            }
+
+            cooldownIntervalRef.current = window.setInterval(() => {
+                setResendCooldown(prev => {
+                    const next = prev - 1
+                    if (next <= 0) {
+                        window.clearInterval(cooldownIntervalRef.current)
+                        cooldownIntervalRef.current = null
+                        return 0
+                    }
+                    return next
+                })
+            }, 1000)
+        } catch (err) {
+            const errorMessage = String(
+                err && typeof err === 'object' && 'message' in err ? err.message : ''
+            ).toLowerCase()
+
+            if (errorMessage.includes('limit') || errorMessage.includes('attempt')) {
+                setError('Too many attempts. Please wait before trying again.')
+            } else {
+                setError('Failed to send code. Try again or contact support.')
+            }
+        } finally {
+            setIsResending(false)
+        }
+    }
+
     if (loading || status === 'checking' || status === 'accepting') {
         return <InvitationLoadingCard />
     }
@@ -352,6 +406,9 @@ const AcceptInvitation = () => {
             onConfirmationCodeChange={setConfirmationCode}
             onSubmitPassword={handlePasswordSubmit}
             onSubmitConfirmation={handleConfirmSubmit}
+            onResendCode={handleResendCode}
+            resendCooldown={resendCooldown}
+            isResending={isResending}
         />
     )
 }

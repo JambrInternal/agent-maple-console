@@ -67,6 +67,9 @@ export default function InvitationAuthCard({
     onConfirmationCodeChange,
     onSubmitPassword,
     onSubmitConfirmation,
+    onResendCode,
+    resendCooldown,
+    isResending,
 }) {
     const isConfirmMode = authMode === 'confirm'
 
@@ -220,6 +223,31 @@ export default function InvitationAuthCard({
                                 disabled={isSubmitting}
                                 required
                             />
+                        </div>
+                    ) : null}
+
+                    {isConfirmMode ? (
+                        <div style={{ fontSize: '0.82rem' }}>
+                            <button
+                                type="button"
+                                onClick={onResendCode}
+                                disabled={resendCooldown > 0 || isResending || isSubmitting}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                    cursor: resendCooldown > 0 || isResending || isSubmitting ? 'default' : 'pointer',
+                                    color: resendCooldown > 0 ? 'var(--am-text-2)' : 'var(--am-accent)',
+                                    textDecoration: resendCooldown > 0 ? 'none' : 'underline',
+                                    fontSize: '0.82rem',
+                                }}
+                            >
+                                {resendCooldown > 0
+                                    ? `Resend code (${resendCooldown}s)`
+                                    : isResending
+                                    ? 'Sending...'
+                                    : 'Resend code'}
+                            </button>
                         </div>
                     ) : null}
 
