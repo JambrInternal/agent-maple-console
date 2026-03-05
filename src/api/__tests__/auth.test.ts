@@ -42,6 +42,7 @@ import {
     login,
     logout,
     register,
+    resendConfirmationCode,
 } from '../auth'
 
 const buildSignedInResult = () => ({
@@ -309,5 +310,39 @@ describe('api auth', () => {
         expect(mockSignOut).toHaveBeenCalledTimes(1)
         resolveSignOut?.()
         await Promise.all([p1, p2])
+    })
+
+    it('resends sign-up confirmation code and returns code delivery info', async () => {
+        mockResendSignUpCode.mockResolvedValue({
+            codeDeliveryDetails: {
+                destination: 'inv***@example.com',
+                deliveryMedium: 'EMAIL',
+            },
+        })
+
+        const result = await resendConfirmationCode('invitee@example.com')
+
+        expect(mockResendSignUpCode).toHaveBeenCalledWith({
+            username: 'invitee@example.com',
+        })
+        expect(result).toEqual({
+            codeDeliveryDestination: 'inv***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+    })
+
+    it('trims whitespace from email before calling Amplify resendSignUpCode', async () => {
+        mockResendSignUpCode.mockResolvedValue({
+            codeDeliveryDetails: {
+                destination: 'inv***@example.com',
+                deliveryMedium: 'EMAIL',
+            },
+        })
+
+        await resendConfirmationCode(' invitee@example.com ')
+
+        expect(mockResendSignUpCode).toHaveBeenCalledWith({
+            username: 'invitee@example.com',
+        })
     })
 })
