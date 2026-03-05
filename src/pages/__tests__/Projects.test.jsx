@@ -6,11 +6,32 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Projects from '../Projects'
 import { createProject, getProjects } from '../../services/projects'
+import { saveProjectPersonalityTemplate, DEFAULT_PROJECT_PERSONALITY_TEMPLATE } from '../../services/agentFacade'
 
 vi.mock('../../services/projects', () => ({
     createProject: vi.fn(),
     getProjects: vi.fn(),
     updateProjectStatus: vi.fn(),
+}))
+
+vi.mock('../../services/agentFacade', () => ({
+    saveProjectPersonalityTemplate: vi.fn().mockResolvedValue({}),
+    DEFAULT_PROJECT_PERSONALITY_TEMPLATE: {
+        templateType: 'PARAMETERIZED',
+        userRole: 'on-site manager/worker',
+        conversationType: 'Construction support chat',
+        aiRole: 'Construction Support Manager',
+        aiRoleCharacteristics: ['Kind', 'Active Listening'],
+        aiRoleEmotionalTone: ['calm'],
+        aiRoleDialogueStrategy: ['informative and helpful'],
+        aiRoleConstraints: ['Do not repeat greetings'],
+        contextContent: 'Always use tools to query the internal database first *silently* before answering every question. Do not mention it in reply.',
+        goals: ['Evaluate user performance in conversation'],
+        evaluationCriteria: ['Active Listening', 'Product Knowledge'],
+        isDefault: true,
+        runnerInstructions: '',
+        agentInstructions: '',
+    },
 }))
 
 const mockProjects = [
@@ -101,5 +122,57 @@ describe('Projects page', () => {
         await user.click(screen.getByRole('button', { name: 'Create Project' }))
 
         expect(createProject).toHaveBeenCalledWith('org_1', 'New Project')
+    })
+
+    it('auto-creates a default personality template after project creation', async () => {
+        const user = userEvent.setup()
+        vi.mocked(createProject).mockResolvedValue({
+            id: 'proj_new',
+            organizationId: 'org_1',
+            name: 'Fresh Project',
+            agentStatus: 'offline',
+            threadCount: 0,
+            issueCount: 0,
+            lastActivityAt: '2026-02-06T08:00:00Z',
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+
+        await renderWithRoute({ projects: [] })
+        await screen.findByText('No projects match your filters.')
+
+        await user.click(screen.getByRole('button', { name: 'Launch Project' }))
+        await user.type(screen.getByLabelText('Project Name'), 'Fresh Project')
+        await user.click(screen.getByRole('button', { name: 'Create Project' }))
+
+        expect(createProject).toHaveBeenCalledWith('org_1', 'Fresh Project')
+        expect(saveProjectPersonalityTemplate).toHaveBeenCalledWith(
+            { organizationId: 'org_1', projectId: 'proj_new' },
+            DEFAULT_PROJECT_PERSONALITY_TEMPLATE
+        )
+    })
+
+    it('still completes project creation if personality template creation fails', async () => {
+        const user = userEvent.setup()
+        vi.mocked(createProject).mockResolvedValue({
+            id: 'proj_fail',
+            organizationId: 'org_1',
+            name: 'Resilient Project',
+            agentStatus: 'offline',
+            threadCount: 0,
+            issueCount: 0,
+            lastActivityAt: '2026-02-06T08:00:00Z',
+            createdAt: '2026-02-06T08:00:00Z',
+        })
+        vi.mocked(saveProjectPersonalityTemplate).mockRejectedValue(new Error('Template API down'))
+
+        await renderWithRoute({ projects: [] })
+        await screen.findByText('No projects match your filters.')
+
+        await user.click(screen.getByRole('button', { name: 'Launch Project' }))
+        await user.type(screen.getByLabelText('Project Name'), 'Resilient Project')
+        await user.click(screen.getByRole('button', { name: 'Create Project' }))
+
+        expect(createProject).toHaveBeenCalledWith('org_1', 'Resilient Project')
+        expect(saveProjectPersonalityTemplate).toHaveBeenCalled()
     })
 })

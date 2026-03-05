@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+    DEFAULT_PROJECT_PERSONALITY_TEMPLATE,
     getProjectAgentContact,
     getProjectPersonalityTemplate,
     saveProjectPersonalityTemplate,
@@ -84,6 +85,20 @@ describe('agentFacade service', () => {
             phoneNumber: null,
             source: 'unconfigured',
         })
+    })
+
+    it('has a parameterized default personality template with sensible defaults', () => {
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.templateType).toBe('PARAMETERIZED')
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.aiRole).toBe('Construction Support Manager')
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.userRole).toBe('on-site manager/worker')
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.conversationType).toBe('Construction support chat')
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.aiRoleCharacteristics).toEqual(['Kind', 'Active Listening'])
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.aiRoleEmotionalTone).toEqual(['calm'])
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.aiRoleDialogueStrategy).toEqual(['informative and helpful'])
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.aiRoleConstraints.length).toBeGreaterThan(0)
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.goals.length).toBeGreaterThan(0)
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.evaluationCriteria.length).toBeGreaterThan(0)
+        expect(DEFAULT_PROJECT_PERSONALITY_TEMPLATE.isDefault).toBe(true)
     })
 
     it('returns bootstrap default personality when no templates exist', async () => {

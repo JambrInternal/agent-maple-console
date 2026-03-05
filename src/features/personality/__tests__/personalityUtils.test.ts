@@ -8,8 +8,10 @@ import {
 describe('personalityUtils', () => {
     it('builds default form state', () => {
         const formState = createDefaultPersonalityFormState()
-        expect(formState.templateType).toBe('FULL_CONTROLLED')
+        expect(formState.templateType).toBe('PARAMETERIZED')
         expect(formState.isDefault).toBe(true)
+        expect(formState.aiRole).toBe('Construction Support Manager')
+        expect(formState.userRole).toBe('on-site manager/worker')
     })
 
     it('maps template arrays to multi-line form fields', () => {
