@@ -27,14 +27,6 @@ const Sidebar = () => {
     // Determine current section (Org vs Project)
     const isProjectContext = !!projId
 
-    const formatLabel = (value) => {
-        if (!value) return ''
-        return value
-            .split(/[_-]/)
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
-    }
-
     const orgNavItems = [
         { icon: LayoutGrid, label: 'Projects', path: `/${orgId}/projects` },
         { icon: Shield, label: 'Team', path: `/${orgId}/team` },
@@ -144,7 +136,6 @@ const Sidebar = () => {
         )
     }
 
-    const projectName = formatLabel(projId)
     const {
         data: projectAgentContact,
         isLoading: isProjectAgentLoading,
@@ -159,10 +150,8 @@ const Sidebar = () => {
         ),
         { enabled: !!orgId && !!projId }
     )
-    const agentFirstName = projectAgentContact?.firstName || projectName || 'Project'
-    const agentContactDetail = isProjectAgentLoading
-        ? 'Loading contact...'
-        : (projectAgentContact?.phoneNumber || 'Not configured')
+    const agentFirstName = projectAgentContact?.firstName || null
+    const agentContactDetail = projectAgentContact?.phoneNumber || null
 
     return (
         <aside className="am-nav-panel">
@@ -174,9 +163,15 @@ const Sidebar = () => {
                             <span>Agent Contact</span>
                         </div>
                         <div className="am-agent-card-name">
-                            {agentFirstName} Agent
+                            {isProjectAgentLoading || !agentFirstName
+                                ? <span className="am-skeleton am-skeleton-text" />
+                                : `${agentFirstName} Agent`}
                         </div>
-                        <div className="am-agent-card-detail">{agentContactDetail}</div>
+                        <div className="am-agent-card-detail">
+                            {isProjectAgentLoading
+                                ? <span className="am-skeleton am-skeleton-text-sm" />
+                                : (agentContactDetail || 'Not configured')}
+                        </div>
                     </div>
                 )}
 
