@@ -72,6 +72,24 @@ describe('loginUtils', () => {
             .toContain('Invalid reset code')
     })
 
+    it('getConfirmationErrorMessage returns expired message for ExpiredCodeException by name', () => {
+        const expiredCodeError = {
+            name: 'ExpiredCodeException',
+            message: 'Invalid code provided, please request a code again.',
+        }
+        expect(getConfirmationErrorMessage(expiredCodeError))
+            .toBe('Confirmation code expired. Request a new code and try again.')
+    })
+
+    it('getConfirmationErrorMessage returns invalid code message for CodeMismatchException', () => {
+        const codeMismatchError = {
+            name: 'CodeMismatchException',
+            message: 'Invalid code provided.',
+        }
+        expect(getConfirmationErrorMessage(codeMismatchError))
+            .toBe('Invalid confirmation code. Check the code and try again.')
+    })
+
     it('classifies sign-in error reasons for invite mode branching', () => {
         expect(getSignInErrorReason(new Error('UserNotFoundException: User does not exist')))
             .toBe('user_not_found')
