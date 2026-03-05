@@ -8,6 +8,7 @@ const mockSignOut = vi.fn()
 const mockFetchAuthSession = vi.fn()
 const mockGetCurrentUser = vi.fn()
 const mockFetchUserAttributes = vi.fn()
+const mockResendSignUpCode = vi.fn()
 const mockApiFetch = vi.fn()
 const mockSetAdminMode = vi.fn()
 
@@ -21,6 +22,7 @@ vi.mock('aws-amplify/auth', () => ({
     fetchAuthSession: (...args: unknown[]) => mockFetchAuthSession(...args),
     getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
     fetchUserAttributes: (...args: unknown[]) => mockFetchUserAttributes(...args),
+    resendSignUpCode: (...args: unknown[]) => mockResendSignUpCode(...args),
 }))
 
 vi.mock('../client', () => ({

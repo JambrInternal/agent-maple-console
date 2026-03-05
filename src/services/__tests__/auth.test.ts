@@ -11,6 +11,7 @@ vi.mock('../../api/auth', () => ({
     confirmRegistration: vi.fn(),
     forgotPassword: vi.fn(),
     confirmForgotPassword: vi.fn(),
+    resendConfirmationCode: vi.fn(),
     logout: vi.fn(),
     getSessionUser: vi.fn(),
 }));
@@ -129,6 +130,19 @@ describe('auth service', () => {
 
         expect(authApi.forgotPassword).toHaveBeenCalledWith('reset.user@example.com');
         expect(result.nextStep).toBe('CONFIRM_RESET_PASSWORD_WITH_CODE');
+    });
+
+    it('resends confirmation code', async () => {
+        vi.mocked(authApi.resendConfirmationCode).mockResolvedValue({
+            codeDeliveryDestination: 'j***@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        });
+
+        const result = await authService.resendConfirmationCode('invitee@example.com');
+
+        expect(authApi.resendConfirmationCode).toHaveBeenCalledWith('invitee@example.com');
+        expect(result.codeDeliveryDestination).toBe('j***@example.com');
+        expect(result.codeDeliveryMedium).toBe('EMAIL');
     });
 
     it('confirms forgot-password reset', async () => {
