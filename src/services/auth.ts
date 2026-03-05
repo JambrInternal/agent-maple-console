@@ -7,7 +7,7 @@ import logger from '../utils/verboseLogger';
 const getStoredTenantId = () => localStorage.getItem('am_tenant_id');
 
 import type { User } from '../api/types';
-import type { RegisterProfile, RegisterResult, ResetPasswordStartResult } from '../api/auth';
+import type { RegisterProfile, RegisterResult, ResetPasswordStartResult, ResendCodeResult } from '../api/auth';
 
 const ensureUserIds = (user: User): User => ({
     ...user,
@@ -60,6 +60,13 @@ export async function forgotPassword(email: string): Promise<ResetPasswordStartR
         nextStep: result.nextStep,
         codeDeliveryDestination: result.codeDeliveryDestination,
     });
+    return result;
+}
+
+export async function resendConfirmationCode(email: string): Promise<ResendCodeResult> {
+    logger.info('Attempting resend confirmation code', { email });
+    const result = await authApi.resendConfirmationCode(email);
+    logger.info('Resend confirmation code result received', { email });
     return result;
 }
 

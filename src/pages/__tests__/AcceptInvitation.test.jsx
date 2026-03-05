@@ -11,6 +11,7 @@ const mockLogin = vi.fn()
 const mockRegister = vi.fn()
 const mockConfirmRegistration = vi.fn()
 const mockLogout = vi.fn()
+const mockResendConfirmationCode = vi.fn()
 let mockAuthState = {
     user: null,
     loading: false,
@@ -18,6 +19,7 @@ let mockAuthState = {
     register: mockRegister,
     confirmRegistration: mockConfirmRegistration,
     logout: mockLogout,
+    resendConfirmationCode: mockResendConfirmationCode,
 }
 
 vi.mock('../../contexts/AuthContext', () => ({
@@ -49,6 +51,7 @@ describe('AcceptInvitation', () => {
             register: mockRegister,
             confirmRegistration: mockConfirmRegistration,
             logout: mockLogout,
+            resendConfirmationCode: mockResendConfirmationCode,
         }
         document.documentElement.dataset.theme = 'dark'
     })
@@ -361,5 +364,186 @@ describe('AcceptInvitation', () => {
 
         expect(await screen.findByText('Invitation Could Not Be Accepted')).toBeInTheDocument()
         expect(screen.getByText(/Invitation token is missing/i)).toBeInTheDocument()
+    })
+
+    it('shows resend button only in confirm mode', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+
+        mockLogin.mockRejectedValueOnce(notFoundError)
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_resend_visible']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        expect(screen.queryByRole('button', { name: /resend code/i })).not.toBeInTheDocument()
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Test')
+        await user.type(screen.getByLabelText('Password'), 'TestPass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        expect(await screen.findByRole('button', { name: /resend code/i })).toBeInTheDocument()
+    })
+
+    it('clears code field and shows info after successful resend', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+
+        mockLogin.mockRejectedValueOnce(notFoundError)
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        mockResendConfirmationCode.mockResolvedValue({
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_resend_success']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Test')
+        await user.type(screen.getByLabelText('Password'), 'TestPass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        const codeInput = await screen.findByLabelText('Confirmation Code')
+        await user.type(codeInput, '111111')
+        expect(codeInput).toHaveValue('111111')
+
+        await user.click(screen.getByRole('button', { name: /resend code/i }))
+
+        await waitFor(() => {
+            expect(mockResendConfirmationCode).toHaveBeenCalledWith('invitee@example.com')
+        })
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Confirmation Code')).toHaveValue('')
+        })
+
+        expect(await screen.findByText(/New code sent to invitee@example\.com/i)).toBeInTheDocument()
+    })
+
+    it('disables resend button during cooldown and shows countdown', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+
+        mockLogin.mockRejectedValueOnce(notFoundError)
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        mockResendConfirmationCode.mockResolvedValue({
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_resend_cooldown']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Test')
+        await user.type(screen.getByLabelText('Password'), 'TestPass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        await screen.findByRole('button', { name: /resend code/i })
+        await user.click(screen.getByRole('button', { name: /resend code/i }))
+
+        await waitFor(() => {
+            const btn = screen.getByRole('button', { name: /resend code/i })
+            expect(btn).toBeDisabled()
+            expect(btn).toHaveTextContent(/Resend code \(\d+s\)/)
+        })
+    })
+
+    it('shows error on resend failure', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+
+        mockLogin.mockRejectedValueOnce(notFoundError)
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        mockResendConfirmationCode.mockRejectedValue(new Error('Something went wrong'))
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_resend_fail']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Test')
+        await user.type(screen.getByLabelText('Password'), 'TestPass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        await screen.findByRole('button', { name: /resend code/i })
+        await user.click(screen.getByRole('button', { name: /resend code/i }))
+
+        expect(await screen.findByText(/Failed to send code/i)).toBeInTheDocument()
+    })
+
+    it('shows rate-limit error on LimitExceededException during resend', async () => {
+        const user = userEvent.setup()
+        const notFoundError = new Error('User does not exist')
+        notFoundError.name = 'UserNotFoundException'
+
+        mockLogin.mockRejectedValueOnce(notFoundError)
+        mockRegister.mockResolvedValue({
+            isComplete: false,
+            nextStep: 'CONFIRM_SIGN_UP',
+            codeDeliveryDestination: 'invitee@example.com',
+            codeDeliveryMedium: 'EMAIL',
+        })
+        const limitError = new Error('Attempt limit exceeded, please try after some time.')
+        limitError.name = 'LimitExceededException'
+        mockResendConfirmationCode.mockRejectedValue(limitError)
+
+        render(
+            <MemoryRouter initialEntries={['/accept-invitation?token=tok_resend_limit']}>
+                <AcceptInvitation />
+            </MemoryRouter>
+        )
+
+        await user.type(await screen.findByLabelText('Email'), 'invitee@example.com')
+        await user.type(screen.getByLabelText('First Name'), 'Invitee')
+        await user.type(screen.getByLabelText('Last Name'), 'Test')
+        await user.type(screen.getByLabelText('Password'), 'TestPass123!')
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+        await screen.findByRole('button', { name: /resend code/i })
+        await user.click(screen.getByRole('button', { name: /resend code/i }))
+
+        expect(await screen.findByText(/Too many attempts/i)).toBeInTheDocument()
     })
 })

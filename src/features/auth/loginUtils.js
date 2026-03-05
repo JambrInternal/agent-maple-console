@@ -136,13 +136,22 @@ export const getRegisterErrorMessage = (err) => {
 }
 
 export const getConfirmationErrorMessage = (err) => {
-    if (err && typeof err === 'object' && 'message' in err) {
-        const message = String(err.message).toLowerCase()
-        if (message.includes('code')) {
-            return 'Invalid confirmation code. Check the code and try again.'
+    if (err && typeof err === 'object') {
+        // Check err.name first for ExpiredCodeException (Cognito error type)
+        const name = 'name' in err ? String(err.name || '') : ''
+        if (name === 'ExpiredCodeException') {
+            return 'Confirmation code expired. Request a new code and try again.'
         }
-        if (message.includes('expired')) {
-            return 'Confirmation code expired. Request a new invite and try again.'
+
+        // Then check message for other patterns
+        if ('message' in err) {
+            const message = String(err.message).toLowerCase()
+            if (message.includes('expired')) {
+                return 'Confirmation code expired. Request a new code and try again.'
+            }
+            if (message.includes('code')) {
+                return 'Invalid confirmation code. Check the code and try again.'
+            }
         }
     }
     return 'Failed to confirm account. Try again or contact support.'

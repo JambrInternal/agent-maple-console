@@ -12,6 +12,7 @@ interface AuthContextType {
     confirmRegistration: (email: string, confirmationCode: string) => Promise<void>;
     forgotPassword: (email: string) => ReturnType<typeof authService.forgotPassword>;
     confirmForgotPassword: (email: string, confirmationCode: string, newPassword: string) => Promise<void>;
+    resendConfirmationCode: (email: string) => ReturnType<typeof authService.resendConfirmationCode>;
     logout: () => Promise<void>;
 }
 
@@ -74,6 +75,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return authService.forgotPassword(email);
     };
 
+    const resendConfirmationCode = async (email: string) => {
+        return authService.resendConfirmationCode(email);
+    };
+
     const confirmForgotPassword = async (email: string, confirmationCode: string, newPassword: string) => {
         await authService.confirmForgotPassword(email, confirmationCode, newPassword);
     };
@@ -87,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 register,
                 confirmRegistration,
                 forgotPassword,
+                resendConfirmationCode,
                 confirmForgotPassword,
                 logout,
             }}

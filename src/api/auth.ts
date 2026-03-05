@@ -5,6 +5,7 @@ import {
     signOut,
     signUp,
     resetPassword,
+    resendSignUpCode,
     fetchAuthSession,
     getCurrentUser,
     fetchUserAttributes,
@@ -33,6 +34,11 @@ export interface RegisterProfile {
 
 export interface ResetPasswordStartResult {
     nextStep: string;
+    codeDeliveryDestination: string | null;
+    codeDeliveryMedium: string | null;
+}
+
+export interface ResendCodeResult {
     codeDeliveryDestination: string | null;
     codeDeliveryMedium: string | null;
 }
@@ -274,6 +280,17 @@ export async function forgotPassword(email: string): Promise<ResetPasswordStartR
 
     return {
         nextStep,
+        codeDeliveryDestination: details?.destination ?? null,
+        codeDeliveryMedium: details?.deliveryMedium ?? null,
+    };
+}
+
+export async function resendConfirmationCode(email: string): Promise<ResendCodeResult> {
+    const normalizedEmail = email.trim();
+    const result = await resendSignUpCode({ username: normalizedEmail });
+    const details = getCodeDeliveryDetails(result);
+
+    return {
         codeDeliveryDestination: details?.destination ?? null,
         codeDeliveryMedium: details?.deliveryMedium ?? null,
     };
