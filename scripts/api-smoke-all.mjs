@@ -66,7 +66,7 @@ async function run() {
         const operationId = operation.operationId || `${method} ${path}`;
         
         // Skip some problematic or non-API endpoints
-        if (path.includes('webhook') || path.includes('callback') || path.includes('twilio') || path.includes('/debug/')) {
+        if (path.includes('webhook') || path.includes('callback') || path.includes('twilio') || path.includes('debug')) {
             results.push({ operationId, method, path, status: 'SKIPPED', reason: 'Webhook/Callback/Debug' });
             continue;
         }
