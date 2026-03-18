@@ -123,7 +123,7 @@ describe('people service', () => {
                 role: 'INSTRUCTOR',
                 is_used: false,
                 created_at: '2026-02-11T10:00:00Z',
-                expires_at: '2026-03-11T10:00:00Z',
+                expires_at: '2099-12-31T23:59:59Z',
                 used_at: null,
             },
         });
