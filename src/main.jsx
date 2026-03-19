@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import App from './App.jsx'
+import '@aws-amplify/ui-react/styles.css'
 import './index.css'
 import { configureAmplify } from './amplify-config'
 import { applyStoredTheme } from './utils/theme'

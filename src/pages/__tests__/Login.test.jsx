@@ -4,36 +4,35 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Login from '../Login'
-import { getOrganizations } from '../../services/organizations'
-import { getProjects } from '../../services/projects'
 
-const mockLogin = vi.fn()
-const mockRegister = vi.fn()
-const mockConfirmRegistration = vi.fn()
-const mockForgotPassword = vi.fn()
-const mockConfirmForgotPassword = vi.fn()
-const mockLogout = vi.fn()
 const mockNavigate = vi.fn()
+const mockLogout = vi.fn()
+const mockSyncCurrentUser = vi.fn()
+const mockResolvePostLoginRoute = vi.fn()
+
+let mockAuthState = {
+    user: null,
+    loading: false,
+    logout: mockLogout,
+    syncCurrentUser: mockSyncCurrentUser,
+}
+
+let mockAuthenticatorState = {
+    route: 'signIn',
+    user: null,
+    error: '',
+}
 
 vi.mock('../../contexts/AuthContext', () => ({
-    useAuth: () => ({
-        login: mockLogin,
-        register: mockRegister,
-        confirmRegistration: mockConfirmRegistration,
-        forgotPassword: mockForgotPassword,
-        confirmForgotPassword: mockConfirmForgotPassword,
-        logout: mockLogout,
-        user: null,
-        loading: false,
-    }),
+    useAuth: () => mockAuthState,
 }))
 
-vi.mock('../../services/organizations', () => ({
-    getOrganizations: vi.fn(),
+vi.mock('../../features/auth/postLoginRoute', () => ({
+    resolvePostLoginRoute: (...args) => mockResolvePostLoginRoute(...args),
 }))
 
-vi.mock('../../services/projects', () => ({
-    getProjects: vi.fn(),
+vi.mock('../../features/auth/useStaleSessionGuard', () => ({
+    default: vi.fn(),
 }))
 
 vi.mock('react-router-dom', async () => {
@@ -44,46 +43,114 @@ vi.mock('react-router-dom', async () => {
     }
 })
 
+vi.mock('@aws-amplify/ui-react', async () => {
+    const React = await vi.importActual('react')
+
+    const Authenticator = ({ children, components }) => {
+        const [route, setRoute] = React.useState(mockAuthenticatorState.route)
+        const context = React.useMemo(() => ({
+            route,
+            user: mockAuthenticatorState.user,
+            error: mockAuthenticatorState.error,
+            toForgotPassword: () => setRoute('forgotPassword'),
+            toSignIn: () => setRoute('signIn'),
+        }), [route])
+
+        const Header = components?.Header
+        const SignInFooter = components?.SignIn?.Footer
+        const ForgotPasswordFooter = components?.ForgotPassword?.Footer
+
+        if (route === 'authenticated') {
+            return <div data-testid="mock-authenticator-authenticated">{children({ user: mockAuthenticatorState.user })}</div>
+        }
+
+        return (
+            <div data-testid={`mock-authenticator-${route}`}>
+                {Header ? <Header /> : null}
+                {route === 'signIn' ? (
+                    <AuthenticatorContext.Provider value={context}>
+                        <label>
+                            Email Address
+                            <input placeholder="name@company.com" defaultValue="" />
+                        </label>
+                        <label>
+                            Password
+                            <input placeholder="••••••••" defaultValue="" type="password" />
+                        </label>
+                        <button type="button">Sign In</button>
+                        {SignInFooter ? <SignInFooter /> : null}
+                    </AuthenticatorContext.Provider>
+                ) : null}
+                {route === 'forgotPassword' ? (
+                    <AuthenticatorContext.Provider value={context}>
+                        <label>
+                            Email Address
+                            <input placeholder="name@company.com" defaultValue="" />
+                        </label>
+                        <button type="button">Send Reset Code</button>
+                        {ForgotPasswordFooter ? <ForgotPasswordFooter /> : null}
+                    </AuthenticatorContext.Provider>
+                ) : null}
+            </div>
+        )
+    }
+
+    const AuthenticatorContext = React.createContext({
+        route: 'signIn',
+        user: null,
+        error: '',
+        toForgotPassword: () => {},
+        toSignIn: () => {},
+    })
+
+    const useAuthenticator = (selector) => {
+        const context = React.useContext(AuthenticatorContext)
+        return selector ? selector(context) : context
+    }
+
+    return {
+        Authenticator,
+        useAuthenticator,
+        View: ({ children, ...props }) => <div {...props}>{children}</div>,
+        Heading: ({ children, ...props }) => <h2 {...props}>{children}</h2>,
+        Text: ({ children, ...props }) => <p {...props}>{children}</p>,
+        Button: ({ children, ...props }) => <button {...props}>{children}</button>,
+    }
+})
+
 describe('Login', () => {
     beforeEach(() => {
         localStorage.clear()
         vi.clearAllMocks()
+        mockAuthState = {
+            user: null,
+            loading: false,
+            logout: mockLogout,
+            syncCurrentUser: mockSyncCurrentUser,
+        }
+        mockAuthenticatorState = {
+            route: 'signIn',
+            user: null,
+            error: '',
+        }
+        mockResolvePostLoginRoute.mockResolvedValue('/resolved-target')
+        mockSyncCurrentUser.mockResolvedValue({
+            id: 'user_1',
+            email: 'test@example.com',
+            role: 'member',
+        })
         document.documentElement.dataset.theme = 'dark'
     })
 
-    it('auto-navigates to the only project after login', async () => {
-        mockLogin.mockResolvedValue({
-            id: 'user_1',
-            email: 'test@example.com',
-            name: 'Test User',
-            role: 'admin',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-06T08:00:00Z',
-        })
-        vi.mocked(getOrganizations).mockResolvedValue([
-            {
-                id: 'org_1',
-                name: 'Solo Org',
-                projectCount: 1,
-                createdAt: '2026-02-01T00:00:00Z',
+    it('syncs the current user and resolves post-login navigation after authenticator authentication', async () => {
+        mockAuthenticatorState = {
+            route: 'authenticated',
+            user: {
+                userId: 'cognito-user-1',
+                username: 'test@example.com',
             },
-        ])
-        vi.mocked(getProjects).mockResolvedValue([
-            {
-                id: 'proj_1',
-                organizationId: 'org_1',
-                name: 'Solo Project',
-                agentStatus: 'offline',
-                threadCount: 0,
-                issueCount: 0,
-                lastActivityAt: '2026-02-05T08:00:00Z',
-                createdAt: '2026-02-05T08:00:00Z',
-            },
-        ])
-
-        const user = userEvent.setup()
+            error: '',
+        }
 
         render(
             <MemoryRouter>
@@ -91,92 +158,11 @@ describe('Login', () => {
             </MemoryRouter>
         )
 
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'test@example.com')
-        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
-        await user.click(screen.getByRole('button', { name: 'Sign In' }))
-
-        expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
-        expect(getProjects).toHaveBeenCalledWith('org_1')
-        expect(mockNavigate).toHaveBeenCalledWith('/org_1/proj_1', { replace: true })
-    })
-
-    it('respects redirectTo when coming from a protected route', async () => {
-        document.documentElement.dataset.theme = 'light'
-        mockLogin.mockResolvedValue({
-            id: 'user_2',
-            email: 'test@example.com',
-            name: 'Test User',
-            role: 'admin',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-06T08:00:00Z',
+        await waitFor(() => {
+            expect(mockSyncCurrentUser).toHaveBeenCalledTimes(1)
+            expect(mockResolvePostLoginRoute).toHaveBeenCalledTimes(1)
+            expect(mockNavigate).toHaveBeenCalledWith('/resolved-target', { replace: true })
         })
-
-        vi.mocked(getOrganizations).mockResolvedValue([])
-
-        const user = userEvent.setup()
-        render(
-            <MemoryRouter
-                initialEntries={[
-                    {
-                        pathname: '/login',
-                        state: { from: { pathname: '/org_1/projects' } },
-                    },
-                ]}
-            >
-                <Login />
-            </MemoryRouter>
-        )
-
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'test@example.com')
-        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
-        await user.click(screen.getByRole('button', { name: 'Sign In' }))
-
-        expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
-        expect(getProjects).not.toHaveBeenCalled()
-        expect(mockNavigate).toHaveBeenCalledWith('/org_1/projects', { replace: true })
-        expect(document.documentElement.dataset.theme).toBe('dark')
-    })
-
-    it('routes admin users to the org selector with light theme', async () => {
-        mockLogin.mockResolvedValue({
-            id: 'user_admin',
-            email: 'admin@example.com',
-            name: 'Admin User',
-            role: 'admin',
-            organizationId: null,
-            tenantId: null,
-            mfaEnabled: false,
-            createdAt: '2026-02-06T08:00:00Z',
-        })
-        vi.mocked(getOrganizations).mockImplementation(async () => {
-            localStorage.setItem('am_admin_mode', 'true')
-            return [
-                {
-                    id: 'org_admin_1',
-                    name: 'Org A',
-                    projectCount: 0,
-                    createdAt: '2026-02-01T00:00:00Z',
-                },
-            ]
-        })
-
-        const user = userEvent.setup()
-
-        render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
-        )
-
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'admin@example.com')
-        await user.type(screen.getByPlaceholderText('••••••••'), 'password')
-        await user.click(screen.getByRole('button', { name: 'Sign In' }))
-
-        expect(getProjects).not.toHaveBeenCalled()
-        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
-        expect(document.documentElement.dataset.theme).toBe('light')
     })
 
     it('shows Cognito config in debug mode', () => {
@@ -225,14 +211,9 @@ describe('Login', () => {
         expect(localStorage.getItem('am_debug_auth')).toBe(secondStorageState)
     })
 
-    it('starts forgot-password flow and requests reset code', async () => {
-        mockForgotPassword.mockResolvedValue({
-            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
-            codeDeliveryDestination: 'j***@example.com',
-            codeDeliveryMedium: 'EMAIL',
-        })
-
+    it('starts forgot-password flow from the sign-in footer', async () => {
         const user = userEvent.setup()
+
         render(
             <MemoryRouter initialEntries={['/login']}>
                 <Login />
@@ -240,48 +221,8 @@ describe('Login', () => {
         )
 
         await user.click(screen.getByRole('button', { name: 'Forgot Password?' }))
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'reset.user@example.com')
-        await user.click(screen.getByRole('button', { name: 'Send Reset Code' }))
 
-        await waitFor(() => {
-            expect(mockForgotPassword).toHaveBeenCalledWith('reset.user@example.com')
-        })
-        expect(screen.getByRole('button', { name: 'Reset Password' })).toBeInTheDocument()
+        expect(screen.getByTestId('mock-authenticator-forgotPassword')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Send Reset Code' })).toBeInTheDocument()
     })
-
-    it('confirms forgot-password flow and returns to sign in', async () => {
-        mockForgotPassword.mockResolvedValue({
-            nextStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE',
-            codeDeliveryDestination: 'j***@example.com',
-            codeDeliveryMedium: 'EMAIL',
-        })
-        mockConfirmForgotPassword.mockResolvedValue(undefined)
-
-        const user = userEvent.setup()
-        render(
-            <MemoryRouter initialEntries={['/login']}>
-                <Login />
-            </MemoryRouter>
-        )
-
-        await user.click(screen.getByRole('button', { name: 'Forgot Password?' }))
-        await user.type(screen.getByPlaceholderText('name@company.com'), 'reset.user@example.com')
-        await user.click(screen.getByRole('button', { name: 'Send Reset Code' }))
-
-        await user.type(screen.getByPlaceholderText('123456'), '654321')
-        const passwordInputs = screen.getAllByPlaceholderText('••••••••')
-        await user.type(passwordInputs[0], 'NewPass123!')
-        await user.type(passwordInputs[1], 'NewPass123!')
-        await user.click(screen.getByRole('button', { name: 'Reset Password' }))
-
-        await waitFor(() => {
-            expect(mockConfirmForgotPassword).toHaveBeenCalledWith(
-                'reset.user@example.com',
-                '654321',
-                'NewPass123!'
-            )
-        })
-        expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument()
-    })
-
 })
