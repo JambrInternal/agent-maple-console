@@ -1772,10 +1772,8 @@ button {
 .am-authenticator-shell {
     --am-auth-alert-border: rgba(239, 68, 68, 0.2);
     --am-auth-alert-bg: rgba(239, 68, 68, 0.1);
-}
-
-.am-authenticator-shell .am-authenticator-card {
-    overflow: hidden;
+    width: min(90vw, 400px) !important;
+    max-width: 400px;
 }
 
 .am-authenticator-shell .amplify-authenticator,
@@ -1783,17 +1781,22 @@ button {
 .am-authenticator-shell .amplify-tabs,
 .am-authenticator-shell .amplify-tabs__panel,
 .am-authenticator-shell .amplify-router,
+.am-authenticator-shell [data-amplify-router],
 .am-authenticator-shell .amplify-flex {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
 }
 
 .am-authenticator-shell .amplify-authenticator,
 .am-authenticator-shell .amplify-tabs,
 .am-authenticator-shell .amplify-tabs__panel,
-.am-authenticator-shell .amplify-router {
-    padding: 0;
+.am-authenticator-shell .amplify-router,
+.am-authenticator-shell [data-amplify-router],
+.am-authenticator-shell [data-amplify-router-content],
+.am-authenticator-shell [data-amplify-container],
+.am-authenticator-shell form[data-amplify-form] {
+    padding: 0 !important;
 }
 
 .am-authenticator-shell .amplify-flex,
@@ -1806,18 +1809,43 @@ button {
 }
 
 .am-authenticator-shell .amplify-tabs__list,
-.am-authenticator-shell .amplify-alert {
+.am-authenticator-shell .amplify-alert,
+.am-authenticator-shell .amplify-field__show-password,
+.am-authenticator-shell .amplify-field-group__outer-end {
     display: none;
 }
 
 .am-authenticator-shell .amplify-authenticator__container,
-.am-authenticator-shell .amplify-router {
+.am-authenticator-shell .amplify-router,
+.am-authenticator-shell [data-amplify-container],
+.am-authenticator-shell [data-amplify-router-content] {
     display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-self: stretch;
+    align-self: stretch;
 }
 
-.am-authenticator-shell .amplify-flex,
-.am-authenticator-shell .amplify-field-group {
+.am-authenticator-shell .amplify-authenticator,
+.am-authenticator-shell .am-authenticator-frame,
+.am-authenticator-shell form[data-amplify-form],
+.am-authenticator-shell form[data-amplify-form] > .amplify-flex,
+.am-authenticator-shell fieldset.amplify-flex {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.am-authenticator-shell form[data-amplify-form],
+.am-authenticator-shell form[data-amplify-form] > .amplify-flex,
+.am-authenticator-shell fieldset.amplify-flex {
+    display: flex;
+    flex-direction: column;
     gap: 1.25rem;
+}
+
+.am-authenticator-shell fieldset.amplify-flex {
+    min-width: 0;
 }
 
 .am-authenticator-shell .amplify-heading {
@@ -1836,13 +1864,43 @@ button {
     color: var(--am-text-2);
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
     margin-bottom: 0.5rem;
 }
 
-.am-authenticator-shell .amplify-field__show-password {
-    color: var(--am-text-2);
+.am-authenticator-shell .amplify-field,
+.am-authenticator-shell .amplify-field-group,
+.am-authenticator-shell .amplify-field-group__field-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.am-authenticator-shell .amplify-field-group__field-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.am-authenticator-shell form[data-amplify-authenticator-signin] .amplify-field:first-of-type .amplify-field-group__field-wrapper::before,
+.am-authenticator-shell form[data-amplify-authenticator-forgotpassword] .amplify-field:first-of-type .amplify-field-group__field-wrapper::before,
+.am-authenticator-shell .amplify-router[data-amplify-router='confirmResetPassword'] .amplify-field:first-of-type .amplify-field-group__field-wrapper::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7'/%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3C/svg%3E");
+}
+
+.am-authenticator-shell form[data-amplify-authenticator-signin] .amplify-passwordfield .amplify-field-group__field-wrapper::before,
+.am-authenticator-shell .amplify-router[data-amplify-router='confirmResetPassword'] .amplify-passwordfield .amplify-field-group__field-wrapper::before,
+.am-authenticator-shell .amplify-router[data-amplify-router='forceNewPassword'] .amplify-passwordfield .amplify-field-group__field-wrapper::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E");
 }
 
 .am-authenticator-shell .amplify-input,
@@ -1854,6 +1912,7 @@ button {
 .am-authenticator-shell .amplify-input[type='password'],
 .am-authenticator-shell .amplify-input[type='text'] {
     min-height: 40px;
+    width: 100%;
     background-color: var(--am-bg-1);
     border: 1px solid var(--am-border);
     border-radius: var(--radius-sm);
@@ -1861,13 +1920,19 @@ button {
     box-shadow: none;
 }
 
-.am-authenticator-shell .amplify-field-group__control {
-    overflow: hidden;
-}
-
 .am-authenticator-shell .amplify-input {
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
+}
+
+.am-authenticator-shell form[data-amplify-authenticator-signin] .amplify-input[name='username'],
+.am-authenticator-shell form[data-amplify-authenticator-forgotpassword] .amplify-input[name='username'],
+.am-authenticator-shell .amplify-router[data-amplify-router='confirmResetPassword'] .amplify-input[name='username'],
+.am-authenticator-shell form[data-amplify-authenticator-signin] .amplify-input[name='password'],
+.am-authenticator-shell .amplify-router[data-amplify-router='confirmResetPassword'] .amplify-input[name='password'],
+.am-authenticator-shell .amplify-router[data-amplify-router='confirmResetPassword'] .amplify-input[name='confirm_password'],
+.am-authenticator-shell .amplify-router[data-amplify-router='forceNewPassword'] .amplify-input[name='password'] {
+    padding-left: 2.5rem;
 }
 
 .am-authenticator-shell .amplify-input::placeholder {
@@ -1878,7 +1943,8 @@ button {
 .am-authenticator-shell .amplify-input:focus,
 .am-authenticator-shell .amplify-select:focus,
 .am-authenticator-shell .amplify-textarea:focus,
-.am-authenticator-shell .amplify-field-group__control:focus-within {
+.am-authenticator-shell .amplify-field-group__control:focus,
+.am-authenticator-shell .amplify-field-group__field-wrapper:focus-within .amplify-field-group__control {
     border-color: var(--am-accent);
     box-shadow: 0 0 0 2px rgba(194, 106, 46, 0.25);
 }
@@ -1891,11 +1957,15 @@ button {
     width: 100%;
     min-height: 44px;
     margin-top: 0.5rem;
+    padding: 0.75rem;
     justify-content: center;
     background-color: var(--am-accent);
+    border: 0;
     color: #ffffff;
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 1;
+    text-transform: none;
     transition: box-shadow var(--am-dur-2) var(--am-ease-out),
         opacity var(--am-dur-2) var(--am-ease-in-out);
 }
@@ -1908,30 +1978,29 @@ button {
 .am-authenticator-shell .am-auth-secondary-action,
 .am-authenticator-shell .amplify-button--link {
     width: 100%;
-    min-height: 38px;
+    min-height: 0;
+    padding: 0.4rem 0.75rem;
     justify-content: center;
-    color: var(--am-text-2);
+    color: var(--am-text-1);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
+    line-height: 1.2;
+    background: transparent;
+    border: 1px solid var(--am-border);
+    transition: border-color var(--am-dur-2) var(--am-ease-in-out),
+        color var(--am-dur-2) var(--am-ease-in-out),
+        background-color var(--am-dur-2) var(--am-ease-in-out);
 }
 
 .am-authenticator-shell .am-auth-secondary-action:hover,
 .am-authenticator-shell .amplify-button--link:hover {
     color: var(--am-text-1);
+    border-color: rgba(148, 163, 184, 0.6);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .am-authenticator-shell .am-authenticator-complete {
     display: grid;
     gap: 0.5rem;
     padding: 0.5rem 0;
-}
-
-@media (max-width: 640px) {
-    .am-authenticator-shell {
-        width: min(100%, 390px) !important;
-    }
-
-    .am-authenticator-shell .am-authenticator-card {
-        padding: 1.5rem !important;
-    }
 }

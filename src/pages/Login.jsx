@@ -94,7 +94,7 @@ const normalizeAuthError = (error) => {
 }
 
 function AuthenticatorStatusHeader({ error, info, debugEnabled, debugEvents }) {
-    const [route, routeError] = useAuthenticator((context) => [context.route, context.error])
+    const { route, error: routeError } = useAuthenticator((context) => [context.route, context.error])
 
     return (
         <AuthStatusPanels
@@ -107,7 +107,7 @@ function AuthenticatorStatusHeader({ error, info, debugEnabled, debugEvents }) {
 }
 
 function SignInFooter() {
-    const [toForgotPassword] = useAuthenticator((context) => [context.toForgotPassword])
+    const { toForgotPassword } = useAuthenticator((context) => [context.toForgotPassword])
 
     return (
         <Button className="am-auth-secondary-action" type="button" onClick={toForgotPassword}>
@@ -117,7 +117,7 @@ function SignInFooter() {
 }
 
 function ForgotPasswordFooter() {
-    const [toSignIn] = useAuthenticator((context) => [context.toSignIn])
+    const { toSignIn } = useAuthenticator((context) => [context.toSignIn])
 
     return (
         <Button className="am-auth-secondary-action" type="button" onClick={toSignIn}>

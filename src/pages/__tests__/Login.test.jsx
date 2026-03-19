@@ -4,11 +4,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Login from '../Login'
+import { getOrganizations } from '../../services/organizations'
+import { getProjects } from '../../services/projects'
 
 const mockNavigate = vi.fn()
 const mockLogout = vi.fn()
 const mockSyncCurrentUser = vi.fn()
-const mockResolvePostLoginRoute = vi.fn()
 
 let mockAuthState = {
     user: null,
@@ -27,12 +28,16 @@ vi.mock('../../contexts/AuthContext', () => ({
     useAuth: () => mockAuthState,
 }))
 
-vi.mock('../../features/auth/postLoginRoute', () => ({
-    resolvePostLoginRoute: (...args) => mockResolvePostLoginRoute(...args),
-}))
-
 vi.mock('../../features/auth/useStaleSessionGuard', () => ({
     default: vi.fn(),
+}))
+
+vi.mock('../../services/organizations', () => ({
+    getOrganizations: vi.fn(),
+}))
+
+vi.mock('../../services/projects', () => ({
+    getProjects: vi.fn(),
 }))
 
 vi.mock('react-router-dom', async () => {
@@ -105,7 +110,15 @@ vi.mock('@aws-amplify/ui-react', async () => {
 
     const useAuthenticator = (selector) => {
         const context = React.useContext(AuthenticatorContext)
-        return selector ? selector(context) : context
+        if (!selector) return context
+
+        const selected = selector(context)
+        if (Array.isArray(selected)) {
+            const keys = Object.keys(context).filter((key) => selected.includes(context[key]))
+            return Object.fromEntries(keys.map((key) => [key, context[key]]))
+        }
+
+        return selected
     }
 
     return {
@@ -133,7 +146,6 @@ describe('Login', () => {
             user: null,
             error: '',
         }
-        mockResolvePostLoginRoute.mockResolvedValue('/resolved-target')
         mockSyncCurrentUser.mockResolvedValue({
             id: 'user_1',
             email: 'test@example.com',
@@ -142,7 +154,7 @@ describe('Login', () => {
         document.documentElement.dataset.theme = 'dark'
     })
 
-    it('syncs the current user and resolves post-login navigation after authenticator authentication', async () => {
+    it('auto-navigates to the only project after authentication', async () => {
         mockAuthenticatorState = {
             route: 'authenticated',
             user: {
@@ -152,6 +164,13 @@ describe('Login', () => {
             error: '',
         }
 
+        vi.mocked(getOrganizations).mockResolvedValue([
+            { id: 'org_1', name: 'Solo Org', projectCount: 1, createdAt: '2026-02-01T00:00:00Z' },
+        ])
+        vi.mocked(getProjects).mockResolvedValue([
+            { id: 'proj_1', organizationId: 'org_1', name: 'Solo Project', agentStatus: 'offline', threadCount: 0, issueCount: 0, lastActivityAt: '2026-02-05T08:00:00Z', createdAt: '2026-02-05T08:00:00Z' },
+        ])
+
         render(
             <MemoryRouter>
                 <Login />
@@ -160,11 +179,94 @@ describe('Login', () => {
 
         await waitFor(() => {
             expect(mockSyncCurrentUser).toHaveBeenCalledTimes(1)
-            expect(mockResolvePostLoginRoute).toHaveBeenCalledTimes(1)
-            expect(mockNavigate).toHaveBeenCalledWith('/resolved-target', { replace: true })
+            expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
+            expect(getProjects).toHaveBeenCalledWith('org_1')
+            expect(mockNavigate).toHaveBeenCalledWith('/org_1/proj_1', { replace: true })
         })
     })
 
+
+    it('respects redirectTo when coming from a protected route', async () => {
+        document.documentElement.dataset.theme = 'light'
+        mockAuthenticatorState = {
+            route: 'authenticated',
+            user: { userId: 'cognito-user-2', username: 'test@example.com' },
+            error: '',
+        }
+        mockSyncCurrentUser.mockResolvedValue({ id: 'user_2', email: 'test@example.com', role: 'member' })
+        vi.mocked(getOrganizations).mockResolvedValue([])
+
+        render(
+            <MemoryRouter initialEntries={[{ pathname: '/login', state: { from: { pathname: '/org_1/projects' } } }]}>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await waitFor(() => {
+            expect(getOrganizations).toHaveBeenCalledWith({ includeProjectCounts: false })
+            expect(getProjects).not.toHaveBeenCalled()
+            expect(mockNavigate).toHaveBeenCalledWith('/org_1/projects', { replace: true })
+            expect(document.documentElement.dataset.theme).toBe('dark')
+        })
+    })
+
+    it('routes admin users to the org selector with light theme', async () => {
+        mockAuthenticatorState = {
+            route: 'authenticated',
+            user: { userId: 'cognito-admin', username: 'admin@example.com' },
+            error: '',
+        }
+        mockSyncCurrentUser.mockResolvedValue({ id: 'user_admin', email: 'admin@example.com', role: 'admin' })
+        vi.mocked(getOrganizations).mockImplementation(async () => {
+            localStorage.setItem('am_admin_mode', 'true')
+            return [{ id: 'org_admin_1', name: 'Org A', projectCount: 0, createdAt: '2026-02-01T00:00:00Z' }]
+        })
+
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await waitFor(() => {
+            expect(getProjects).not.toHaveBeenCalled()
+            expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+            expect(document.documentElement.dataset.theme).toBe('light')
+        })
+    })
+
+    it('keeps the post-login route resolution when auth context is already hydrated', async () => {
+        mockAuthState = {
+            user: { id: 'user_early', email: 'test@example.com', role: 'member' },
+            loading: false,
+            logout: mockLogout,
+            syncCurrentUser: mockSyncCurrentUser,
+        }
+        mockAuthenticatorState = {
+            route: 'authenticated',
+            user: { userId: 'cognito-user-3', username: 'test@example.com' },
+            error: '',
+        }
+        vi.mocked(getOrganizations).mockResolvedValue([
+            { id: 'org_1', name: 'Solo Org', projectCount: 1, createdAt: '2026-02-01T00:00:00Z' },
+        ])
+        vi.mocked(getProjects).mockResolvedValue([
+            { id: 'proj_1', organizationId: 'org_1', name: 'Solo Project', agentStatus: 'offline', threadCount: 0, issueCount: 0, lastActivityAt: '2026-02-05T08:00:00Z', createdAt: '2026-02-05T08:00:00Z' },
+        ])
+
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        )
+
+        await waitFor(() => {
+            expect(mockSyncCurrentUser).toHaveBeenCalledTimes(1)
+            expect(mockNavigate).toHaveBeenCalledWith('/org_1/proj_1', { replace: true })
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+    })
     it('shows Cognito config in debug mode', () => {
         render(
             <MemoryRouter initialEntries={['/login?debug=auth']}>
