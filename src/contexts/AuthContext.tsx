@@ -14,6 +14,7 @@ interface AuthContextType {
     confirmForgotPassword: (email: string, confirmationCode: string, newPassword: string) => Promise<void>;
     resendConfirmationCode: (email: string) => ReturnType<typeof authService.resendConfirmationCode>;
     logout: () => Promise<void>;
+    syncCurrentUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,6 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
     };
 
+    const syncCurrentUser = async () => {
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
+        return currentUser;
+    };
+
     const register = async (email: string, password: string, profile?: RegisterProfile) => {
         return authService.register(email, password, profile);
     };
@@ -95,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 resendConfirmationCode,
                 confirmForgotPassword,
                 logout,
+                syncCurrentUser,
             }}
         >
             {children}

@@ -1767,3 +1767,171 @@ button {
         justify-content: center;
     }
 }
+
+/* Amplify login shell overrides */
+.am-authenticator-shell {
+    --am-auth-alert-border: rgba(239, 68, 68, 0.2);
+    --am-auth-alert-bg: rgba(239, 68, 68, 0.1);
+}
+
+.am-authenticator-shell .am-authenticator-card {
+    overflow: hidden;
+}
+
+.am-authenticator-shell .amplify-authenticator,
+.am-authenticator-shell .amplify-authenticator__container,
+.am-authenticator-shell .amplify-tabs,
+.am-authenticator-shell .amplify-tabs__panel,
+.am-authenticator-shell .amplify-router,
+.am-authenticator-shell .amplify-flex {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.am-authenticator-shell .amplify-authenticator,
+.am-authenticator-shell .amplify-tabs,
+.am-authenticator-shell .amplify-tabs__panel,
+.am-authenticator-shell .amplify-router {
+    padding: 0;
+}
+
+.am-authenticator-shell .amplify-flex,
+.am-authenticator-shell .amplify-field,
+.am-authenticator-shell .amplify-field-group,
+.am-authenticator-shell .amplify-passwordfield,
+.am-authenticator-shell .amplify-button,
+.am-authenticator-shell .amplify-alert {
+    font-family: var(--font-sans);
+}
+
+.am-authenticator-shell .amplify-tabs__list,
+.am-authenticator-shell .amplify-alert {
+    display: none;
+}
+
+.am-authenticator-shell .amplify-authenticator__container,
+.am-authenticator-shell .amplify-router {
+    display: block;
+}
+
+.am-authenticator-shell .amplify-flex,
+.am-authenticator-shell .amplify-field-group {
+    gap: 1.25rem;
+}
+
+.am-authenticator-shell .amplify-heading {
+    color: var(--am-text-1);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.am-authenticator-shell .amplify-text {
+    color: var(--am-text-2);
+    font-size: 0.875rem;
+}
+
+.am-authenticator-shell .amplify-label {
+    color: var(--am-text-2);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.am-authenticator-shell .amplify-field__show-password {
+    color: var(--am-text-2);
+}
+
+.am-authenticator-shell .amplify-input,
+.am-authenticator-shell .amplify-select,
+.am-authenticator-shell .amplify-textarea,
+.am-authenticator-shell .amplify-field-group__control,
+.am-authenticator-shell .amplify-passwordfield,
+.am-authenticator-shell .amplify-input[type='email'],
+.am-authenticator-shell .amplify-input[type='password'],
+.am-authenticator-shell .amplify-input[type='text'] {
+    min-height: 40px;
+    background-color: var(--am-bg-1);
+    border: 1px solid var(--am-border);
+    border-radius: var(--radius-sm);
+    color: var(--am-text-1);
+    box-shadow: none;
+}
+
+.am-authenticator-shell .amplify-field-group__control {
+    overflow: hidden;
+}
+
+.am-authenticator-shell .amplify-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.am-authenticator-shell .amplify-input::placeholder {
+    color: var(--am-text-2);
+    opacity: 0.5;
+}
+
+.am-authenticator-shell .amplify-input:focus,
+.am-authenticator-shell .amplify-select:focus,
+.am-authenticator-shell .amplify-textarea:focus,
+.am-authenticator-shell .amplify-field-group__control:focus-within {
+    border-color: var(--am-accent);
+    box-shadow: 0 0 0 2px rgba(194, 106, 46, 0.25);
+}
+
+.am-authenticator-shell .amplify-button {
+    border-radius: var(--radius-sm);
+}
+
+.am-authenticator-shell .amplify-button--primary {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 0.5rem;
+    justify-content: center;
+    background-color: var(--am-accent);
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: box-shadow var(--am-dur-2) var(--am-ease-out),
+        opacity var(--am-dur-2) var(--am-ease-in-out);
+}
+
+.am-authenticator-shell .amplify-button--primary:hover {
+    opacity: 0.9;
+    box-shadow: 0 8px 16px -12px rgba(0, 0, 0, 0.7);
+}
+
+.am-authenticator-shell .am-auth-secondary-action,
+.am-authenticator-shell .amplify-button--link {
+    width: 100%;
+    min-height: 38px;
+    justify-content: center;
+    color: var(--am-text-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.am-authenticator-shell .am-auth-secondary-action:hover,
+.am-authenticator-shell .amplify-button--link:hover {
+    color: var(--am-text-1);
+}
+
+.am-authenticator-shell .am-authenticator-complete {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+@media (max-width: 640px) {
+    .am-authenticator-shell {
+        width: min(100%, 390px) !important;
+    }
+
+    .am-authenticator-shell .am-authenticator-card {
+        padding: 1.5rem !important;
+    }
+}

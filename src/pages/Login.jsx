@@ -1,14 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Authenticator, Button, Heading, Text, useAuthenticator, View } from '@aws-amplify/ui-react'
+import { confirmResetPassword, resetPassword, signIn } from 'aws-amplify/auth'
 import { useAuth } from '../contexts/AuthContext'
 import { getOrganizations } from '../services/organizations'
 import { getProjects } from '../services/projects'
 import {
-    getConfirmationErrorMessage,
-    getForgotPasswordConfirmErrorMessage,
-    getForgotPasswordErrorMessage,
     getRedirectToFromLocation,
-    getRegisterErrorMessage,
     getSignInErrorMessage,
 } from '../features/auth/loginUtils'
 import { resolvePostLoginRoute } from '../features/auth/postLoginRoute'
@@ -16,47 +14,194 @@ import useAuthDebug from '../features/auth/useAuthDebug'
 import useLoginTheme from '../features/auth/useLoginTheme'
 import useStaleSessionGuard from '../features/auth/useStaleSessionGuard'
 import AuthDebugToggle from '../features/auth/components/AuthDebugToggle'
-import AuthForms from '../features/auth/components/AuthForms'
 import AuthStatusPanels from '../features/auth/components/AuthStatusPanels'
 import { getAdminMode } from '../utils/admin'
 import { setTheme } from '../utils/theme'
 
-// Logo assets (one-liner)
-const LOGO_LIGHT = '/agent-maple-wordmark-1line-white-textHalf.png';
-const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png';
+const LOGO_LIGHT = '/agent-maple-wordmark-1line-white-textHalf.png'
+const LOGO_DARK = '/agent-maple-wordmark-1line-black-textHalf.png'
+
+const ROUTE_INFO_COPY = {
+    forgotPassword: 'Enter your account email to receive a password reset code.',
+    confirmResetPassword: 'Enter the reset code you received and choose a new password.',
+    forceNewPassword: 'Set a new password to finish signing in.',
+    confirmSignIn: 'Complete the verification step to continue.',
+    selectMfaType: 'Choose the verification method you want to use.',
+    setupTotp: 'Set up your authenticator app to continue.',
+    setupEmail: 'Set up email verification to continue.',
+}
+
+const AUTH_FORM_FIELDS = {
+    signIn: {
+        username: {
+            label: 'Email Address',
+            placeholder: 'name@company.com',
+            isRequired: true,
+            autocomplete: 'username',
+        },
+        password: {
+            label: 'Password',
+            placeholder: '••••••••',
+            isRequired: true,
+            autocomplete: 'current-password',
+        },
+    },
+    forgotPassword: {
+        username: {
+            label: 'Email Address',
+            placeholder: 'name@company.com',
+            isRequired: true,
+            autocomplete: 'username',
+        },
+    },
+    confirmResetPassword: {
+        confirmation_code: {
+            label: 'Confirmation Code',
+            placeholder: '123456',
+            isRequired: true,
+            autocomplete: 'one-time-code',
+        },
+        password: {
+            label: 'New Password',
+            placeholder: '••••••••',
+            isRequired: true,
+            autocomplete: 'new-password',
+        },
+        confirm_password: {
+            label: 'Confirm Password',
+            placeholder: '••••••••',
+            isRequired: true,
+            autocomplete: 'new-password',
+        },
+    },
+    forceNewPassword: {
+        password: {
+            label: 'New Password',
+            placeholder: '••••••••',
+            isRequired: true,
+            autocomplete: 'new-password',
+        },
+    },
+}
+
+const normalizeAuthError = (error) => {
+    if (!error) return ''
+    if (typeof error === 'string') return error
+    if (typeof error === 'object' && 'message' in error) {
+        return getSignInErrorMessage(error)
+    }
+    return String(error)
+}
+
+function AuthenticatorStatusHeader({ error, info, debugEnabled, debugEvents }) {
+    const [route, routeError] = useAuthenticator((context) => [context.route, context.error])
+
+    return (
+        <AuthStatusPanels
+            error={error || normalizeAuthError(routeError)}
+            info={info || ROUTE_INFO_COPY[route] || ''}
+            debugEnabled={debugEnabled}
+            debugEvents={debugEvents}
+        />
+    )
+}
+
+function SignInFooter() {
+    const [toForgotPassword] = useAuthenticator((context) => [context.toForgotPassword])
+
+    return (
+        <Button className="am-auth-secondary-action" type="button" onClick={toForgotPassword}>
+            Forgot Password?
+        </Button>
+    )
+}
+
+function ForgotPasswordFooter() {
+    const [toSignIn] = useAuthenticator((context) => [context.toSignIn])
+
+    return (
+        <Button className="am-auth-secondary-action" type="button" onClick={toSignIn}>
+            Back To Sign In
+        </Button>
+    )
+}
+
+function AuthenticatedLoginRedirect({
+    redirectTo,
+    pushDebug,
+    syncCurrentUser,
+    onRouteResolutionStart,
+    onRouteResolutionError,
+}) {
+    const navigate = useNavigate()
+    const hasResolvedRef = useRef(false)
+
+    useEffect(() => {
+        if (hasResolvedRef.current) {
+            return undefined
+        }
+
+        hasResolvedRef.current = true
+        onRouteResolutionStart()
+        let cancelled = false
+
+        ;(async () => {
+            try {
+                const currentUser = await syncCurrentUser()
+                if (!currentUser) {
+                    throw new Error('Unable to load the current user after authentication.')
+                }
+
+                const targetRoute = await resolvePostLoginRoute({
+                    redirectTo,
+                    getOrganizations,
+                    getProjects,
+                    getAdminMode,
+                    setTheme,
+                    pushDebug,
+                })
+
+                if (!cancelled) {
+                    navigate(targetRoute, { replace: true })
+                }
+            } catch (error) {
+                if (cancelled) {
+                    return
+                }
+                onRouteResolutionError(error)
+                pushDebug('Post-authentication session sync failed', error)
+                hasResolvedRef.current = false
+            }
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [navigate, onRouteResolutionError, onRouteResolutionStart, pushDebug, redirectTo, syncCurrentUser])
+
+    return (
+        <View className="am-authenticator-complete" data-testid="am-authenticated-redirect">
+            <Heading level={4}>Signing you in…</Heading>
+            <Text>We&apos;re syncing your access and preparing the right project view.</Text>
+        </View>
+    )
+}
 
 const Login = () => {
     const theme = useLoginTheme({ defaultTheme: getAdminMode() ? 'light' : 'dark' })
-
-    const {
-        login,
-        register,
-        confirmRegistration,
-        forgotPassword,
-        confirmForgotPassword,
-        logout,
-        user,
-        loading,
-    } = useAuth();
-
-    const [authMode, setAuthMode] = useState('signin')
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [confirmationCode, setConfirmationCode] = useState('')
-    const [error, setError] = useState('');
-    const [info, setInfo] = useState('')
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [suppressStaleGuard, setSuppressStaleGuard] = useState(false)
-    const navigate = useNavigate();
-    const location = useLocation();
-    const loginInProgressRef = useRef(false);
+    const { user, loading, logout, syncCurrentUser } = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
+    const redirectFlowInProgressRef = useRef(false)
+    const handledAuthenticatorRouteRef = useRef(false)
+    const [authError, setAuthError] = useState('')
+    const [authInfo, setAuthInfo] = useState('')
 
     useStaleSessionGuard({
         loading,
         user,
         logout,
-        enabled: !suppressStaleGuard && !isSubmitting,
+        enabled: !redirectFlowInProgressRef.current,
     })
 
     const redirectTo = getRedirectToFromLocation(location)
@@ -69,202 +214,58 @@ const Login = () => {
     } = useAuthDebug({ search: location.search })
 
     useEffect(() => {
-        if (!loading && user && !loginInProgressRef.current) {
+        if (!loading && user && !handledAuthenticatorRouteRef.current) {
             navigate(redirectTo, { replace: true })
         }
-    }, [loading, user, navigate, redirectTo])
+    }, [loading, navigate, redirectTo, user])
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        setError('')
-        setInfo('')
-        setSuppressStaleGuard(true)
-        setIsSubmitting(true)
-        loginInProgressRef.current = true
+    const authenticatorComponents = useMemo(() => ({
+        Header: () => (
+            <AuthenticatorStatusHeader
+                error={authError}
+                info={authInfo}
+                debugEnabled={debugEnabled}
+                debugEvents={debugEvents}
+            />
+        ),
+        SignIn: {
+            Header: () => null,
+            Footer: SignInFooter,
+        },
+        ForgotPassword: {
+            Header: () => null,
+            Footer: ForgotPasswordFooter,
+        },
+    }), [authError, authInfo, debugEnabled, debugEvents])
 
-        try {
-            await login(email.trim(), password)
-            const targetRoute = await resolvePostLoginRoute({
-                redirectTo,
-                getOrganizations,
-                getProjects,
-                getAdminMode,
-                setTheme,
-                pushDebug,
+    const authenticatorServices = useMemo(() => ({
+        async handleSignIn({ username, password, options }) {
+            setAuthError('')
+            setAuthInfo('')
+            return signIn({
+                username: username.trim().toLowerCase(),
+                password,
+                options,
             })
-            navigate(targetRoute, { replace: true })
-        } catch (err) {
-            setError(getSignInErrorMessage(err))
-            pushDebug('Login failed', err)
-        } finally {
-            loginInProgressRef.current = false
-            setIsSubmitting(false)
-        }
-    }
-
-    const handleRegister = async (e) => {
-        e.preventDefault()
-        const normalizedEmail = email.trim()
-        if (!normalizedEmail) {
-            setError('Email is required')
-            return
-        }
-        if (!password) {
-            setError('Password is required')
-            return
-        }
-        if (password !== confirmPassword) {
-            setError('Passwords do not match')
-            return
-        }
-
-        setError('')
-        setInfo('')
-        setSuppressStaleGuard(true)
-        setIsSubmitting(true)
-        try {
-            const result = await register(normalizedEmail, password)
-            if (result.isComplete) {
-                setInfo('Account created. Sign in to continue.')
-                setAuthMode('signin')
-                setConfirmPassword('')
-                return
-            }
-
-            setAuthMode('confirm')
-            const destination = result.codeDeliveryDestination ? ` at ${result.codeDeliveryDestination}` : ''
-            setInfo(`Enter the confirmation code sent${destination}.`)
-        } catch (err) {
-            setError(getRegisterErrorMessage(err))
-            pushDebug('Register failed', err)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    const handleConfirmRegistration = async (e) => {
-        e.preventDefault()
-        const normalizedEmail = email.trim()
-        const normalizedCode = confirmationCode.trim()
-
-        if (!normalizedEmail) {
-            setError('Email is required')
-            return
-        }
-        if (!normalizedCode) {
-            setError('Confirmation code is required')
-            return
-        }
-
-        setError('')
-        setInfo('')
-        setSuppressStaleGuard(true)
-        setIsSubmitting(true)
-        try {
-            await confirmRegistration(normalizedEmail, normalizedCode)
-            setAuthMode('signin')
-            setConfirmationCode('')
-            setConfirmPassword('')
-            setPassword('')
-            setInfo('Account confirmed. Sign in to accept your invitation.')
-        } catch (err) {
-            setError(getConfirmationErrorMessage(err))
-            pushDebug('Confirm registration failed', err)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    const handleForgotPasswordRequest = async (e) => {
-        e.preventDefault()
-        const normalizedEmail = email.trim()
-
-        if (!normalizedEmail) {
-            setError('Email is required')
-            return
-        }
-
-        setError('')
-        setInfo('')
-        setSuppressStaleGuard(true)
-        setIsSubmitting(true)
-        try {
-            const result = await forgotPassword(normalizedEmail)
-            setAuthMode('reset-confirm')
-            const destination = result.codeDeliveryDestination ? ` at ${result.codeDeliveryDestination}` : ''
-            setInfo(`Enter the reset code sent${destination} and choose a new password.`)
-        } catch (err) {
-            setError(getForgotPasswordErrorMessage(err))
-            pushDebug('Forgot password request failed', err)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    const handleForgotPasswordConfirm = async (e) => {
-        e.preventDefault()
-        const normalizedEmail = email.trim()
-        const normalizedCode = confirmationCode.trim()
-
-        if (!normalizedEmail) {
-            setError('Email is required')
-            return
-        }
-        if (!normalizedCode) {
-            setError('Confirmation code is required')
-            return
-        }
-        if (!password) {
-            setError('Password is required')
-            return
-        }
-        if (password !== confirmPassword) {
-            setError('Passwords do not match')
-            return
-        }
-
-        setError('')
-        setInfo('')
-        setSuppressStaleGuard(true)
-        setIsSubmitting(true)
-        try {
-            await confirmForgotPassword(normalizedEmail, normalizedCode, password)
-            setAuthMode('signin')
-            setPassword('')
-            setConfirmPassword('')
-            setConfirmationCode('')
-            setInfo('Password reset successful. Sign in with your new password.')
-        } catch (err) {
-            setError(getForgotPasswordConfirmErrorMessage(err))
-            pushDebug('Forgot password confirmation failed', err)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    const switchToSignIn = () => {
-        setAuthMode('signin')
-        setError('')
-        setInfo('')
-        setPassword('')
-        setConfirmPassword('')
-        setConfirmationCode('')
-    }
-
-    const switchToResetRequest = () => {
-        setAuthMode('reset-request')
-        setError('')
-        setInfo('Enter your account email to receive a password reset code.')
-        setPassword('')
-        setConfirmPassword('')
-        setConfirmationCode('')
-    }
+        },
+        async handleForgotPassword({ username }) {
+            setAuthError('')
+            return resetPassword({ username: username.trim().toLowerCase() })
+        },
+        async handleForgotPasswordSubmit({ username, confirmationCode, newPassword }) {
+            setAuthError('')
+            return confirmResetPassword({
+                username: username.trim().toLowerCase(),
+                confirmationCode: confirmationCode.trim(),
+                newPassword,
+            })
+        },
+    }), [])
 
     return (
         <div className="am-app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+            <div className="am-authenticator-shell" style={{ maxWidth: '400px', width: '90%', textAlign: 'center' }}>
                 <div style={{ marginBottom: '2.5rem' }}>
-                    {/* One-line Agent Maple Logo (light in dark theme, dark in light theme) */}
                     <img
                         src={theme === 'dark' ? LOGO_LIGHT : LOGO_DARK}
                         alt="Agent Maple Logo"
@@ -278,33 +279,34 @@ const Login = () => {
                     />
                 </div>
 
-                <div className="am-card" style={{ padding: '2rem', textAlign: 'left' }}>
-                    <AuthStatusPanels
-                        error={error}
-                        info={info}
-                        debugEnabled={debugEnabled}
-                        debugEvents={debugEvents}
-                    />
-
-                    <AuthForms
-                        authMode={authMode}
-                        email={email}
-                        password={password}
-                        confirmPassword={confirmPassword}
-                        confirmationCode={confirmationCode}
-                        isSubmitting={isSubmitting}
-                        onSubmitSignIn={handleSubmit}
-                        onSubmitRegister={handleRegister}
-                        onSubmitConfirm={handleConfirmRegistration}
-                        onSubmitResetRequest={handleForgotPasswordRequest}
-                        onSubmitResetConfirm={handleForgotPasswordConfirm}
-                        onEmailChange={setEmail}
-                        onPasswordChange={setPassword}
-                        onConfirmPasswordChange={setConfirmPassword}
-                        onConfirmationCodeChange={setConfirmationCode}
-                        onForgotPassword={switchToResetRequest}
-                        onBackToSignIn={switchToSignIn}
-                    />
+                <div className="am-card am-authenticator-card" style={{ padding: '2rem', textAlign: 'left' }}>
+                    <Authenticator
+                        className="am-authenticator-frame"
+                        components={authenticatorComponents}
+                        formFields={AUTH_FORM_FIELDS}
+                        hideSignUp
+                        loginMechanisms={['email']}
+                        services={authenticatorServices}
+                    >
+                        {() => (
+                            <AuthenticatedLoginRedirect
+                                redirectTo={redirectTo}
+                                pushDebug={pushDebug}
+                                syncCurrentUser={syncCurrentUser}
+                                onRouteResolutionStart={() => {
+                                    redirectFlowInProgressRef.current = true
+                                    handledAuthenticatorRouteRef.current = true
+                                    setAuthError('')
+                                    setAuthInfo('')
+                                }}
+                                onRouteResolutionError={(error) => {
+                                    redirectFlowInProgressRef.current = false
+                                    setAuthError(normalizeAuthError(error))
+                                    setAuthInfo('Sign-in completed, but we could not finish loading your console. Try again.')
+                                }}
+                            />
+                        )}
+                    </Authenticator>
                 </div>
 
                 <p className="am-text-2" style={{ marginTop: '2rem', fontSize: '0.875rem' }}>
