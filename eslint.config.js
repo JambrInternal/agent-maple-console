@@ -100,7 +100,7 @@ export default [
         },
     },
     {
-        files: ['scripts/**/*.{js,mjs,cjs}', 'src/utils/verboseLogger.js'],
+        files: ['scripts/**/*.{js,mjs,cjs}', 'src/utils/verboseLogger.ts'],
         rules: {
             // CLI scripts and logging infrastructure are allowed to use console.
             'no-console': 'off',

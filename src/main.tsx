@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import App from './App.jsx'
+import App from './App'
 import '@aws-amplify/ui-react/styles.css'
 import './index.css'
 import { I18n } from 'aws-amplify/utils'
