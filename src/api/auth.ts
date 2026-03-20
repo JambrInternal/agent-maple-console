@@ -198,7 +198,7 @@ export async function login(email: string, password: string): Promise<AuthSessio
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
         const token = session.tokens?.idToken?.toString() || null;
-        await syncUser();
+        // await syncUser();
         const role = await determineRoleAndSetAdminMode();
 
         return {
@@ -325,7 +325,7 @@ export async function getSessionUser(): Promise<User | null> {
             localStorage.setItem('am_auth_token', token);
         }
 
-        await syncUser();
+        // await syncUser();
         const role = await determineRoleAndSetAdminMode();
         const attributes = await fetchUserAttributes();
         const email = attributes.email || cognitoUser.username;
