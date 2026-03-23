@@ -3,31 +3,31 @@ import FeatureUnavailable from './FeatureUnavailable'
 import { useFeatureFlag } from './useFeatureFlag'
 
 const FeatureGateRoute = ({
-    flagKey,
-    children,
-    title,
-    description,
+  flagKey,
+  children,
+  title,
+  description,
 }) => {
-    const { enabled, loading } = useFeatureFlag(flagKey)
+  const { enabled, loading } = useFeatureFlag(flagKey)
 
-    if (loading) {
-        return (
-            <div style={{ padding: '2rem', textAlign: 'center' }}>
+  if (loading) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
                 Loading feature flags...
-            </div>
-        )
-    }
+      </div>
+    )
+  }
 
-    if (!enabled) {
-        return (
-            <FeatureUnavailable
-                title={title}
-                description={description}
-            />
-        )
-    }
+  if (!enabled) {
+    return (
+      <FeatureUnavailable
+        title={title}
+        description={description}
+      />
+    )
+  }
 
-    return <>{children}</>
+  return <>{children}</>
 }
 
 export default FeatureGateRoute

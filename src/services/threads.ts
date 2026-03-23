@@ -7,42 +7,42 @@ import { mapThreadDetailResponse, mapThreadResponse, unwrapData, type ApiRespons
  * Get all threads for a project with optional filters
  */
 export async function getThreads(
-    projectId: string,
-    filters?: ThreadFilters
+  projectId: string,
+  filters?: ThreadFilters
 ): Promise<Thread[]> {
-    const params = new URLSearchParams();
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.issueId) params.set('issue_id', filters.issueId);
-    if (filters?.contactId) params.set('user_id', filters.contactId);
-    const query = params.toString();
+  const params = new URLSearchParams();
+  if (filters?.status) params.set('status', filters.status);
+  if (filters?.issueId) params.set('issue_id', filters.issueId);
+  if (filters?.contactId) params.set('user_id', filters.contactId);
+  const query = params.toString();
 
-    const response = await apiFetch<ApiResponse<ApiThread[]>>(
-        `/projects/${projectId}/threads${query ? `?${query}` : ''}`
-    );
-    const data = unwrapData(response, []);
-    return data.map(mapThreadResponse);
+  const response = await apiFetch<ApiResponse<ApiThread[]>>(
+    `/projects/${projectId}/threads${query ? `?${query}` : ''}`
+  );
+  const data = unwrapData(response, []);
+  return data.map(mapThreadResponse);
 }
 
 /**
  * Get a single thread with full details (contact, issue)
  */
 export async function getThread(id: string): Promise<ThreadWithDetails> {
-    const response = await apiFetch<ApiResponse<ApiThreadDetail>>(`/threads/${id}`);
-    const data = unwrapData(response);
-    return mapThreadDetailResponse(data);
+  const response = await apiFetch<ApiResponse<ApiThreadDetail>>(`/threads/${id}`);
+  const data = unwrapData(response);
+  return mapThreadDetailResponse(data);
 }
 
 /**
  * Get threads linked to a specific issue
  */
 export async function getThreadsByIssue(issueId: string): Promise<Thread[]> {
-    const issueResponse = await apiFetch<ApiResponse<ApiIssue>>(`/issues/${issueId}`);
-    const issue = unwrapData(issueResponse);
-    const projectId = issue?.project_id ? String(issue.project_id) : '';
+  const issueResponse = await apiFetch<ApiResponse<ApiIssue>>(`/issues/${issueId}`);
+  const issue = unwrapData(issueResponse);
+  const projectId = issue?.project_id ? String(issue.project_id) : '';
 
-    if (!projectId) {
-        throw new Error(`Issue ${issueId} missing project_id for thread lookup`);
-    }
+  if (!projectId) {
+    throw new Error(`Issue ${issueId} missing project_id for thread lookup`);
+  }
 
-    return getThreads(projectId, { issueId });
+  return getThreads(projectId, { issueId });
 }

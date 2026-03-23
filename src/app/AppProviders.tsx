@@ -6,17 +6,17 @@ import PostHogFeatureFlagProvider from '../featureFlags/posthogProvider'
 import queryClient from '../queryClient'
 
 const AppProviders = ({ children }) => {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ErrorBoundary>
-                <AuthProvider>
-                    <PostHogFeatureFlagProvider>
-                        {children}
-                    </PostHogFeatureFlagProvider>
-                </AuthProvider>
-            </ErrorBoundary>
-        </QueryClientProvider>
-    )
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
+        <AuthProvider>
+          <PostHogFeatureFlagProvider>
+            {children}
+          </PostHogFeatureFlagProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    </QueryClientProvider>
+  )
 }
 
 export default AppProviders

@@ -6,14 +6,14 @@ import { getAdminMode } from '../utils/admin'
 import { FEATURE_FLAG_KEYS, type FeatureFlagKey } from './flagCatalog'
 import { FeatureFlagContext } from './flagContext'
 import {
-    readCurrentOrganizationId,
-    resolveDeploymentEnv,
-    resolvePostHogEnabled,
-    resolvePostHogHost,
-    resolvePostHogTargetingMode,
-    shouldAttemptGroupTargeting,
-    TENANT_CHANGE_EVENT,
-    type PostHogTargetingMode,
+  readCurrentOrganizationId,
+  resolveDeploymentEnv,
+  resolvePostHogEnabled,
+  resolvePostHogHost,
+  resolvePostHogTargetingMode,
+  shouldAttemptGroupTargeting,
+  TENANT_CHANGE_EVENT,
+  type PostHogTargetingMode,
 } from './featureFlagService'
 
 type PostHogProviderProps = {
@@ -21,191 +21,191 @@ type PostHogProviderProps = {
 }
 
 const syncPostHogValues = (): Partial<Record<FeatureFlagKey, boolean>> => {
-    const nextValues: Partial<Record<FeatureFlagKey, boolean>> = {}
+  const nextValues: Partial<Record<FeatureFlagKey, boolean>> = {}
 
-    for (const flagKey of FEATURE_FLAG_KEYS) {
-        const enabled = posthogClient.isFeatureEnabled(flagKey, { send_event: false })
-        if (typeof enabled === 'boolean') {
-            nextValues[flagKey] = enabled
-        }
+  for (const flagKey of FEATURE_FLAG_KEYS) {
+    const enabled = posthogClient.isFeatureEnabled(flagKey, { send_event: false })
+    if (typeof enabled === 'boolean') {
+      nextValues[flagKey] = enabled
     }
+  }
 
-    return nextValues
+  return nextValues
 }
 
 const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
-    const appConfig = getAppConfig()
-    const { user } = useAuth()
-    const initRef = useRef(false)
-    const previousUserIdRef = useRef<string | null>(null)
-    const [autoGroupFallbackToPersonOnly, setAutoGroupFallbackToPersonOnly] = useState(false)
-    const [posthogReady, setPosthogReady] = useState(false)
-    const [posthogValues, setPosthogValues] = useState<Partial<Record<FeatureFlagKey, boolean>>>({})
-    const [refreshVersion, setRefreshVersion] = useState(0)
-    useEffect(() => {
-        // Intentionally read refreshVersion to ensure this state is not write-only.
-        // This avoids unused-state warnings without changing behavior.
-        void refreshVersion
-    }, [refreshVersion])
-    const [organizationId, setOrganizationId] = useState<string | null>(() => readCurrentOrganizationId())
+  const appConfig = getAppConfig()
+  const { user } = useAuth()
+  const initRef = useRef(false)
+  const previousUserIdRef = useRef<string | null>(null)
+  const [autoGroupFallbackToPersonOnly, setAutoGroupFallbackToPersonOnly] = useState(false)
+  const [posthogReady, setPosthogReady] = useState(false)
+  const [posthogValues, setPosthogValues] = useState<Partial<Record<FeatureFlagKey, boolean>>>({})
+  const [refreshVersion, setRefreshVersion] = useState(0)
+  useEffect(() => {
+    // Intentionally read refreshVersion to ensure this state is not write-only.
+    // This avoids unused-state warnings without changing behavior.
+    void refreshVersion
+  }, [refreshVersion])
+  const [organizationId, setOrganizationId] = useState<string | null>(() => readCurrentOrganizationId())
 
-    const deploymentEnv = useMemo(
-        () => resolveDeploymentEnv({
-            appEnv: appConfig.APP_ENV,
-            hostname: typeof window !== 'undefined' ? window.location.hostname : '',
-        }),
-        [appConfig.APP_ENV]
-    )
-    const posthogEnabled = resolvePostHogEnabled(appConfig.POSTHOG_ENABLED)
-    const posthogHost = resolvePostHogHost(appConfig.POSTHOG_HOST)
-    const configuredTargetingMode = resolvePostHogTargetingMode(appConfig.POSTHOG_TARGETING_MODE)
-    const effectiveTargetingMode: PostHogTargetingMode = (
-        configuredTargetingMode === 'auto' && autoGroupFallbackToPersonOnly
-            ? 'person_only'
-            : configuredTargetingMode
-    )
-    const shouldInitializePostHog = posthogEnabled && appConfig.POSTHOG_KEY !== ''
+  const deploymentEnv = useMemo(
+    () => resolveDeploymentEnv({
+      appEnv: appConfig.APP_ENV,
+      hostname: typeof window !== 'undefined' ? window.location.hostname : '',
+    }),
+    [appConfig.APP_ENV]
+  )
+  const posthogEnabled = resolvePostHogEnabled(appConfig.POSTHOG_ENABLED)
+  const posthogHost = resolvePostHogHost(appConfig.POSTHOG_HOST)
+  const configuredTargetingMode = resolvePostHogTargetingMode(appConfig.POSTHOG_TARGETING_MODE)
+  const effectiveTargetingMode: PostHogTargetingMode = (
+    configuredTargetingMode === 'auto' && autoGroupFallbackToPersonOnly
+      ? 'person_only'
+      : configuredTargetingMode
+  )
+  const shouldInitializePostHog = posthogEnabled && appConfig.POSTHOG_KEY !== ''
 
-    useEffect(() => {
-        const syncOrganizationId = () => {
-            const nextValue = readCurrentOrganizationId()
-            setOrganizationId((previous: string | null) => (previous === nextValue ? previous : nextValue))
-        }
+  useEffect(() => {
+    const syncOrganizationId = () => {
+      const nextValue = readCurrentOrganizationId()
+      setOrganizationId((previous: string | null) => (previous === nextValue ? previous : nextValue))
+    }
 
+    syncOrganizationId()
+
+    const handleTenantChange = () => {
+      syncOrganizationId()
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === 'am_tenant_id') {
         syncOrganizationId()
+      }
+    }
 
-        const handleTenantChange = () => {
-            syncOrganizationId()
-        }
+    window.addEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      window.removeEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [])
 
-        const handleStorage = (event: StorageEvent) => {
-            if (event.key === null || event.key === 'am_tenant_id') {
-                syncOrganizationId()
-            }
-        }
+  useEffect(() => {
+    if (!shouldInitializePostHog) {
+      setPosthogReady(true)
+      setPosthogValues({})
+      setRefreshVersion((current: number) => current + 1)
+      return
+    }
 
-        window.addEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
-        window.addEventListener('storage', handleStorage)
-        return () => {
-            window.removeEventListener(TENANT_CHANGE_EVENT, handleTenantChange)
-            window.removeEventListener('storage', handleStorage)
-        }
-    }, [])
+    if (initRef.current) return
+    initRef.current = true
 
-    useEffect(() => {
-        if (!shouldInitializePostHog) {
-            setPosthogReady(true)
-            setPosthogValues({})
-            setRefreshVersion((current: number) => current + 1)
-            return
-        }
+    setPosthogReady(false)
+    posthogClient.init(appConfig.POSTHOG_KEY, {
+      api_host: posthogHost,
+      autocapture: true,
+      rageclick: false,
+      capture_pageview: 'history_change',
+      capture_pageleave: 'if_capture_pageview',
+      disable_session_recording: true,
+      disable_surveys: true,
+      disable_surveys_automatic_display: true,
+      person_profiles: 'identified_only',
+    })
 
-        if (initRef.current) return
-        initRef.current = true
+    const unsubscribe = posthogClient.onFeatureFlags(() => {
+      const values = syncPostHogValues()
+      setPosthogValues(values)
+      setPosthogReady(true)
+      setRefreshVersion((current: number) => current + 1)
+    })
 
-        setPosthogReady(false)
-        posthogClient.init(appConfig.POSTHOG_KEY, {
-            api_host: posthogHost,
-            autocapture: true,
-            rageclick: false,
-            capture_pageview: 'history_change',
-            capture_pageleave: 'if_capture_pageview',
-            disable_session_recording: true,
-            disable_surveys: true,
-            disable_surveys_automatic_display: true,
-            person_profiles: 'identified_only',
+    posthogClient.reloadFeatureFlags()
+
+    return () => {
+      unsubscribe()
+    }
+  }, [appConfig.POSTHOG_KEY, posthogHost, shouldInitializePostHog])
+
+  useEffect(() => {
+    if (!shouldInitializePostHog || !initRef.current) return
+
+    const currentUserId = user?.id || null
+    const previousUserId = previousUserIdRef.current
+
+    if (previousUserId && !currentUserId) {
+      posthogClient.reset()
+      setPosthogValues({})
+      setPosthogReady(false)
+      posthogClient.reloadFeatureFlags()
+      setRefreshVersion((current: number) => current + 1)
+    }
+
+    previousUserIdRef.current = currentUserId
+  }, [shouldInitializePostHog, user?.id])
+
+  useEffect(() => {
+    if (!shouldInitializePostHog || !initRef.current || !user?.id) return
+
+    const personProperties: Record<string, string | boolean> = {
+      email: user.email || '',
+      role: user.role || '',
+      is_super_admin: getAdminMode(),
+      deployment_env: deploymentEnv,
+      organization_id: organizationId || '',
+    }
+
+    posthogClient.identify(user.id, personProperties)
+
+    posthogClient.setPersonPropertiesForFlags(personProperties, false)
+
+    const shouldUseGroups = shouldAttemptGroupTargeting({
+      targetingMode: configuredTargetingMode,
+      autoFallbackToPersonOnly: autoGroupFallbackToPersonOnly,
+    })
+
+    if (shouldUseGroups && organizationId) {
+      try {
+        posthogClient.group('organization', organizationId, {
+          organization_id: organizationId,
+          deployment_env: deploymentEnv,
         })
-
-        const unsubscribe = posthogClient.onFeatureFlags(() => {
-            const values = syncPostHogValues()
-            setPosthogValues(values)
-            setPosthogReady(true)
-            setRefreshVersion((current: number) => current + 1)
-        })
-
-        posthogClient.reloadFeatureFlags()
-
-        return () => {
-            unsubscribe()
+      } catch (_error) {
+        if (configuredTargetingMode === 'auto') {
+          setAutoGroupFallbackToPersonOnly(true)
         }
-    }, [appConfig.POSTHOG_KEY, posthogHost, shouldInitializePostHog])
+      }
+    }
 
-    useEffect(() => {
-        if (!shouldInitializePostHog || !initRef.current) return
+    posthogClient.reloadFeatureFlags()
+  }, [
+    autoGroupFallbackToPersonOnly,
+    configuredTargetingMode,
+    deploymentEnv,
+    organizationId,
+    shouldInitializePostHog,
+    user?.email,
+    user?.id,
+    user?.role,
+  ])
 
-        const currentUserId = user?.id || null
-        const previousUserId = previousUserIdRef.current
-
-        if (previousUserId && !currentUserId) {
-        posthogClient.reset()
-            setPosthogValues({})
-            setPosthogReady(false)
-            posthogClient.reloadFeatureFlags()
-            setRefreshVersion((current: number) => current + 1)
-        }
-
-        previousUserIdRef.current = currentUserId
-    }, [shouldInitializePostHog, user?.id])
-
-    useEffect(() => {
-        if (!shouldInitializePostHog || !initRef.current || !user?.id) return
-
-        const personProperties: Record<string, string | boolean> = {
-            email: user.email || '',
-            role: user.role || '',
-            is_super_admin: getAdminMode(),
-            deployment_env: deploymentEnv,
-            organization_id: organizationId || '',
-        }
-
-        posthogClient.identify(user.id, personProperties)
-
-        posthogClient.setPersonPropertiesForFlags(personProperties, false)
-
-        const shouldUseGroups = shouldAttemptGroupTargeting({
-            targetingMode: configuredTargetingMode,
-            autoFallbackToPersonOnly: autoGroupFallbackToPersonOnly,
-        })
-
-        if (shouldUseGroups && organizationId) {
-            try {
-                posthogClient.group('organization', organizationId, {
-                    organization_id: organizationId,
-                    deployment_env: deploymentEnv,
-                })
-            } catch (_error) {
-                if (configuredTargetingMode === 'auto') {
-                    setAutoGroupFallbackToPersonOnly(true)
-                }
-            }
-        }
-
-        posthogClient.reloadFeatureFlags()
-    }, [
-        autoGroupFallbackToPersonOnly,
-        configuredTargetingMode,
+  return (
+    <FeatureFlagContext.Provider
+      value={{
         deploymentEnv,
-        organizationId,
-        shouldInitializePostHog,
-        user?.email,
-        user?.id,
-        user?.role,
-    ])
-
-    return (
-        <FeatureFlagContext.Provider
-            value={{
-                deploymentEnv,
-                posthogEnabled: shouldInitializePostHog,
-                posthogReady,
-                posthogValues,
-                targetingMode: effectiveTargetingMode,
-                refreshVersion,
-            }}
-        >
-            {children}
-        </FeatureFlagContext.Provider>
-    )
+        posthogEnabled: shouldInitializePostHog,
+        posthogReady,
+        posthogValues,
+        targetingMode: effectiveTargetingMode,
+        refreshVersion,
+      }}
+    >
+      {children}
+    </FeatureFlagContext.Provider>
+  )
 }
 
 export default PostHogFeatureFlagProvider

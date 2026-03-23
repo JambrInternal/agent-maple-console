@@ -12,10 +12,10 @@ export interface FeatureFlagContextValue {
 }
 
 export const FeatureFlagContext = createContext<FeatureFlagContextValue>({
-    deploymentEnv: 'dev',
-    posthogEnabled: false,
-    posthogReady: true,
-    posthogValues: {},
-    targetingMode: 'auto',
-    refreshVersion: 0,
+  deploymentEnv: 'dev',
+  posthogEnabled: false,
+  posthogReady: true,
+  posthogValues: {},
+  targetingMode: 'auto',
+  refreshVersion: 0,
 })

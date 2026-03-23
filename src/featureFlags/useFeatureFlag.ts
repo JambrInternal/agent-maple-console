@@ -11,17 +11,17 @@ export interface UseFeatureFlagResult {
 }
 
 export const useFeatureFlag = (key: FeatureFlagKey): UseFeatureFlagResult => {
-    const context = useContext(FeatureFlagContext)
-    const posthogValue = context.posthogValues[key]
+  const context = useContext(FeatureFlagContext)
+  const posthogValue = context.posthogValues[key]
 
-    const evaluation = evaluateFeatureFlag({
-        posthogValue,
-    })
+  const evaluation = evaluateFeatureFlag({
+    posthogValue,
+  })
 
-    return {
-        key,
-        enabled: evaluation.enabled,
-        source: evaluation.source,
-        loading: context.posthogEnabled && !context.posthogReady,
-    }
+  return {
+    key,
+    enabled: evaluation.enabled,
+    source: evaluation.source,
+    loading: context.posthogEnabled && !context.posthogReady,
+  }
 }

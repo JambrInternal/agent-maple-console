@@ -5,82 +5,82 @@ import BuildTag from './BuildTag'
 import { getAppConfig } from '../../config/runtimeConfig'
 
 vi.mock('../../config/runtimeConfig', () => ({
-    getAppConfig: vi.fn(),
+  getAppConfig: vi.fn(),
 }))
 
 describe('BuildTag', () => {
-    const originalEnv = { ...import.meta.env }
+  const originalEnv = { ...import.meta.env }
 
-    beforeEach(() => {
-        vi.clearAllMocks()
-        delete window.__APP_COMMIT__
-        Object.keys(import.meta.env).forEach((key) => {
-            delete import.meta.env[key]
-        })
-        vi.mocked(getAppConfig).mockReturnValue({
-            API_URL: '',
-            AWS_REGION: '',
-            COGNITO_USER_POOL_ID: '',
-            COGNITO_APP_CLIENT_ID: '',
-            SENTRY_DSN: '',
-            GIT_COMMIT: '',
-        })
+  beforeEach(() => {
+    vi.clearAllMocks()
+    delete window.__APP_COMMIT__
+    Object.keys(import.meta.env).forEach((key) => {
+      delete import.meta.env[key]
+    })
+    vi.mocked(getAppConfig).mockReturnValue({
+      API_URL: '',
+      AWS_REGION: '',
+      COGNITO_USER_POOL_ID: '',
+      COGNITO_APP_CLIENT_ID: '',
+      SENTRY_DSN: '',
+      GIT_COMMIT: '',
+    })
+  })
+
+  it('renders short git hash from runtime config', () => {
+    vi.mocked(getAppConfig).mockReturnValue({
+      API_URL: '',
+      AWS_REGION: '',
+      COGNITO_USER_POOL_ID: '',
+      COGNITO_APP_CLIENT_ID: '',
+      SENTRY_DSN: '',
+      GIT_COMMIT: '0123456789abcdef0123456789abcdef01234567',
     })
 
-    it('renders short git hash from runtime config', () => {
-        vi.mocked(getAppConfig).mockReturnValue({
-            API_URL: '',
-            AWS_REGION: '',
-            COGNITO_USER_POOL_ID: '',
-            COGNITO_APP_CLIENT_ID: '',
-            SENTRY_DSN: '',
-            GIT_COMMIT: '0123456789abcdef0123456789abcdef01234567',
-        })
+    render(<BuildTag />)
 
-        render(<BuildTag />)
+    expect(screen.getByText('Version 0123456')).toBeInTheDocument()
+  })
 
-        expect(screen.getByText('Version 0123456')).toBeInTheDocument()
+  it('falls back to global commit when runtime/env values are unknown', () => {
+    vi.mocked(getAppConfig).mockReturnValue({
+      API_URL: '',
+      AWS_REGION: '',
+      COGNITO_USER_POOL_ID: '',
+      COGNITO_APP_CLIENT_ID: '',
+      SENTRY_DSN: '',
+      GIT_COMMIT: 'unknown',
     })
+    import.meta.env.VITE_GIT_COMMIT = 'unknown'
+    window.__APP_COMMIT__ = 'abc1234'
 
-    it('falls back to global commit when runtime/env values are unknown', () => {
-        vi.mocked(getAppConfig).mockReturnValue({
-            API_URL: '',
-            AWS_REGION: '',
-            COGNITO_USER_POOL_ID: '',
-            COGNITO_APP_CLIENT_ID: '',
-            SENTRY_DSN: '',
-            GIT_COMMIT: 'unknown',
-        })
-        import.meta.env.VITE_GIT_COMMIT = 'unknown'
-        window.__APP_COMMIT__ = 'abc1234'
+    render(<BuildTag />)
 
-        render(<BuildTag />)
+    expect(screen.getByText('Version abc1234')).toBeInTheDocument()
+  })
 
-        expect(screen.getByText('Version abc1234')).toBeInTheDocument()
+  it('falls back to dev when no valid commit source is available', () => {
+    vi.mocked(getAppConfig).mockReturnValue({
+      API_URL: '',
+      AWS_REGION: '',
+      COGNITO_USER_POOL_ID: '',
+      COGNITO_APP_CLIENT_ID: '',
+      SENTRY_DSN: '',
+      GIT_COMMIT: 'unknown',
     })
+    import.meta.env.VITE_GIT_COMMIT = 'unknown'
 
-    it('falls back to dev when no valid commit source is available', () => {
-        vi.mocked(getAppConfig).mockReturnValue({
-            API_URL: '',
-            AWS_REGION: '',
-            COGNITO_USER_POOL_ID: '',
-            COGNITO_APP_CLIENT_ID: '',
-            SENTRY_DSN: '',
-            GIT_COMMIT: 'unknown',
-        })
-        import.meta.env.VITE_GIT_COMMIT = 'unknown'
+    render(<BuildTag />)
 
-        render(<BuildTag />)
+    expect(screen.getByText('Version dev')).toBeInTheDocument()
+  })
 
-        expect(screen.getByText('Version dev')).toBeInTheDocument()
+  afterEach(() => {
+    Object.keys(import.meta.env).forEach((key) => {
+      delete import.meta.env[key]
     })
-
-    afterEach(() => {
-        Object.keys(import.meta.env).forEach((key) => {
-            delete import.meta.env[key]
-        })
-        Object.keys(originalEnv).forEach((key) => {
-            import.meta.env[key] = originalEnv[key]
-        })
+    Object.keys(originalEnv).forEach((key) => {
+      import.meta.env[key] = originalEnv[key]
     })
+  })
 })

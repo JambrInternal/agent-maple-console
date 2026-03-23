@@ -9,98 +9,98 @@ import { dispatchTenantChange } from '../../featureFlags/featureFlagService'
 import { Button } from '../ui'
 
 const Layout = () => {
-    const { orgId } = useParams()
-    const showSidebar = Boolean(orgId)
-    const { user, logout } = useAuth()
-    const navigate = useNavigate()
-    const [menuOpen, setMenuOpen] = useState(false)
-    const menuRef = useRef(null)
-    const isAdminMode = getAdminMode()
+  const { orgId } = useParams()
+  const showSidebar = Boolean(orgId)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+  const isAdminMode = getAdminMode()
 
 
-    const getInitials = (value) => {
-        if (!value) return 'AM'
-        const parts = value.trim().split(/\s+/)
-        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+  const getInitials = (value) => {
+    if (!value) return 'AM'
+    const parts = value.trim().split(/\s+/)
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+  }
+
+  const [initials, setInitials] = useState(getInitials(user?.name || user?.email))
+
+  useEffect(() => {
+    setInitials(getInitials(user?.name || user?.email))
+  }, [user])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!menuRef.current || menuRef.current.contains(event.target)) return
+      setMenuOpen(false)
     }
-
-    const [initials, setInitials] = useState(getInitials(user?.name || user?.email))
-
-    useEffect(() => {
-        setInitials(getInitials(user?.name || user?.email))
-    }, [user])
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!menuRef.current || menuRef.current.contains(event.target)) return
-            setMenuOpen(false)
-        }
-        if (menuOpen) {
-            document.addEventListener('mousedown', handleClickOutside)
-        }
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [menuOpen])
-
-    useEffect(() => {
-        if (orgId) {
-            localStorage.setItem('am_tenant_id', orgId)
-            dispatchTenantChange(orgId)
-        }
-    }, [orgId])
-
-    useEffect(() => {
-        applyThemeForAdminMode(isAdminMode)
-    }, [isAdminMode])
-
-    const handleLogout = async () => {
-        await logout()
-        navigate('/login')
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
     }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
 
-    return (
-        <div className="am-app-shell">
-            <header className="am-topbar">
-                <div className="am-topbar-left">
-                    <Breadcrumbs />
-                </div>
-                <div className="am-topbar-right" ref={menuRef}>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        className="am-avatar"
-                        aria-label="Account"
-                        aria-haspopup="menu"
-                        aria-expanded={menuOpen}
-                        onClick={() => setMenuOpen((prev) => !prev)}
-                    >
-                        {initials}
-                    </Button>
-                    {menuOpen && (
-                        <div className="am-user-menu" role="menu">
-                            <Button type="button" variant="ghost" className="am-user-menu-item" onClick={handleLogout}>
-                                Log out
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </header>
+  useEffect(() => {
+    if (orgId) {
+      localStorage.setItem('am_tenant_id', orgId)
+      dispatchTenantChange(orgId)
+    }
+  }, [orgId])
 
-            <div className="am-shell-body">
-                {showSidebar && <Sidebar />}
-                <main className="am-main-layout">
-                    <div className="am-page-content">
-                        <Outlet />
-                    </div>
-                </main>
-            </div>
-            {isAdminMode && (
-                <div className="am-admin-banner" role="status" aria-live="polite">
-                    SUPER ADMIN
-                </div>
-            )}
+  useEffect(() => {
+    applyThemeForAdminMode(isAdminMode)
+  }, [isAdminMode])
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
+
+  return (
+    <div className="am-app-shell">
+      <header className="am-topbar">
+        <div className="am-topbar-left">
+          <Breadcrumbs />
         </div>
-    )
+        <div className="am-topbar-right" ref={menuRef}>
+          <Button
+            type="button"
+            variant="ghost"
+            className="am-avatar"
+            aria-label="Account"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((prev) => !prev)}
+          >
+            {initials}
+          </Button>
+          {menuOpen && (
+            <div className="am-user-menu" role="menu">
+              <Button type="button" variant="ghost" className="am-user-menu-item" onClick={handleLogout}>
+                                Log out
+              </Button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="am-shell-body">
+        {showSidebar && <Sidebar />}
+        <main className="am-main-layout">
+          <div className="am-page-content">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+      {isAdminMode && (
+        <div className="am-admin-banner" role="status" aria-live="polite">
+                    SUPER ADMIN
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default Layout

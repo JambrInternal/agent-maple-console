@@ -59,23 +59,23 @@ describe('tokenService', () => {
 
   it('returns valid token from localStorage', async () => {
     const now = Math.floor(Date.now() / 1000);
-      localStorageMock.setItem(TOKEN_KEY, 'id-token');
+    localStorageMock.setItem(TOKEN_KEY, 'id-token');
     localStorageMock.setItem(EXP_KEY, (now + 120).toString());
-      const token = await tokenService.getFreshToken();
-      expect(token).toBe('id-token');
+    const token = await tokenService.getFreshToken();
+    expect(token).toBe('id-token');
   });
 
-    it('refreshes token if expired', async () => {
-      localStorageMock.setItem(TOKEN_KEY, 'old-token');
-      localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
-      const { fetchAuthSession } = await import('aws-amplify/auth');
-      vi.mocked(fetchAuthSession).mockResolvedValue(
-        createAuthSession('id-token', Math.floor(Date.now() / 1000) + 300)
-      );
-      const token = await tokenService.getFreshToken();
-      expect(token).toBe('id-token');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');
-    });
+  it('refreshes token if expired', async () => {
+    localStorageMock.setItem(TOKEN_KEY, 'old-token');
+    localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
+    const { fetchAuthSession } = await import('aws-amplify/auth');
+    vi.mocked(fetchAuthSession).mockResolvedValue(
+      createAuthSession('id-token', Math.floor(Date.now() / 1000) + 300)
+    );
+    const token = await tokenService.getFreshToken();
+    expect(token).toBe('id-token');
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');
+  });
 
   it('handles refresh failure with no existing token', async () => {
     const { fetchAuthSession } = await import('aws-amplify/auth');

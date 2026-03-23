@@ -4,10 +4,10 @@ import { getOrganization } from './organizations'
 import { getProject } from './projects'
 import { getAdminMode } from '../utils/admin'
 import {
-    rememberProjectPersonalityTemplateMapping,
-    resolvePersonalityTemplateIdForProject,
-    resolveTenantIdOrThrow,
-    type ProjectFacadeScope,
+  rememberProjectPersonalityTemplateMapping,
+  resolvePersonalityTemplateIdForProject,
+  resolveTenantIdOrThrow,
+  type ProjectFacadeScope,
 } from './projectFacade'
 
 export type ProjectAgentContact = {
@@ -80,232 +80,232 @@ export type ProjectPersonalityTemplate = ProjectPersonalityTemplateDraft & {
 }
 
 export const DEFAULT_PROJECT_PERSONALITY_TEMPLATE: ProjectPersonalityTemplateDraft = {
-    templateType: 'PARAMETERIZED',
-    runnerInstructions: '',
-    agentInstructions: '',
-    userRole: 'on-site manager/worker',
-    conversationType: 'Construction support chat',
-    aiRole: 'Construction Support Manager',
-    aiRoleCharacteristics: ['Kind', 'Active Listening'],
-    aiRoleEmotionalTone: ['calm'],
-    aiRoleDialogueStrategy: ['informative and helpful'],
-    aiRoleConstraints: [
-        'Do not repeat greetings',
-        'Answer questions using internal documentation unless the user requests general information',
-    ],
-    contextContent: 'Always use tools to query the internal database first *silently* before answering every question. Do not mention it in reply.',
-    goals: ['Evaluate user performance in conversation'],
-    evaluationCriteria: ['Active Listening', 'Product Knowledge'],
-    isDefault: true,
+  templateType: 'PARAMETERIZED',
+  runnerInstructions: '',
+  agentInstructions: '',
+  userRole: 'on-site manager/worker',
+  conversationType: 'Construction support chat',
+  aiRole: 'Construction Support Manager',
+  aiRoleCharacteristics: ['Kind', 'Active Listening'],
+  aiRoleEmotionalTone: ['calm'],
+  aiRoleDialogueStrategy: ['informative and helpful'],
+  aiRoleConstraints: [
+    'Do not repeat greetings',
+    'Answer questions using internal documentation unless the user requests general information',
+  ],
+  contextContent: 'Always use tools to query the internal database first *silently* before answering every question. Do not mention it in reply.',
+  goals: ['Evaluate user performance in conversation'],
+  evaluationCriteria: ['Active Listening', 'Product Knowledge'],
+  isDefault: true,
 }
 
 const normalizeString = (value: unknown): string => (
-    typeof value === 'string' ? value.trim() : ''
+  typeof value === 'string' ? value.trim() : ''
 )
 
 const normalizeTemplateType = (value: unknown): PersonalityTemplateType => (
-    value === 'PARAMETERIZED' ? 'PARAMETERIZED' : 'FULL_CONTROLLED'
+  value === 'PARAMETERIZED' ? 'PARAMETERIZED' : 'FULL_CONTROLLED'
 )
 
 const normalizeStringArray = (value: unknown): string[] => {
-    if (!Array.isArray(value)) return []
-    return value
-        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-        .filter(Boolean)
+  if (!Array.isArray(value)) return []
+  return value
+    .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+    .filter(Boolean)
 }
 
 const mapApiTemplateToProjectTemplate = (
-    template: ApiConversationParameterTemplate,
-    source: ProjectPersonalityTemplate['source'] = 'tenant_template'
+  template: ApiConversationParameterTemplate,
+  source: ProjectPersonalityTemplate['source'] = 'tenant_template'
 ): ProjectPersonalityTemplate => ({
-    id: template.id === null || template.id === undefined ? null : String(template.id),
-    source,
-    templateType: normalizeTemplateType(template.template_type),
-    runnerInstructions: normalizeString(template.runner_instructions),
-    agentInstructions: normalizeString(template.agent_instructions),
-    userRole: normalizeString(template.user_role),
-    conversationType: normalizeString(template.conversation_type),
-    aiRole: normalizeString(template.ai_role),
-    aiRoleCharacteristics: normalizeStringArray(template.ai_role_characteristics),
-    aiRoleEmotionalTone: normalizeStringArray(template.ai_role_emotional_tone),
-    aiRoleDialogueStrategy: normalizeStringArray(template.ai_role_dialogue_strategy),
-    aiRoleConstraints: normalizeStringArray(template.ai_role_constraints),
-    contextContent: normalizeString(template.context_content),
-    goals: normalizeStringArray(template.goals),
-    evaluationCriteria: normalizeStringArray(template.evaluation_criteria),
-    isDefault: template.is_default === true,
+  id: template.id === null || template.id === undefined ? null : String(template.id),
+  source,
+  templateType: normalizeTemplateType(template.template_type),
+  runnerInstructions: normalizeString(template.runner_instructions),
+  agentInstructions: normalizeString(template.agent_instructions),
+  userRole: normalizeString(template.user_role),
+  conversationType: normalizeString(template.conversation_type),
+  aiRole: normalizeString(template.ai_role),
+  aiRoleCharacteristics: normalizeStringArray(template.ai_role_characteristics),
+  aiRoleEmotionalTone: normalizeStringArray(template.ai_role_emotional_tone),
+  aiRoleDialogueStrategy: normalizeStringArray(template.ai_role_dialogue_strategy),
+  aiRoleConstraints: normalizeStringArray(template.ai_role_constraints),
+  contextContent: normalizeString(template.context_content),
+  goals: normalizeStringArray(template.goals),
+  evaluationCriteria: normalizeStringArray(template.evaluation_criteria),
+  isDefault: template.is_default === true,
 })
 
 const normalizeDraft = (
-    draft: Partial<ProjectPersonalityTemplateDraft> | undefined
+  draft: Partial<ProjectPersonalityTemplateDraft> | undefined
 ): ProjectPersonalityTemplateDraft => {
-    const fallback = DEFAULT_PROJECT_PERSONALITY_TEMPLATE
-    const canUseFullControlled = getAdminMode()
-    const requestedTemplateType = draft?.templateType === 'PARAMETERIZED'
-        ? 'PARAMETERIZED'
-        : 'FULL_CONTROLLED'
-    const templateType = canUseFullControlled ? requestedTemplateType : 'PARAMETERIZED'
+  const fallback = DEFAULT_PROJECT_PERSONALITY_TEMPLATE
+  const canUseFullControlled = getAdminMode()
+  const requestedTemplateType = draft?.templateType === 'PARAMETERIZED'
+    ? 'PARAMETERIZED'
+    : 'FULL_CONTROLLED'
+  const templateType = canUseFullControlled ? requestedTemplateType : 'PARAMETERIZED'
 
-    return {
-        templateType,
-        runnerInstructions: normalizeString(draft?.runnerInstructions) || fallback.runnerInstructions,
-        agentInstructions: normalizeString(draft?.agentInstructions) || fallback.agentInstructions,
-        userRole: normalizeString(draft?.userRole) || fallback.userRole,
-        conversationType: normalizeString(draft?.conversationType) || fallback.conversationType,
-        aiRole: normalizeString(draft?.aiRole) || fallback.aiRole,
-        aiRoleCharacteristics: normalizeStringArray(draft?.aiRoleCharacteristics),
-        aiRoleEmotionalTone: normalizeStringArray(draft?.aiRoleEmotionalTone),
-        aiRoleDialogueStrategy: normalizeStringArray(draft?.aiRoleDialogueStrategy),
-        aiRoleConstraints: normalizeStringArray(draft?.aiRoleConstraints),
-        contextContent: normalizeString(draft?.contextContent),
-        goals: normalizeStringArray(draft?.goals),
-        evaluationCriteria: normalizeStringArray(draft?.evaluationCriteria),
-        isDefault: draft?.isDefault !== false,
-    }
+  return {
+    templateType,
+    runnerInstructions: normalizeString(draft?.runnerInstructions) || fallback.runnerInstructions,
+    agentInstructions: normalizeString(draft?.agentInstructions) || fallback.agentInstructions,
+    userRole: normalizeString(draft?.userRole) || fallback.userRole,
+    conversationType: normalizeString(draft?.conversationType) || fallback.conversationType,
+    aiRole: normalizeString(draft?.aiRole) || fallback.aiRole,
+    aiRoleCharacteristics: normalizeStringArray(draft?.aiRoleCharacteristics),
+    aiRoleEmotionalTone: normalizeStringArray(draft?.aiRoleEmotionalTone),
+    aiRoleDialogueStrategy: normalizeStringArray(draft?.aiRoleDialogueStrategy),
+    aiRoleConstraints: normalizeStringArray(draft?.aiRoleConstraints),
+    contextContent: normalizeString(draft?.contextContent),
+    goals: normalizeStringArray(draft?.goals),
+    evaluationCriteria: normalizeStringArray(draft?.evaluationCriteria),
+    isDefault: draft?.isDefault !== false,
+  }
 }
 
 const toUpsertRequest = (draft: ProjectPersonalityTemplateDraft): ApiConversationParameterTemplateUpsertRequest => ({
-    template_type: draft.templateType,
-    runner_instructions: draft.runnerInstructions || null,
-    agent_instructions: draft.agentInstructions || null,
-    user_role: draft.userRole,
-    conversation_type: draft.conversationType,
-    ai_role: draft.aiRole,
-    ai_role_characteristics: draft.aiRoleCharacteristics,
-    ai_role_emotional_tone: draft.aiRoleEmotionalTone,
-    ai_role_dialogue_strategy: draft.aiRoleDialogueStrategy,
-    ai_role_constraints: draft.aiRoleConstraints,
-    context_content: draft.contextContent || null,
-    context_course_id: null,
-    context_file_id: null,
-    goals: draft.goals,
-    evaluation_criteria: draft.evaluationCriteria,
-    is_default: draft.isDefault,
+  template_type: draft.templateType,
+  runner_instructions: draft.runnerInstructions || null,
+  agent_instructions: draft.agentInstructions || null,
+  user_role: draft.userRole,
+  conversation_type: draft.conversationType,
+  ai_role: draft.aiRole,
+  ai_role_characteristics: draft.aiRoleCharacteristics,
+  ai_role_emotional_tone: draft.aiRoleEmotionalTone,
+  ai_role_dialogue_strategy: draft.aiRoleDialogueStrategy,
+  ai_role_constraints: draft.aiRoleConstraints,
+  context_content: draft.contextContent || null,
+  context_course_id: null,
+  context_file_id: null,
+  goals: draft.goals,
+  evaluation_criteria: draft.evaluationCriteria,
+  is_default: draft.isDefault,
 })
 
 const listPersonalityTemplates = async (tenantId: string): Promise<ProjectPersonalityTemplate[]> => {
-    const response = await apiFetch<ApiResponse<ApiConversationParameterTemplate[]> | ApiConversationParameterTemplate[]>(
-        '/chat/conversation_parameter_templates',
-        {
-            headers: {
-                'x-tenant-id': tenantId,
-            },
-        }
-    )
-    const data = unwrapData<ApiConversationParameterTemplate[]>(response, [])
-    return data.map((template) => mapApiTemplateToProjectTemplate(template))
+  const response = await apiFetch<ApiResponse<ApiConversationParameterTemplate[]> | ApiConversationParameterTemplate[]>(
+    '/chat/conversation_parameter_templates',
+    {
+      headers: {
+        'x-tenant-id': tenantId,
+      },
+    }
+  )
+  const data = unwrapData<ApiConversationParameterTemplate[]>(response, [])
+  return data.map((template) => mapApiTemplateToProjectTemplate(template))
 }
 
 const selectCanonicalTemplate = (
-    templates: ProjectPersonalityTemplate[],
-    scope: ProjectFacadeScope
+  templates: ProjectPersonalityTemplate[],
+  scope: ProjectFacadeScope
 ): ProjectPersonalityTemplate | null => {
-    if (templates.length === 0) return null
+  if (templates.length === 0) return null
 
-    const preferredTemplateId = resolvePersonalityTemplateIdForProject(scope.projectId)
-    if (preferredTemplateId) {
-        const preferred = templates.find((template) => template.id === preferredTemplateId)
-        if (preferred) return preferred
-    }
+  const preferredTemplateId = resolvePersonalityTemplateIdForProject(scope.projectId)
+  if (preferredTemplateId) {
+    const preferred = templates.find((template) => template.id === preferredTemplateId)
+    if (preferred) return preferred
+  }
 
-    const defaultTemplate = templates.find((template) => template.isDefault)
-    if (defaultTemplate) return defaultTemplate
-    return templates[0]
+  const defaultTemplate = templates.find((template) => template.isDefault)
+  if (defaultTemplate) return defaultTemplate
+  return templates[0]
 }
 
 export async function getProjectAgentContact(scope: ProjectFacadeScope): Promise<ProjectAgentContact> {
-    const tenantId = resolveTenantIdOrThrow(scope, 'project agent contact')
-    const normalizedProjectId = typeof scope.projectId === 'string' ? scope.projectId.trim() : ''
+  const tenantId = resolveTenantIdOrThrow(scope, 'project agent contact')
+  const normalizedProjectId = typeof scope.projectId === 'string' ? scope.projectId.trim() : ''
 
-    const [organization, project] = await Promise.all([
-        getOrganization(tenantId),
-        normalizedProjectId
-            ? getProject(normalizedProjectId).catch(() => null)
-            : Promise.resolve(null),
-    ])
+  const [organization, project] = await Promise.all([
+    getOrganization(tenantId),
+    normalizedProjectId
+      ? getProject(normalizedProjectId).catch(() => null)
+      : Promise.resolve(null),
+  ])
 
-    const firstName = project?.name?.trim() || null
-    const phoneNumber = organization.twilioNumber?.trim() || null
+  const firstName = project?.name?.trim() || null
+  const phoneNumber = organization.twilioNumber?.trim() || null
 
-    return {
-        firstName,
-        phoneNumber,
-        source: phoneNumber ? 'tenant_twilio' : 'unconfigured',
-    }
+  return {
+    firstName,
+    phoneNumber,
+    source: phoneNumber ? 'tenant_twilio' : 'unconfigured',
+  }
 }
 
 export async function getProjectPersonalityTemplate(scope: ProjectFacadeScope): Promise<ProjectPersonalityTemplate> {
-    const tenantId = resolveTenantIdOrThrow(scope, 'project personality template')
-    const templates = await listPersonalityTemplates(tenantId)
-    const canonical = selectCanonicalTemplate(templates, scope)
+  const tenantId = resolveTenantIdOrThrow(scope, 'project personality template')
+  const templates = await listPersonalityTemplates(tenantId)
+  const canonical = selectCanonicalTemplate(templates, scope)
 
-    if (!canonical) {
-        return {
-            id: null,
-            source: 'bootstrap_default',
-            ...DEFAULT_PROJECT_PERSONALITY_TEMPLATE,
-        }
+  if (!canonical) {
+    return {
+      id: null,
+      source: 'bootstrap_default',
+      ...DEFAULT_PROJECT_PERSONALITY_TEMPLATE,
     }
+  }
 
-    if (scope.projectId && canonical.id) {
-        rememberProjectPersonalityTemplateMapping(scope.projectId, canonical.id)
-    }
-    return canonical
+  if (scope.projectId && canonical.id) {
+    rememberProjectPersonalityTemplateMapping(scope.projectId, canonical.id)
+  }
+  return canonical
 }
 
 export async function saveProjectPersonalityTemplate(
-    scope: ProjectFacadeScope,
-    draft: Partial<ProjectPersonalityTemplateDraft>
+  scope: ProjectFacadeScope,
+  draft: Partial<ProjectPersonalityTemplateDraft>
 ): Promise<ProjectPersonalityTemplate> {
-    const tenantId = resolveTenantIdOrThrow(scope, 'project personality template save')
-    const normalizedDraft = normalizeDraft(draft)
-    const payload = toUpsertRequest(normalizedDraft)
+  const tenantId = resolveTenantIdOrThrow(scope, 'project personality template save')
+  const normalizedDraft = normalizeDraft(draft)
+  const payload = toUpsertRequest(normalizedDraft)
 
-    const templates = await listPersonalityTemplates(tenantId)
-    const canonical = selectCanonicalTemplate(templates, scope)
+  const templates = await listPersonalityTemplates(tenantId)
+  const canonical = selectCanonicalTemplate(templates, scope)
 
-    const response = canonical?.id
-        ? await apiFetch<ApiResponse<ApiConversationParameterTemplate> | ApiConversationParameterTemplate>(
-            `/chat/conversation_parameter_templates/${canonical.id}`,
-            {
-                method: 'PUT',
-                headers: {
-                    'x-tenant-id': tenantId,
-                },
-                body: JSON.stringify(payload),
-            }
-        )
-        : await apiFetch<ApiResponse<ApiConversationParameterTemplate> | ApiConversationParameterTemplate>(
-            '/chat/conversation_parameter_templates',
-            {
-                method: 'POST',
-                headers: {
-                    'x-tenant-id': tenantId,
-                },
-                body: JSON.stringify(payload),
-            }
-        )
-
-    const saved = mapApiTemplateToProjectTemplate(unwrapData<ApiConversationParameterTemplate>(response))
-    if (scope.projectId && saved.id) {
-        rememberProjectPersonalityTemplateMapping(scope.projectId, saved.id)
-    }
-
-    // Personality is singleton per project facade scope. Keep the saved template and remove extras.
-    const duplicateTemplateIds = templates
-        .map((template) => template.id)
-        .filter((templateId): templateId is string => !!templateId && templateId !== saved.id)
-
-    await Promise.allSettled(
-        duplicateTemplateIds.map((templateId) => (
-            apiFetch(`/chat/conversation_parameter_templates/${templateId}`, {
-                method: 'DELETE',
-                headers: {
-                    'x-tenant-id': tenantId,
-                },
-            })
-        ))
+  const response = canonical?.id
+    ? await apiFetch<ApiResponse<ApiConversationParameterTemplate> | ApiConversationParameterTemplate>(
+      `/chat/conversation_parameter_templates/${canonical.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'x-tenant-id': tenantId,
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+    : await apiFetch<ApiResponse<ApiConversationParameterTemplate> | ApiConversationParameterTemplate>(
+      '/chat/conversation_parameter_templates',
+      {
+        method: 'POST',
+        headers: {
+          'x-tenant-id': tenantId,
+        },
+        body: JSON.stringify(payload),
+      }
     )
 
-    return saved
+  const saved = mapApiTemplateToProjectTemplate(unwrapData<ApiConversationParameterTemplate>(response))
+  if (scope.projectId && saved.id) {
+    rememberProjectPersonalityTemplateMapping(scope.projectId, saved.id)
+  }
+
+  // Personality is singleton per project facade scope. Keep the saved template and remove extras.
+  const duplicateTemplateIds = templates
+    .map((template) => template.id)
+    .filter((templateId): templateId is string => !!templateId && templateId !== saved.id)
+
+  await Promise.allSettled(
+    duplicateTemplateIds.map((templateId) => (
+      apiFetch(`/chat/conversation_parameter_templates/${templateId}`, {
+        method: 'DELETE',
+        headers: {
+          'x-tenant-id': tenantId,
+        },
+      })
+    ))
+  )
+
+  return saved
 }
