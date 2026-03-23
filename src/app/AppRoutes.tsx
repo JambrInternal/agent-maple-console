@@ -1,20 +1,27 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AuthGuard from '../components/AuthGuard/AuthGuard'
 import Layout from '../components/Layout/Layout'
 import BuildTag from '../components/BuildTag/BuildTag'
-import AcceptInvitation from '../pages/AcceptInvitation/AcceptInvitation'
-import ComingSoon from '../pages/ComingSoon/ComingSoon'
-import Contacts from '../pages/Contacts/Contacts'
 import FeatureGateRoute from '../featureFlags/FeatureGateRoute'
-import Knowledge from '../pages/Knowledge/Knowledge'
-import KnowledgeChunks from '../pages/KnowledgeChunks/KnowledgeChunks'
-import Login from '../pages/Login/Login'
-import OrgSelection from '../pages/OrgSelection/OrgSelection'
-import OrgTeam from '../pages/OrgTeam/OrgTeam'
-import Personality from '../pages/Personality/Personality'
-import Projects from '../pages/Projects/Projects'
-import Voice from '../pages/Voice/Voice'
+
+const AcceptInvitation = lazy(() => import('../pages/AcceptInvitation/AcceptInvitation'))
+const ComingSoon = lazy(() => import('../pages/ComingSoon/ComingSoon'))
+const Contacts = lazy(() => import('../pages/Contacts/Contacts'))
+const Knowledge = lazy(() => import('../pages/Knowledge/Knowledge'))
+const KnowledgeChunks = lazy(() => import('../pages/KnowledgeChunks/KnowledgeChunks'))
+const Login = lazy(() => import('../pages/Login/Login'))
+const OrgSelection = lazy(() => import('../pages/OrgSelection/OrgSelection'))
+const OrgTeam = lazy(() => import('../pages/OrgTeam/OrgTeam'))
+const Personality = lazy(() => import('../pages/Personality/Personality'))
+const Projects = lazy(() => import('../pages/Projects/Projects'))
+const Voice = lazy(() => import('../pages/Voice/Voice'))
+
+const withRouteSuspense = (node: React.ReactNode) => (
+    <Suspense fallback={null}>
+        {node}
+    </Suspense>
+)
 
 const buildBetaComingSoonRoute = (title, description) => (
     <FeatureGateRoute
@@ -22,7 +29,7 @@ const buildBetaComingSoonRoute = (title, description) => (
         title={`${title} Unavailable`}
         description={description}
     >
-        <ComingSoon title={title} beta />
+        {withRouteSuspense(<ComingSoon title={title} beta />)}
     </FeatureGateRoute>
 )
 
@@ -31,21 +38,21 @@ const AppRoutes = () => {
         <>
             <Routes>
                 {/* Public Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/accept-invitation" element={<AcceptInvitation />} />
-                <Route path="/user/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/login" element={withRouteSuspense(<Login />)} />
+                <Route path="/accept-invitation" element={withRouteSuspense(<AcceptInvitation />)} />
+                <Route path="/user/accept-invitation" element={withRouteSuspense(<AcceptInvitation />)} />
 
                 {/* Protected Console Routes */}
                 <Route element={<AuthGuard><Layout /></AuthGuard>}>
-                    <Route path="/" element={<OrgSelection />} />
+                    <Route path="/" element={withRouteSuspense(<OrgSelection />)} />
 
                     {/* Organization Context */}
                     <Route path="/:orgId">
                         <Route index element={<Navigate to="projects" replace />} />
 
                         {/* Org Level Pages */}
-                        <Route path="projects" element={<Projects />} />
-                        <Route path="team" element={<OrgTeam />} />
+                        <Route path="projects" element={withRouteSuspense(<Projects />)} />
+                        <Route path="team" element={withRouteSuspense(<OrgTeam />)} />
                         <Route
                             path="billing"
                             element={buildBetaComingSoonRoute(
@@ -92,9 +99,9 @@ const AppRoutes = () => {
                                     'Skills & Tools is disabled for this deployment or rollout target.'
                                 )}
                             />
-                            <Route path="knowledge" element={<Knowledge />} />
-                            <Route path="datasources/:datasourceId/chunks" element={<KnowledgeChunks />} />
-                            <Route path="contacts" element={<Contacts />} />
+                            <Route path="knowledge" element={withRouteSuspense(<Knowledge />)} />
+                            <Route path="datasources/:datasourceId/chunks" element={withRouteSuspense(<KnowledgeChunks />)} />
+                            <Route path="contacts" element={withRouteSuspense(<Contacts />)} />
                             <Route
                                 path="insights"
                                 element={buildBetaComingSoonRoute(
@@ -109,8 +116,8 @@ const AppRoutes = () => {
                                     'SMS is disabled for this deployment or rollout target.'
                                 )}
                             />
-                            <Route path="voice" element={<Voice />} />
-                            <Route path="personality" element={<Personality />} />
+                            <Route path="voice" element={withRouteSuspense(<Voice />)} />
+                            <Route path="personality" element={withRouteSuspense(<Personality />)} />
                             <Route
                                 path="email"
                                 element={buildBetaComingSoonRoute(
