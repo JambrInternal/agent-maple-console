@@ -9,7 +9,7 @@
 - **Lint:** `npm run lint` (ESLint 9 flat config)
 - **Test all:** `npm run test:ci` (Vitest, non-interactive)
 - **Test watch:** `npm test` (Vitest, watch mode)
-- **Test single file:** `npx vitest run src/path/to/__tests__/file.test.ts`
+- **Test single file:** `npx vitest run src/path/to/Component/Component.test.tsx`
 - **API smoke tests:** `npm run test:api` (full) / `npm run test:api:min` (minimal)
 - **Generate API types:** `npm run generate:api` (fetches OpenAPI spec → `src/api/generated/`)
 - **Check API freshness:** `npm run check:api` (fails if spec is outdated)
@@ -24,15 +24,16 @@ React 19 SPA — management console for configuration and reporting (not real-ti
 ```
 src/
 ├── api/            # API client, generated OpenAPI types/operations (see src/api/AGENTS.md)
-├── app/            # AppProviders.jsx, AppRoutes.jsx (routing + context wiring)
-├── components/     # Shared UI: Layout, Sidebar, AuthGuard, ErrorBoundary, etc.
+├── app/            # AppProviders.tsx, AppRoutes.tsx (routing + context wiring)
+├── components/     # Shared UI components (folder-per-component with colocated tests)
 ├── config/         # Runtime config (runtimeConfig.ts — reads window.__APP_CONFIG__)
 ├── contexts/       # React context providers (AuthContext.tsx)
 ├── featureFlags/   # PostHog-based feature flag system (flagCatalog, FeatureGateRoute)
 ├── features/       # Feature modules: auth, contacts, invitation, knowledge, organization,
-│                   #   personality, projects, team — each with components/, __tests__/, utils
+│                   #   personality, projects, team — each with components/<Name>/<Name>.tsx,
+│                   #   colocated tests, and utility files
 ├── hooks/          # Custom hooks (useApiQuery)
-├── pages/          # Route-level page components (one per route)
+├── pages/          # Route-level pages (folder-per-page with colocated tests)
 ├── services/       # Business logic services (auth, threads, issues, knowledge, etc.)
 ├── test/           # Test setup (Vitest + Testing Library + jsdom)
 └── utils/          # Shared utilities
@@ -54,10 +55,12 @@ server.js           # Production Node HTTP server (serves SPA, injects runtime c
 ## Conventions
 
 ### File naming
-- Pages: `PascalCase.jsx` (e.g., `Knowledge.jsx`)
+- Pages: `src/pages/<Page>/<Page>.tsx` (e.g., `src/pages/Knowledge/Knowledge.tsx`)
+- Shared components: `src/components/<Component>/<Component>.tsx`
 - Services: `camelCase.ts` (e.g., `projectFacade.ts`)
-- Feature modules: `src/features/<name>/` with `components/`, `__tests__/`, and utility files
-- Tests: colocated in `__tests__/` directories, named `<subject>.test.{ts,tsx,jsx}`
+- Feature modules: `src/features/<name>/` with `components/` and utility/hook files at feature root
+- Feature components: `src/features/<name>/components/<Component>/<Component>.tsx`
+- Tests: colocated with source files as `<Subject>.test.{ts,tsx,jsx}` (components, pages, services, utils, hooks)
 - Generated code: `src/api/generated/` — never edit manually
 
 ### Code style (enforced by ESLint)
@@ -132,7 +135,7 @@ To compensate: every significant directory has its own AGENTS.md with directory-
 
 ### Rules for maintaining
 
-- **Every significant directory gets a file.** Significant = a directory where an agent creates or edits files. Skip `__tests__/`, `generated/`, `assets/`.
+- **Every significant directory gets a file.** Significant = a directory where an agent creates or edits files. Skip `generated/`, `assets/`.
 - **Keep them operational** — rules agents can follow, not documentation for humans.
 - **Preserve existing rules when updating** — read first, then add.
 - **When adding a new directory**, create its AGENTS.md immediately with purpose, key files, and the root pointer.

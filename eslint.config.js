@@ -87,7 +87,11 @@ export default [
         },
     },
     {
-        files: ['**/__tests__/**/*.{js,jsx,ts,tsx}', 'src/test/**/*.{js,jsx,ts,tsx}'],
+        files: [
+            '**/*.test.{js,jsx,ts,tsx}',
+            '**/*.spec.{js,jsx,ts,tsx}',
+            'src/test/**/*.{js,jsx,ts,tsx}',
+        ],
         languageOptions: {
             globals: {
                 ...globals.vitest,
