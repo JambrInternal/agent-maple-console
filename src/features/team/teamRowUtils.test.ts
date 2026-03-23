@@ -7,16 +7,36 @@ import {
     getRolePillClass,
 } from './teamRowUtils'
 
+interface TeamMember {
+    id: string
+    email: string
+    name: string
+    role: string
+}
+
+interface PendingInviteRow {
+    id: string
+    email: string
+    role?: string
+    status?: 'pending' | 'accepted' | 'expired'
+}
+
+interface TeamRowLike {
+    isInviteOnly: boolean
+    inviteStatus?: string
+    role?: string
+}
+
 describe('teamRowUtils', () => {
     it('builds rows by merging active members and non-duplicate invites', () => {
         const rows = buildTeamRows({
             members: [
                 { id: 'u1', email: 'member@example.com', name: 'Member', role: 'member' },
-            ] as any[],
+            ] as TeamMember[],
             pendingInvites: [
                 { id: 'inv1', email: 'member@example.com', role: 'member', status: 'pending' },
                 { id: 'inv2', email: 'invitee@example.com', role: 'viewer', status: 'pending' },
-            ] as any[],
+            ] as PendingInviteRow[],
             memberEmailSet: new Set(['member@example.com']),
         })
 
@@ -34,9 +54,9 @@ describe('teamRowUtils', () => {
     })
 
     it('returns role label and class for invite-only and active members', () => {
-        const invited = { isInviteOnly: true, inviteStatus: 'pending', role: 'viewer' } as any
-        const acceptedInvite = { isInviteOnly: true, inviteStatus: 'accepted', role: 'member' } as any
-        const admin = { isInviteOnly: false, role: 'admin' } as any
+        const invited: TeamRowLike = { isInviteOnly: true, inviteStatus: 'pending', role: 'viewer' }
+        const acceptedInvite: TeamRowLike = { isInviteOnly: true, inviteStatus: 'accepted', role: 'member' }
+        const admin: TeamRowLike = { isInviteOnly: false, role: 'admin' }
 
         expect(getRoleLabel(invited)).toBe('Invited')
         expect(getRoleLabel(acceptedInvite)).toBe('member')
@@ -44,4 +64,3 @@ describe('teamRowUtils', () => {
         expect(getRolePillClass(admin)).toBe('am-status-pill is-on-break')
     })
 })
-

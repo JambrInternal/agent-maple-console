@@ -1,7 +1,12 @@
-import React from 'react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import PostHogFeatureFlagProvider from './posthogProvider'
+
+type FeatureFlagsCallback = (
+    flags: string[],
+    variants: Record<string, unknown>,
+    options: { errorsLoading: boolean }
+) => void
 
 const testState = vi.hoisted(() => {
     return {
@@ -51,7 +56,7 @@ describe('PostHogFeatureFlagProvider', () => {
         }
 
         testState.mockPosthog.isFeatureEnabled.mockReturnValue(undefined)
-        testState.mockPosthog.onFeatureFlags.mockImplementation((callback: Function) => {
+        testState.mockPosthog.onFeatureFlags.mockImplementation((callback: FeatureFlagsCallback) => {
             callback([], {}, { errorsLoading: false })
             return () => {}
         })

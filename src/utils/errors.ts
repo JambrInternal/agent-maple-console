@@ -1,5 +1,9 @@
 import { ApiError, getErrorStatus } from '../api/client';
 
+type ErrorLike = {
+    message?: unknown;
+};
+
 const STATUS_HINTS: Record<number, string> = {
     400: 'Check required fields.',
     401: 'Please sign in again.',
@@ -50,11 +54,14 @@ const getErrorDetail = (error: unknown): string | null => {
     // Standard JS Error
     if (error instanceof Error && error.message) return error.message;
 
-    if (typeof error !== 'object') return null;
+    if (typeof error !== 'object' || error === null) return null;
 
-    // Generic object with message
-    const msg = (error as any).message;
-    if (typeof msg === 'string' && msg.trim()) return msg;
+    if ('message' in error) {
+        const message = (error as ErrorLike).message;
+        if (typeof message === 'string' && message.trim()) {
+            return message;
+        }
+    }
 
     // Last resort: stringify unknown objects (bounded so UI doesn't explode)
     try {

@@ -1,4 +1,4 @@
-import React from 'react'
+import { KeyboardEvent, MouseEvent } from 'react'
 import { X } from 'lucide-react'
 import { Button, Input } from '../../../../components/ui'
 
@@ -12,35 +12,41 @@ export default function InviteMemberModal({
     onSubmit,
 }) {
     if (!isOpen) return null
+    const canDismiss = !isInviting
 
-    return (
+    const handleBackdropKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            onClose()
+        }
+    }
+    const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
+        if (event.target === event.currentTarget) {
+            onClose()
+        }
+    }
+    const modalContent = (
         <div
-            className="am-modal-backdrop"
-            role="presentation"
-            onClick={() => !isInviting && onClose()}
+            className="am-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="invite-member-title"
+            style={{ maxWidth: '480px' }}
         >
-            <div
-                className="am-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="invite-member-title"
-                onClick={(event) => event.stopPropagation()}
-                style={{ maxWidth: '480px' }}
-            >
-                <div className="am-modal-header">
-                    <h2 id="invite-member-title" className="am-modal-title">Invite Team Member</h2>
-                    <Button
-                        type="button"
-                        variant="icon"
-                        size="icon"
-                        onClick={onClose}
-                        disabled={isInviting}
-                        aria-label="Close invite modal"
-                    >
-                        <X size={20} />
-                    </Button>
-                </div>
-                <form onSubmit={onSubmit}>
+            <div className="am-modal-header">
+                <h2 id="invite-member-title" className="am-modal-title">Invite Team Member</h2>
+                <Button
+                    type="button"
+                    variant="icon"
+                    size="icon"
+                    onClick={onClose}
+                    disabled={isInviting}
+                    aria-label="Close invite modal"
+                >
+                    <X size={20} />
+                </Button>
+            </div>
+            <form onSubmit={onSubmit}>
                     <div className="am-form">
                         {inviteError && (
                             <div className="am-text-2" style={{ color: '#ef4444', fontSize: '0.85rem' }}>
@@ -77,8 +83,23 @@ export default function InviteMemberModal({
                             {isInviting ? 'Inviting...' : 'Send Invitation'}
                         </Button>
                     </div>
-                </form>
-            </div>
+            </form>
+        </div>
+    )
+
+    if (!canDismiss) {
+        return <div className="am-modal-backdrop" role="presentation" aria-hidden="true">{modalContent}</div>
+    }
+
+    return (
+        <div
+            className="am-modal-backdrop"
+            role="button"
+            tabIndex={0}
+            onClick={handleBackdropClick}
+            onKeyDown={handleBackdropKeyDown}
+        >
+            {modalContent}
         </div>
     )
 }

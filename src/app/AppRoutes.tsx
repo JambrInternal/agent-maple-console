@@ -23,7 +23,7 @@ const withRouteSuspense = (node: React.ReactNode) => (
     </Suspense>
 )
 
-const buildBetaComingSoonRoute = (title, description) => (
+const buildBetaComingSoonRoute = (title: string, description: string) => (
     <FeatureGateRoute
         flagKey="ff_beta"
         title={`${title} Unavailable`}

@@ -1,12 +1,30 @@
-import React from 'react'
 import { ArrowRight, Building2 } from 'lucide-react'
 
-export default function OrganizationCard({ organization, onSelect }) {
+interface OrganizationSummary {
+    id: string
+    name: string
+    projectCount?: number | null
+}
+
+interface OrganizationCardProps {
+    organization: OrganizationSummary
+    onSelect: () => void
+}
+
+export default function OrganizationCard({ organization, onSelect }: OrganizationCardProps) {
     return (
-        <div
+        <button
+            type="button"
             className="am-card"
-            style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                textAlign: 'left',
+                cursor: 'pointer',
+            }}
             onClick={onSelect}
+            aria-label={`View ${organization.name}`}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{
@@ -32,6 +50,6 @@ export default function OrganizationCard({ organization, onSelect }) {
                 </div>
                 <ArrowRight size={20} className="am-text-2" />
             </div>
-        </div>
+        </button>
     )
 }

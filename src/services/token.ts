@@ -77,10 +77,9 @@ async function fetchAndStoreToken(): Promise<string | null> {
 
   try {
     const session = await fetchAuthSession();
-    const tokens = (session as any).tokens || {};
-    const tokenObj = tokens.idToken;
-    const token = tokenObj?.toString() || null;
-    const exp = tokenObj?.payload?.exp || null;
+    const tokenObj = session.tokens?.idToken ?? null;
+    const token = tokenObj?.toString() ?? null;
+    const exp = typeof tokenObj?.payload?.exp === 'number' ? tokenObj.payload.exp : null;
     if (token && exp) {
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(EXP_KEY, exp.toString());

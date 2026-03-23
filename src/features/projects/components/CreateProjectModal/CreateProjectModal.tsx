@@ -1,4 +1,4 @@
-import React from 'react'
+import { KeyboardEvent, MouseEvent } from 'react'
 import { Button, Input } from '../../../../components/ui'
 
 export default function CreateProjectModal({
@@ -11,25 +11,35 @@ export default function CreateProjectModal({
     onSubmit,
 }) {
     if (!isOpen) return null
+    const canDismiss = !isCreating
 
-    return (
-        <div className="am-modal-backdrop" role="presentation" onClick={onClose}>
-            <div
-                className="am-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="create-project-title"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <div className="am-modal-header">
-                    <h2 className="am-modal-title" id="create-project-title">
-                        Create Project
-                    </h2>
-                    <Button type="button" variant="icon" size="icon" onClick={onClose} aria-label="Close">
-                        ×
-                    </Button>
-                </div>
-                <form onSubmit={onSubmit}>
+    const handleBackdropKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            onClose()
+        }
+    }
+    const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
+        if (event.target === event.currentTarget) {
+            onClose()
+        }
+    }
+    const modalContent = (
+        <div
+            className="am-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-project-title"
+        >
+            <div className="am-modal-header">
+                <h2 className="am-modal-title" id="create-project-title">
+                    Create Project
+                </h2>
+                <Button type="button" variant="icon" size="icon" onClick={onClose} aria-label="Close">
+                    ×
+                </Button>
+            </div>
+            <form onSubmit={onSubmit}>
                     <div className="am-text-2" style={{ marginBottom: '1rem' }}>
                         Create a new project to start configuring an agent.
                     </div>
@@ -62,8 +72,23 @@ export default function CreateProjectModal({
                             {isCreating ? 'Creating...' : 'Create Project'}
                         </Button>
                     </div>
-                </form>
-            </div>
+            </form>
+        </div>
+    )
+
+    if (!canDismiss) {
+        return <div className="am-modal-backdrop" role="presentation" aria-hidden="true">{modalContent}</div>
+    }
+
+    return (
+        <div
+            className="am-modal-backdrop"
+            role="button"
+            tabIndex={0}
+            onClick={handleBackdropClick}
+            onKeyDown={handleBackdropKeyDown}
+        >
+            {modalContent}
         </div>
     )
 }

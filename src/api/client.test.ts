@@ -9,6 +9,9 @@ vi.mock('../services/token', () => ({
 import * as client from './client';
 import { getFreshToken } from '../services/token';
 
+const jsonResponse = (body: unknown, init?: ResponseInit) =>
+  new Response(JSON.stringify(body), init);
+
 // URL normalization regression test
 
 describe('API client URL normalization', () => {
@@ -32,12 +35,9 @@ describe('API client URL normalization', () => {
 describe('API client endpoint error handling', () => {
   it('does not treat 404 as auth failure', async () => {
     // Mock fetch to return 404
-    globalThis.fetch = async () => ({
-      ok: false,
-      status: 404,
-      statusText: 'Not Found',
-      json: async () => ({ message: 'Not Found' }),
-    }) as any;
+    globalThis.fetch = vi.fn<Parameters<typeof fetch>, Promise<Response>>(
+      async () => jsonResponse({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' })
+    );
     await expect(client.apiFetch('/not-an-endpoint')).rejects.toMatchObject({
       name: 'ApiError',
       status: 404,
@@ -56,11 +56,9 @@ describe('API client tenant header behavior', () => {
 
   it('does not attach x-tenant-id to tenant-agnostic /user endpoints', async () => {
     localStorage.setItem('am_tenant_id', '26');
-    const fetchMock = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({ success: true }),
-    })) as any;
+    const fetchMock = vi.fn<Parameters<typeof fetch>, Promise<Response>>(
+      async () => jsonResponse({ success: true })
+    );
     globalThis.fetch = fetchMock;
 
     await client.apiFetch('/user/accept-invitation', {
@@ -75,11 +73,9 @@ describe('API client tenant header behavior', () => {
 
   it('attaches x-tenant-id to tenant-scoped endpoints', async () => {
     localStorage.setItem('am_tenant_id', '26');
-    const fetchMock = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({ success: true }),
-    })) as any;
+    const fetchMock = vi.fn<Parameters<typeof fetch>, Promise<Response>>(
+      async () => jsonResponse({ success: true })
+    );
     globalThis.fetch = fetchMock;
 
     await client.apiFetch('/tenants/send-invitation', {
@@ -96,11 +92,9 @@ describe('API client tenant header behavior', () => {
     localStorage.setItem('am_auth_token', 'stored-token');
     vi.mocked(getFreshToken).mockResolvedValueOnce(null);
 
-    const fetchMock = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({ success: true }),
-    })) as any;
+    const fetchMock = vi.fn<Parameters<typeof fetch>, Promise<Response>>(
+      async () => jsonResponse({ success: true })
+    );
     globalThis.fetch = fetchMock;
 
     await client.apiFetch('/user/tenants');
@@ -116,12 +110,9 @@ describe('API client tenant header behavior', () => {
 describe('API client 401 redirect', () => {
   it('redirects to /login only once on 401', async () => {
     vi.spyOn(client.navigation, 'toLogin').mockImplementation(() => {});
-    globalThis.fetch = vi.fn(async () => ({
-      ok: false,
-      status: 401,
-      statusText: 'Unauthorized',
-      json: async () => ({ message: 'Unauthorized' }),
-    })) as any;
+    globalThis.fetch = vi.fn<Parameters<typeof fetch>, Promise<Response>>(
+      async () => jsonResponse({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' })
+    );
     await expect(client.apiFetch('/user/sync')).rejects.toMatchObject({ status: 401 });
     expect(client.navigation.toLogin).toHaveBeenCalledTimes(1);
   });

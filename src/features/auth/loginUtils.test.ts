@@ -13,6 +13,10 @@ import {
     shouldEnableDebugFromSearch,
 } from './loginUtils'
 
+interface StatusReadable {
+    status?: number | null;
+}
+
 describe('loginUtils', () => {
     it('builds redirect target from location state', () => {
         expect(getRedirectToFromLocation({ state: { from: { pathname: '/org_1/projects', search: '?q=1', hash: '#h' } } }))
@@ -43,7 +47,7 @@ describe('loginUtils', () => {
         const withStatus = buildDebugEvent({
             label: 'Login failed',
             error: { status: 401, message: 'Unauthorized' },
-            getErrorStatus: (err) => (err as any).status ?? null,
+            getErrorStatus: (err: StatusReadable) => err.status ?? null,
         })
         expect(withStatus).toContain('Login failed (Status 401):')
 

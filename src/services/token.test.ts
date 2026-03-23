@@ -10,23 +10,44 @@ vi.mock('aws-amplify/auth', () => ({
 const TOKEN_KEY = 'am_auth_token';
 const EXP_KEY = 'am_auth_token_exp';
 
-function mockLocalStorage() {
-  let store: Record<string, string> = {};
+type StorageMock = Storage & { _store: Record<string, string> };
+
+const createLocalStorageMock = (): StorageMock => {
+  const store: Record<string, string> = {};
   return {
-    getItem: vi.fn((key) => store[key] || null),
-    setItem: vi.fn((key, value) => { store[key] = value; }),
-    removeItem: vi.fn((key) => { delete store[key]; }),
-    clear: vi.fn(() => { store = {}; }),
+    get length() {
+      return Object.keys(store).length;
+    },
+    clear: vi.fn(() => {
+      Object.keys(store).forEach((key) => delete store[key]);
+    }),
+    getItem: vi.fn((key: string) => (key in store ? store[key] : null)),
+    key: vi.fn((index: number) => Object.keys(store)[index] ?? null),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
     _store: store,
   };
-}
+};
+
+const createAuthSession = (tokenValue: string, exp: number) => ({
+  tokens: {
+    idToken: {
+      toString: () => tokenValue,
+      payload: { exp },
+    },
+  },
+} satisfies Awaited<ReturnType<typeof fetchAuthSession>>);
 
 describe('tokenService', () => {
-  let localStorageMock: any;
-  let originalLocalStorage: any;
+  let localStorageMock: StorageMock;
+  let originalLocalStorage: Storage;
 
   beforeEach(() => {
-    localStorageMock = mockLocalStorage();
+    localStorageMock = createLocalStorageMock();
     originalLocalStorage = globalThis.localStorage;
     globalThis.localStorage = localStorageMock;
   });
@@ -48,14 +69,9 @@ describe('tokenService', () => {
       localStorageMock.setItem(TOKEN_KEY, 'old-token');
       localStorageMock.setItem(EXP_KEY, (Math.floor(Date.now() / 1000) - 10).toString());
       const { fetchAuthSession } = await import('aws-amplify/auth');
-      vi.mocked(fetchAuthSession).mockResolvedValue({
-        tokens: {
-          idToken: {
-            toString: () => 'id-token',
-            payload: { exp: Math.floor(Date.now() / 1000) + 300 },
-          },
-        },
-      } as any);
+      vi.mocked(fetchAuthSession).mockResolvedValue(
+        createAuthSession('id-token', Math.floor(Date.now() / 1000) + 300)
+      );
       const token = await tokenService.getFreshToken();
       expect(token).toBe('id-token');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'id-token');

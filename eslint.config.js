@@ -1,9 +1,12 @@
 import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 
-const sharedGlobals = {
+const sharedGlobals = { 
     ...globals.browser,
     ...globals.node,
     ...globals.es2021,
@@ -70,6 +73,50 @@ export default [
         },
     },
     {
+        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
+        settings: {
+            ...importPlugin.flatConfigs.typescript.settings,
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './tsconfig.json',
+                },
+                node: {
+                    extensions: ['.ts', '.cts', '.mts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json'],
+                },
+            },
+        },
+        plugins: {
+            import: importPlugin,
+        },
+        rules: {
+            ...importPlugin.flatConfigs.recommended.rules,
+        },
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        settings: importPlugin.flatConfigs.typescript.settings,
+        rules: {
+            ...importPlugin.flatConfigs.typescript.rules,
+        },
+    },
+    {
+        files: ['**/*.{jsx,tsx}'],
+        languageOptions: {
+            parserOptions: {
+                ecmaFeatures: {
+                    jsx: true,
+                },
+            },
+        },
+        plugins: {
+            'jsx-a11y': jsxA11yPlugin,
+        },
+        rules: {
+            ...jsxA11yPlugin.flatConfigs.recommended.rules,
+        },
+    },
+    {
         files: ['**/*.{ts,tsx}'],
         languageOptions: {
             parser: tsParser,
@@ -82,7 +129,19 @@ export default [
             },
             globals: sharedGlobals,
         },
+        plugins: {
+            '@typescript-eslint': tsPlugin,
+        },
         rules: {
+            ...tsPlugin.configs.recommended.rules,
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    varsIgnorePattern: '^_',
+                    argsIgnorePattern: '^_',
+                    caughtErrorsIgnorePattern: '^_',
+                },
+            ],
             ...strictRules,
         },
     },

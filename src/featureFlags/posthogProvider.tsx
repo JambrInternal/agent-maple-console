@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import posthog from 'posthog-js'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import posthogClient from 'posthog-js'
 import { useAuth } from '../contexts/AuthContext'
 import { getAppConfig } from '../config/runtimeConfig'
 import { getAdminMode } from '../utils/admin'
@@ -17,14 +17,14 @@ import {
 } from './featureFlagService'
 
 type PostHogProviderProps = {
-    children: React.ReactNode
+    children: ReactNode
 }
 
 const syncPostHogValues = (): Partial<Record<FeatureFlagKey, boolean>> => {
     const nextValues: Partial<Record<FeatureFlagKey, boolean>> = {}
 
     for (const flagKey of FEATURE_FLAG_KEYS) {
-        const enabled = posthog.isFeatureEnabled(flagKey, { send_event: false })
+        const enabled = posthogClient.isFeatureEnabled(flagKey, { send_event: false })
         if (typeof enabled === 'boolean') {
             nextValues[flagKey] = enabled
         }
@@ -104,7 +104,7 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
         initRef.current = true
 
         setPosthogReady(false)
-        posthog.init(appConfig.POSTHOG_KEY, {
+        posthogClient.init(appConfig.POSTHOG_KEY, {
             api_host: posthogHost,
             autocapture: true,
             rageclick: false,
@@ -116,14 +116,14 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
             person_profiles: 'identified_only',
         })
 
-        const unsubscribe = posthog.onFeatureFlags(() => {
+        const unsubscribe = posthogClient.onFeatureFlags(() => {
             const values = syncPostHogValues()
             setPosthogValues(values)
             setPosthogReady(true)
             setRefreshVersion((current: number) => current + 1)
         })
 
-        posthog.reloadFeatureFlags()
+        posthogClient.reloadFeatureFlags()
 
         return () => {
             unsubscribe()
@@ -137,10 +137,10 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
         const previousUserId = previousUserIdRef.current
 
         if (previousUserId && !currentUserId) {
-            posthog.reset()
+        posthogClient.reset()
             setPosthogValues({})
             setPosthogReady(false)
-            posthog.reloadFeatureFlags()
+            posthogClient.reloadFeatureFlags()
             setRefreshVersion((current: number) => current + 1)
         }
 
@@ -158,9 +158,9 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
             organization_id: organizationId || '',
         }
 
-        posthog.identify(user.id, personProperties)
+        posthogClient.identify(user.id, personProperties)
 
-        posthog.setPersonPropertiesForFlags(personProperties, false)
+        posthogClient.setPersonPropertiesForFlags(personProperties, false)
 
         const shouldUseGroups = shouldAttemptGroupTargeting({
             targetingMode: configuredTargetingMode,
@@ -169,18 +169,18 @@ const PostHogFeatureFlagProvider = ({ children }: PostHogProviderProps) => {
 
         if (shouldUseGroups && organizationId) {
             try {
-                posthog.group('organization', organizationId, {
+                posthogClient.group('organization', organizationId, {
                     organization_id: organizationId,
                     deployment_env: deploymentEnv,
                 })
-            } catch (error) {
+            } catch (_error) {
                 if (configuredTargetingMode === 'auto') {
                     setAutoGroupFallbackToPersonOnly(true)
                 }
             }
         }
 
-        posthog.reloadFeatureFlags()
+        posthogClient.reloadFeatureFlags()
     }, [
         autoGroupFallbackToPersonOnly,
         configuredTargetingMode,

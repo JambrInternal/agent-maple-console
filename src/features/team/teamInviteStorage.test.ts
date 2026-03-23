@@ -8,6 +8,14 @@ import {
     upsertInviteByEmail,
 } from './teamInviteStorage'
 
+interface PendingInviteRecord {
+    email: string
+    id?: string
+    isUsed?: boolean
+    usedAt?: string | null
+    expiresAt?: string | null
+}
+
 describe('teamInviteStorage', () => {
     it('normalizes email consistently', () => {
         expect(normalizeEmail('  USER@Example.com ')).toBe('user@example.com')
@@ -43,29 +51,28 @@ describe('teamInviteStorage', () => {
     })
 
     it('filters out invites already represented by active members', () => {
-        const invites = [
+        const invites: PendingInviteRecord[] = [
             { email: 'member@example.com' },
             { email: 'invitee@example.com' },
         ]
         const set = new Set(['member@example.com'])
-        const filtered = filterOutKnownMemberInvites(invites as any[], set)
+        const filtered = filterOutKnownMemberInvites(invites, set)
         expect(filtered).toHaveLength(1)
         expect(filtered[0].email).toBe('invitee@example.com')
     })
 
     it('upserts and removes invites by normalized email', () => {
-        const initial = [
+        const initial: PendingInviteRecord[] = [
             { email: 'first@example.com', id: '1' },
             { email: 'second@example.com', id: '2' },
         ]
 
-        const upserted = upsertInviteByEmail(initial as any[], { email: 'SECOND@example.com', id: '3' } as any)
+        const upserted = upsertInviteByEmail(initial, { email: 'SECOND@example.com', id: '3' })
         expect(upserted).toHaveLength(2)
-        expect(upserted.find((x: any) => x.email.toLowerCase() === 'second@example.com')?.id).toBe('3')
+        expect(upserted.find((invite) => invite.email.toLowerCase() === 'second@example.com')?.id).toBe('3')
 
-        const removed = removeInviteByEmail(upserted as any[], ' First@Example.com ')
+        const removed = removeInviteByEmail(upserted, ' First@Example.com ')
         expect(removed).toHaveLength(1)
         expect(removed[0].email.toLowerCase()).toBe('second@example.com')
     })
 })
-

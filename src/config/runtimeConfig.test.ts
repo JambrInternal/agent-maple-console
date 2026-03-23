@@ -1,33 +1,61 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getAppConfig } from './runtimeConfig';
 
+type TestWindow = Window & { __APP_CONFIG__?: unknown };
+type MutableEnv = Record<string, string | undefined>;
+
+const getTestWindow = (): TestWindow => window as TestWindow;
+const getMutableEnv = (): MutableEnv => import.meta.env as unknown as MutableEnv;
+const clearRuntimeConfig = (): void => {
+    delete getTestWindow().__APP_CONFIG__;
+};
+const assignRuntimeConfig = (value: unknown): void => {
+    getTestWindow().__APP_CONFIG__ = value;
+};
+const clearEnv = (): void => {
+    const env = getMutableEnv();
+    Object.keys(env).forEach((key) => {
+        delete env[key];
+    });
+};
+const restoreEnvFromSnapshot = (snapshot: MutableEnv): void => {
+    clearEnv();
+    const env = getMutableEnv();
+    Object.entries(snapshot).forEach(([key, value]) => {
+        if (typeof value === 'undefined') {
+            delete env[key];
+        } else {
+            env[key] = value;
+        }
+    });
+};
+const setEnvValue = (key: string, value: string | undefined): void => {
+    const env = getMutableEnv();
+    if (typeof value === 'undefined') {
+        delete env[key];
+    } else {
+        env[key] = value;
+    }
+};
+
 describe('getAppConfig', () => {
-    const originalEnv = { ...import.meta.env };
+    const originalEnv = { ...getMutableEnv() };
 
     beforeEach(() => {
-        // Clear window.__APP_CONFIG__ before each test
-        if (typeof window !== 'undefined') {
-            delete (window as any).__APP_CONFIG__;
-        }
-        // Reset import.meta.env
-        Object.keys(import.meta.env).forEach(key => {
-            delete (import.meta.env as any)[key];
-        });
+        clearRuntimeConfig();
+        clearEnv();
     });
 
     afterEach(() => {
-        // Restore original env
-        Object.keys(originalEnv).forEach(key => {
-            (import.meta.env as any)[key] = originalEnv[key];
-        });
+        restoreEnvFromSnapshot(originalEnv);
     });
 
     describe('precedence logic', () => {
         it('uses runtime config over import.meta.env and defaults', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: 'https://runtime.example.com',
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
 
             const config = getAppConfig();
 
@@ -35,8 +63,8 @@ describe('getAppConfig', () => {
         });
 
         it('uses import.meta.env when runtime config is not available', () => {
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
-            (import.meta.env as any).VITE_AWS_REGION = 'eu-west-1';
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
+            setEnvValue('VITE_AWS_REGION', 'eu-west-1');
 
             const config = getAppConfig();
 
@@ -60,10 +88,10 @@ describe('getAppConfig', () => {
         });
 
         it('uses import.meta.env when runtime config value is empty string', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: '',
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
 
             const config = getAppConfig();
 
@@ -71,10 +99,10 @@ describe('getAppConfig', () => {
         });
 
         it('uses import.meta.env when runtime config value is whitespace-only', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: '   ',
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
 
             const config = getAppConfig();
 
@@ -82,10 +110,10 @@ describe('getAppConfig', () => {
         });
 
         it('uses defaults when all values are empty strings', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: '',
-            };
-            (import.meta.env as any).VITE_API_URL = '';
+            });
+            setEnvValue('VITE_API_URL', '');
 
             const config = getAppConfig();
 
@@ -93,9 +121,9 @@ describe('getAppConfig', () => {
         });
 
         it('trims whitespace from runtime config values', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: '  https://runtime.example.com  ',
-            };
+            });
 
             const config = getAppConfig();
 
@@ -105,12 +133,12 @@ describe('getAppConfig', () => {
 
     describe('blank string handling', () => {
         it('treats empty string as invalid and falls through to next value', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: '',
                 AWS_REGION: '',
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
-            (import.meta.env as any).VITE_AWS_REGION = '';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
+            setEnvValue('VITE_AWS_REGION', '');
 
             const config = getAppConfig();
 
@@ -119,11 +147,11 @@ describe('getAppConfig', () => {
         });
 
         it('treats null and undefined as invalid', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: null,
                 AWS_REGION: undefined,
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
 
             const config = getAppConfig();
 
@@ -132,11 +160,11 @@ describe('getAppConfig', () => {
         });
 
         it('treats non-string values as invalid', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: 123,
                 AWS_REGION: { value: 'test' },
-            };
-            (import.meta.env as any).VITE_API_URL = 'https://vite.example.com';
+            });
+            setEnvValue('VITE_API_URL', 'https://vite.example.com');
 
             const config = getAppConfig();
 
@@ -154,7 +182,7 @@ describe('getAppConfig', () => {
         });
 
         it('handles window.__APP_CONFIG__ being null', () => {
-            (window as any).__APP_CONFIG__ = null;
+            assignRuntimeConfig(null);
 
             const config = getAppConfig();
 
@@ -162,7 +190,7 @@ describe('getAppConfig', () => {
         });
 
         it('handles window.__APP_CONFIG__ not being an object', () => {
-            (window as any).__APP_CONFIG__ = 'not an object';
+            assignRuntimeConfig('not an object');
 
             const config = getAppConfig();
 
@@ -188,7 +216,7 @@ describe('getAppConfig', () => {
 
     describe('production runtime config', () => {
         it('correctly resolves all fields from runtime config in production scenario', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: 'https://api.prod.example.com',
                 AWS_REGION: 'us-west-2',
                 COGNITO_USER_POOL_ID: 'us-west-2_prodPoolId',
@@ -199,7 +227,7 @@ describe('getAppConfig', () => {
                 POSTHOG_ENABLED: 'true',
                 APP_ENV: 'prod',
                 POSTHOG_TARGETING_MODE: 'group_and_person',
-            };
+            });
 
             const config = getAppConfig();
 
@@ -216,10 +244,10 @@ describe('getAppConfig', () => {
         });
 
         it('allows mixed sources (some runtime, some env, some defaults)', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 API_URL: 'https://api.prod.example.com',
-            };
-            (import.meta.env as any).VITE_AWS_REGION = 'eu-central-1';
+            });
+            setEnvValue('VITE_AWS_REGION', 'eu-central-1');
 
             const config = getAppConfig();
 
@@ -232,10 +260,10 @@ describe('getAppConfig', () => {
         });
 
         it('prefers runtime git commit over build-time env commit', () => {
-            (window as any).__APP_CONFIG__ = {
+            assignRuntimeConfig({
                 GIT_COMMIT: 'runtime123',
-            };
-            (import.meta.env as any).VITE_GIT_COMMIT = 'env456';
+            });
+            setEnvValue('VITE_GIT_COMMIT', 'env456');
 
             const config = getAppConfig();
 
@@ -243,7 +271,7 @@ describe('getAppConfig', () => {
         });
 
         it('uses build-time env git commit when runtime commit is missing', () => {
-            (import.meta.env as any).VITE_GIT_COMMIT = 'env456';
+            setEnvValue('VITE_GIT_COMMIT', 'env456');
 
             const config = getAppConfig();
 

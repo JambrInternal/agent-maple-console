@@ -124,9 +124,12 @@ export interface ToolSkill {
     name: string;
     description: string;
     isEnabled: boolean;
-    configuration: Record<string, any>;
+    configuration: Record<string, JsonValue>;
     createdAt: string;
 }
+
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 // ============================================
 // Insights / Metrics

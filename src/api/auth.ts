@@ -45,12 +45,7 @@ export interface ResendCodeResult {
 
 const DEFAULT_SIGNUP_ROLE = 'INSTRUCTOR';
 
-let syncUserInFlight: Promise<void> | null = null;
 let signOutInFlight: Promise<void> | null = null;
-
-const SYNC_USER_RETRY_DELAY_MS = 200;
-
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const DEFAULT_GIVEN_NAME = 'Invited';
 const DEFAULT_FAMILY_NAME = 'User';
@@ -78,46 +73,6 @@ const buildSignupNameAttributes = (email: string): { givenName: string; familyNa
     return { givenName, familyName };
 };
 
-const isTransientSyncConcurrencyError = (error: unknown): boolean => {
-    const message = String(
-        error && typeof error === 'object' && 'message' in error
-            ? (error as { message?: unknown }).message
-            : error ?? ''
-    ).toLowerCase();
-
-    return (
-        message.includes('provisioning a new connection') ||
-        message.includes('concurrent operations are not permitted') ||
-        message.includes('sqlalche.me/e/20/isce')
-    );
-};
-
-const performSyncUser = async (): Promise<void> => {
-    try {
-        await apiFetch('/user/sync', { method: 'POST' });
-    } catch (error) {
-        if (!isTransientSyncConcurrencyError(error)) {
-            throw error;
-        }
-
-        logger.warn('Retrying user sync after transient concurrent connection provisioning error');
-        await sleep(SYNC_USER_RETRY_DELAY_MS);
-        await apiFetch('/user/sync', { method: 'POST' });
-    }
-};
-
-const syncUser = async (): Promise<void> => {
-    if (syncUserInFlight) {
-        return syncUserInFlight;
-    }
-
-    syncUserInFlight = performSyncUser().finally(() => {
-        syncUserInFlight = null;
-    });
-
-    return syncUserInFlight;
-};
-
 const signOutOnce = async (): Promise<void> => {
     if (signOutInFlight) {
         return signOutInFlight;
@@ -132,7 +87,6 @@ const signOutOnce = async (): Promise<void> => {
 
 // Test hook to clear module-level sync state between unit tests.
 export const __resetAuthSyncStateForTests = (): void => {
-    syncUserInFlight = null;
     signOutInFlight = null;
 };
 
@@ -182,13 +136,13 @@ export async function login(email: string, password: string): Promise<AuthSessio
     let signInResult;
     try {
         signInResult = await signIn({ username: email, password });
-    } catch (e: any) {
-        const msg = String(e?.message || e);
-        if (msg.includes('already signed in user')) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.includes('already signed in user')) {
             await signOutOnce();
             signInResult = await signIn({ username: email, password });
         } else {
-            throw e;
+            throw error;
         }
     }
 
@@ -198,7 +152,6 @@ export async function login(email: string, password: string): Promise<AuthSessio
         const session = await fetchAuthSession();
         const cognitoUser = await getCurrentUser();
         const token = session.tokens?.idToken?.toString() || null;
-        // await syncUser();
         const role = await determineRoleAndSetAdminMode();
 
         return {
@@ -325,7 +278,6 @@ export async function getSessionUser(): Promise<User | null> {
             localStorage.setItem('am_auth_token', token);
         }
 
-        // await syncUser();
         const role = await determineRoleAndSetAdminMode();
         const attributes = await fetchUserAttributes();
         const email = attributes.email || cognitoUser.username;
