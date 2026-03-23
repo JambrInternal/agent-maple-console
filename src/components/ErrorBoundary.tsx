@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './ui';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -33,12 +34,12 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
           <div style={{ margin: '1rem 0' }}>
             {this.state.error?.message || 'Unknown error'}
           </div>
-          <button className="am-btn-secondary" onClick={this.handleReload} style={{ marginRight: '1rem' }}>
+          <Button type="button" onClick={this.handleReload} style={{ marginRight: '1rem' }} variant="secondary">
             Reload
-          </button>
-          <button className="am-btn-secondary" onClick={this.handleClearSession}>
+          </Button>
+          <Button type="button" onClick={this.handleClearSession} variant="secondary">
             Clear session
-          </button>
+          </Button>
         </div>
       );
     }

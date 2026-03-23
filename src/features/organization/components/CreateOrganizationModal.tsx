@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button, Input, Textarea } from '../../../components/ui'
 
 export default function CreateOrganizationModal({
     isOpen,
@@ -30,9 +31,9 @@ export default function CreateOrganizationModal({
                     <h2 className="am-modal-title" id="create-org-title">
                         Create Organization
                     </h2>
-                    <button type="button" className="am-icon-button" onClick={onClose} aria-label="Close">
+                    <Button type="button" variant="icon" size="icon" onClick={onClose} aria-label="Close">
                         ×
-                    </button>
+                    </Button>
                 </div>
                 <form onSubmit={onSubmit}>
                     <div className="am-text-2" style={{ marginBottom: '1rem' }}>
@@ -48,9 +49,8 @@ export default function CreateOrganizationModal({
                             <label className="am-label" htmlFor="org-name">
                                 Organization Name
                             </label>
-                            <input
+                            <Input
                                 id="org-name"
-                                className="am-input"
                                 type="text"
                                 placeholder="Enter organization name"
                                 value={name}
@@ -63,9 +63,8 @@ export default function CreateOrganizationModal({
                             <label className="am-label" htmlFor="org-description">
                                 Description (Optional)
                             </label>
-                            <textarea
+                            <Textarea
                                 id="org-description"
-                                className="am-input"
                                 placeholder="Enter organization description"
                                 value={description}
                                 onChange={(event) => onDescriptionChange(event.target.value)}
@@ -78,9 +77,8 @@ export default function CreateOrganizationModal({
                             <label className="am-label" htmlFor="org-twilio">
                                 Twilio Phone Number (Optional)
                             </label>
-                            <input
+                            <Input
                                 id="org-twilio"
-                                className="am-input"
                                 type="text"
                                 placeholder="+1234567890"
                                 value={twilioNumber}
@@ -112,12 +110,12 @@ export default function CreateOrganizationModal({
                         </div>
                     </div>
                     <div className="am-modal-footer">
-                        <button type="button" className="am-btn-secondary" onClick={onClose} disabled={isCreating}>
+                        <Button type="button" variant="secondary" onClick={onClose} disabled={isCreating}>
                             Cancel
-                        </button>
-                        <button type="submit" className="am-btn-primary" disabled={isCreating}>
+                        </Button>
+                        <Button type="submit" variant="primary" disabled={isCreating}>
                             {isCreating ? 'Creating...' : 'Create Organization'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

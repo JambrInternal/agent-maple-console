@@ -1,5 +1,6 @@
 import React from 'react'
 import { Plus } from 'lucide-react'
+import { Button } from '../../../components/ui'
 
 export default function TeamManagementHeader({ onInviteClick }) {
     return (
@@ -10,14 +11,14 @@ export default function TeamManagementHeader({ onInviteClick }) {
                     Manage roles and access for your organization.
                 </p>
             </div>
-            <button
-                className="am-btn-primary"
+            <Button
                 type="button"
+                variant="primary"
                 onClick={onInviteClick}
             >
                 <Plus size={16} />
                 <span>Invite Member</span>
-            </button>
+            </Button>
         </div>
     )
 }

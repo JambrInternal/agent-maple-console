@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button } from '../../../components/ui'
 
 const inviteNoticeStyle = {
     marginBottom: '1rem',
@@ -54,24 +55,24 @@ export default function AuthInviteControls({
 
             {authMode !== 'confirm' && (
                 <div style={switchContainerStyle}>
-                    <button
+                    <Button
                         type="button"
-                        className={authMode === 'signin' ? 'am-btn-primary' : 'am-btn-secondary'}
+                        variant={authMode === 'signin' ? 'primary' : 'secondary'}
                         style={switchButtonStyle}
                         onClick={onSwitchToSignIn}
                         disabled={isSubmitting}
                     >
                         Sign In
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
-                        className={authMode === 'register' ? 'am-btn-primary' : 'am-btn-secondary'}
+                        variant={authMode === 'register' ? 'primary' : 'secondary'}
                         style={switchButtonStyle}
                         onClick={onSwitchToRegister}
                         disabled={isSubmitting}
                     >
                         Create Account
-                    </button>
+                    </Button>
                 </div>
             )}
         </>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { AlertCircle, Lock, Mail, Loader2, User } from 'lucide-react'
+import { Button, Input } from '../../../components/ui'
 
 const fieldStyle = {
     display: 'flex',
@@ -108,10 +109,9 @@ export default function InvitationAuthCard({
                                     color: 'var(--am-text-2)',
                                 }}
                             />
-                            <input
+                            <Input
                                 id="invite-email"
                                 type="email"
-                                className="am-input"
                                 style={{ width: '100%', paddingLeft: '2.45rem' }}
                                 placeholder="name@example.com"
                                 value={email}
@@ -136,10 +136,9 @@ export default function InvitationAuthCard({
                                     color: 'var(--am-text-2)',
                                 }}
                             />
-                            <input
+                            <Input
                                 id="invite-given-name"
                                 type="text"
-                                className="am-input"
                                 style={{ width: '100%', paddingLeft: '2.45rem' }}
                                 placeholder="First name"
                                 value={givenName}
@@ -163,10 +162,9 @@ export default function InvitationAuthCard({
                                     color: 'var(--am-text-2)',
                                 }}
                             />
-                            <input
+                            <Input
                                 id="invite-family-name"
                                 type="text"
-                                className="am-input"
                                 style={{ width: '100%', paddingLeft: '2.45rem' }}
                                 placeholder="Last name"
                                 value={familyName}
@@ -194,10 +192,9 @@ export default function InvitationAuthCard({
                                     color: 'var(--am-text-2)',
                                 }}
                             />
-                            <input
+                            <Input
                                 id="invite-password"
                                 type="password"
-                                className="am-input"
                                 style={{ width: '100%', paddingLeft: '2.45rem' }}
                                 placeholder="••••••••"
                                 value={password}
@@ -212,10 +209,9 @@ export default function InvitationAuthCard({
                     {isConfirmMode ? (
                         <div style={fieldStyle}>
                             <label htmlFor="invite-confirmation-code" style={labelStyle}>Confirmation Code</label>
-                            <input
+                            <Input
                                 id="invite-confirmation-code"
                                 type="text"
-                                className="am-input"
                                 placeholder="123456"
                                 value={confirmationCode}
                                 onChange={(event) => onConfirmationCodeChange(event.target.value)}
@@ -228,8 +224,9 @@ export default function InvitationAuthCard({
 
                     {isConfirmMode ? (
                         <div style={{ fontSize: '0.82rem' }}>
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
                                 onClick={onResendCode}
                                 disabled={resendCooldown > 0 || isResending || isSubmitting}
                                 style={{
@@ -247,19 +244,19 @@ export default function InvitationAuthCard({
                                     : isResending
                                     ? 'Sending...'
                                     : 'Resend code'}
-                            </button>
+                            </Button>
                         </div>
                     ) : null}
 
-                    <button
+                    <Button
                         type="submit"
-                        className="am-btn-primary"
+                        variant="primary"
                         style={submitButtonStyle}
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : null}
                         {isConfirmMode ? 'Confirm & Continue' : 'Continue'}
-                    </button>
+                    </Button>
                 </form>
             </div>
         </div>

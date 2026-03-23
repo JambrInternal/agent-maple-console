@@ -1,5 +1,6 @@
 import React from 'react'
 import { X } from 'lucide-react'
+import { Button, Input } from '../../../components/ui'
 
 export default function InviteMemberModal({
     isOpen,
@@ -28,15 +29,16 @@ export default function InviteMemberModal({
             >
                 <div className="am-modal-header">
                     <h2 id="invite-member-title" className="am-modal-title">Invite Team Member</h2>
-                    <button
+                    <Button
                         type="button"
-                        className="am-icon-button"
+                        variant="icon"
+                        size="icon"
                         onClick={onClose}
                         disabled={isInviting}
                         aria-label="Close invite modal"
                     >
                         <X size={20} />
-                    </button>
+                    </Button>
                 </div>
                 <form onSubmit={onSubmit}>
                     <div className="am-form">
@@ -47,10 +49,9 @@ export default function InviteMemberModal({
                         )}
                         <div className="am-form-field">
                             <label className="am-label" htmlFor="email">Email Address</label>
-                            <input
+                            <Input
                                 id="email"
                                 type="email"
-                                className="am-input"
                                 placeholder="colleague@company.com"
                                 value={inviteEmail}
                                 onChange={(event) => onEmailChange(event.target.value)}
@@ -60,21 +61,21 @@ export default function InviteMemberModal({
                         </div>
                     </div>
                     <div className="am-modal-footer">
-                        <button
+                        <Button
                             type="button"
-                            className="am-btn-secondary"
+                            variant="secondary"
                             onClick={onClose}
                             disabled={isInviting}
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="am-btn-primary"
+                            variant="primary"
                             disabled={isInviting}
                         >
                             {isInviting ? 'Inviting...' : 'Send Invitation'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

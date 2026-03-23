@@ -5,6 +5,7 @@ import { getContacts } from '../services/people'
 import { useApiQuery } from '../hooks/useApiQuery'
 import QueryError from '../components/QueryError';
 import ContactsTable from '../features/contacts/components/ContactsTable'
+import { Button } from '../components/ui'
 
 const Contacts = () => {
     const { orgId, projId } = useParams()
@@ -33,10 +34,10 @@ const Contacts = () => {
                             Manage project contacts and escalation points for the AI agent.
                         </p>
                     </div>
-                    <button className="am-btn-primary" type="button" disabled>
+                    <Button type="button" variant="primary" disabled>
                         <Plus size={16} />
                         <span>Add Contact</span>
-                    </button>
+                    </Button>
                 </div>
 
                 {loading && (

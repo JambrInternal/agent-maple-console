@@ -1,5 +1,6 @@
 import React from 'react'
 import { Loader2, Lock, Mail } from 'lucide-react'
+import { Button, Input } from '../../../components/ui'
 
 const formStyle = {
     display: 'flex',
@@ -80,9 +81,8 @@ function EmailField({ value, onChange }) {
             <AuthFieldLabel>Email Address</AuthFieldLabel>
             <div style={iconContainerStyle}>
                 <Mail size={16} style={iconStyle} />
-                <input
+                <Input
                     type="email"
-                    className="am-input"
                     style={inputWithIconStyle}
                     placeholder="name@company.com"
                     value={value}
@@ -106,9 +106,8 @@ function PasswordField({
             <AuthFieldLabel>{label}</AuthFieldLabel>
             <div style={iconContainerStyle}>
                 <Lock size={16} style={iconStyle} />
-                <input
+                <Input
                     type="password"
-                    className="am-input"
                     style={inputWithIconStyle}
                     placeholder="••••••••"
                     value={value}
@@ -125,9 +124,8 @@ function ConfirmCodeField({ value, onChange }) {
     return (
         <div style={fieldContainerStyle}>
             <AuthFieldLabel>Confirmation Code</AuthFieldLabel>
-            <input
+            <Input
                 type="text"
-                className="am-input"
                 style={inputBaseStyle}
                 placeholder="123456"
                 value={value}
@@ -141,14 +139,14 @@ function ConfirmCodeField({ value, onChange }) {
 
 function SubmitButton({ isSubmitting, label }) {
     return (
-        <button
+        <Button
             type="submit"
-            className="am-btn-primary"
+            variant="primary"
             style={primaryButtonStyle}
             disabled={isSubmitting}
         >
             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : label}
-        </button>
+        </Button>
     )
 }
 
@@ -191,9 +189,8 @@ export default function AuthForms({
                 ) : (
                     <div style={fieldContainerStyle}>
                         <AuthFieldLabel>Email Address</AuthFieldLabel>
-                        <input
+                        <Input
                             type="email"
-                            className="am-input"
                             style={inputBaseStyle}
                             value={email}
                             onChange={(e) => onEmailChange(e.target.value)}
@@ -210,15 +207,15 @@ export default function AuthForms({
 
                 <SubmitButton isSubmitting={isSubmitting} label="Confirm Account" />
 
-                <button
+                <Button
                     type="button"
-                    className="am-btn-secondary"
+                    variant="secondary"
                     style={secondaryButtonStyle}
                     onClick={onBackToSignIn}
                     disabled={isSubmitting}
                 >
                     Back To Sign In
-                </button>
+                </Button>
             </form>
         )
     }
@@ -258,15 +255,15 @@ export default function AuthForms({
 
                 <SubmitButton isSubmitting={isSubmitting} label="Send Reset Code" />
 
-                <button
+                <Button
                     type="button"
-                    className="am-btn-secondary"
+                    variant="secondary"
                     style={secondaryButtonStyle}
                     onClick={onBackToSignIn}
                     disabled={isSubmitting}
                 >
                     Back To Sign In
-                </button>
+                </Button>
             </form>
         )
     }
@@ -297,15 +294,15 @@ export default function AuthForms({
 
                 <SubmitButton isSubmitting={isSubmitting} label="Reset Password" />
 
-                <button
+                <Button
                     type="button"
-                    className="am-btn-secondary"
+                    variant="secondary"
                     style={secondaryButtonStyle}
                     onClick={onBackToSignIn}
                     disabled={isSubmitting}
                 >
                     Back To Sign In
-                </button>
+                </Button>
             </form>
         )
     }
@@ -328,15 +325,15 @@ export default function AuthForms({
             <SubmitButton isSubmitting={isSubmitting} label="Sign In" />
 
             {!lockEmailToInvite ? (
-                <button
+                <Button
                     type="button"
-                    className="am-btn-secondary"
+                    variant="secondary"
                     style={secondaryButtonStyle}
                     onClick={onForgotPassword}
                     disabled={isSubmitting}
                 >
                     Forgot Password?
-                </button>
+                </Button>
             ) : null}
         </form>
     )

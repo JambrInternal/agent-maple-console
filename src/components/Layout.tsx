@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { getAdminMode } from '../utils/admin'
 import { applyThemeForAdminMode } from '../utils/theme'
 import { dispatchTenantChange } from '../featureFlags/featureFlagService'
+import { Button } from './ui'
 
 const Layout = () => {
     const { orgId } = useParams()
@@ -64,8 +65,9 @@ const Layout = () => {
                     <Breadcrumbs />
                 </div>
                 <div className="am-topbar-right" ref={menuRef}>
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
                         className="am-avatar"
                         aria-label="Account"
                         aria-haspopup="menu"
@@ -73,12 +75,12 @@ const Layout = () => {
                         onClick={() => setMenuOpen((prev) => !prev)}
                     >
                         {initials}
-                    </button>
+                    </Button>
                     {menuOpen && (
                         <div className="am-user-menu" role="menu">
-                            <button type="button" className="am-user-menu-item" onClick={handleLogout}>
+                            <Button type="button" variant="ghost" className="am-user-menu-item" onClick={handleLogout}>
                                 Log out
-                            </button>
+                            </Button>
                         </div>
                     )}
                 </div>

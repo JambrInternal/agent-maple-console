@@ -43,7 +43,7 @@ server.js           # Production Node HTTP server (serves SPA, injects runtime c
 **Key tech:**
 - React 19 + React Router 7 + TanStack Query 5
 - Vite 7 (build) + Vitest 2 (test) + jsdom (test env)
-- TypeScript for services/API layer, JSX for pages/components (mixed .ts/.tsx/.jsx codebase)
+- TypeScript for services/API layer, TSX for /pages and /components
 - AWS Cognito auth via Amplify SDK, tokens in localStorage (`am_` prefix)
 - PostHog for feature flags and analytics
 - openapi-typescript for generated API types
@@ -81,65 +81,15 @@ server.js           # Production Node HTTP server (serves SPA, injects runtime c
 - Pattern: unit test services/utils in TS, component tests in JSX/TSX
 - Add or update tests when behavior changes
 
-## Before Any Work
-
-1. **Read docs**: Start with `agent_docs/product/PRD.md` for requirements
-2. **Check terminology**: Use `agent_docs/product/CORE_CONCEPTS.md` for domain terms
-3. **Review constraints**: See `agent_docs/contributing/AGENT_RULES.md`
-4. **Review testing**: See `agent_docs/contributing/TESTING.md`
-5. **Tooling**: Use `mise` and `.tool-versions` to align Node versioning (20.19.0)
-6. **Backend Sync**: If `src/api/` was not updated in the past 24h, run `npm run generate:api` to regenerate the OpenAPI types, then update API tests.
-7. **Review and Update** `agent_docs/task.md`: One task at a time. Nested tasks/projects/initiatives encouraged. Outline the task, create a broken-down todo list. Take inventory of unfinished tasks. Remove completed tasks older than 1 month. Mark tasks requiring human intervention as complete.
-
-## During Work
-
-- Use correct terminology (Thread, Issue, Contact, Project, Organization)
-- Follow the Industrial Navy design system (`agent_docs/product/BRAND.md`)
-- Reference API contracts in `agent_docs/architecture/BACKEND.md`
-- Add or update tests using Vitest (`agent_docs/contributing/TESTING.md`) when behavior changes
-- When useful, add future work to `agent_docs/task.md`
-
-## After Work (REQUIRED)
-
-**Every agent action must include a docs review.** Ask yourself:
-
-1. Did I learn something that should be documented?
-2. Did I make a change that affects the PRD or architecture?
-3. Are there outdated docs that contradict what I just did?
-4. Always be refactoring content in agent_docs when there is an opportunity.
-5. Update `agent_docs/task.md` — append YYYY-MM-DD to newly completed tasks, take inventory of unfinished tasks, infer broader projects/initiatives, remove completed tasks older than 1 month, mark human-intervention tasks as complete.
-6. If any docs were updated, explain why.
-
-If yes to any, **update the relevant doc**.
-
 ## Constraints
 
 - **Never edit files in `src/api/generated/`** — they are auto-generated. Run `npm run generate:api` instead.
-- **No `console.log`** — use `verboseLogger` from `src/utils/verboseLogger.js`. Scripts in `scripts/` are exempt.
-- **No `==`** — always use `===`.
 - **CI must pass before merge** — lint, test:ci, test:api, build.
-- **agent_docs/ is gitignored** — these are local-only docs, never committed.
 - **Node 20.19.0** — do not change the Node version without updating `.tool-versions`, `mise.toml`, `Dockerfile`, and CI workflows in lockstep.
-- **Don't import React** for JSX — the project uses the automatic JSX transform (`react/react-in-jsx-scope: off`).
 
 ## Docs Structure
 
-```
-agent_docs/
-├── product/           # WHAT we're building
-│   ├── PRD.md         # Requirements (source of truth)
-│   ├── CORE_CONCEPTS.md
-│   └── BRAND.md
-├── architecture/      # HOW it's built
-│   ├── BACKEND.md
-│   └── HIERARCHY.md
-└── contributing/      # HOW to contribute
-    ├── AGENT_RULES.md
-    ├── COPY_RULES.md
-    └── TESTING.md
-├── task.md            # Current task tracking
-└── *.md               # Design/process docs (mockups, wireframes, audits, etc.)
-```
+- `docs/design_token.md` — current design token baseline and normalization guidance
 
 ## Key Terms (use consistently)
 

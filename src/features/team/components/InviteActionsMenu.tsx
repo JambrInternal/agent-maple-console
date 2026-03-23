@@ -1,5 +1,6 @@
 import React from 'react'
 import { MoreHorizontal } from 'lucide-react'
+import { Button } from '../../../components/ui'
 
 export default function InviteActionsMenu({
     member,
@@ -15,9 +16,10 @@ export default function InviteActionsMenu({
             className={`am-row-menu${isOpen ? ' is-open' : ''}`}
             data-invite-menu
         >
-            <button
+            <Button
                 type="button"
-                className="am-icon-button"
+                variant="icon"
+                size="icon"
                 aria-label={`Invite actions for ${member.email}`}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
@@ -25,30 +27,32 @@ export default function InviteActionsMenu({
                 disabled={isBusy}
             >
                 <MoreHorizontal size={16} />
-            </button>
+            </Button>
             {isOpen && (
                 <div
                     className={`am-row-menu-dropdown${openUpward ? ' is-up' : ''}`}
                     role="menu"
                 >
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
                         className="am-row-menu-item"
                         role="menuitem"
                         onClick={onResend}
                         disabled={isBusy}
                     >
                         {isBusy ? 'Resending...' : 'Resend invite'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
+                        variant="ghost"
                         className="am-row-menu-item"
                         role="menuitem"
                         onClick={onCancel}
                         disabled={isBusy}
                     >
                         Cancel invite
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

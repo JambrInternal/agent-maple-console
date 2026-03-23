@@ -1,27 +1,11 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "CERTLY API",
-    "description": "CERTLY API",
+    "title": "Agent Maple API",
+    "description": "Agent Maple API",
     "version": "0.0.1"
   },
   "paths": {
-    "/test-static": {
-      "get": {
-        "summary": "Test Static",
-        "operationId": "test_static_test_static_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/datasources/upload": {
       "post": {
         "tags": [
@@ -1001,7 +985,7 @@
           "File Chunks"
         ],
         "summary": "Delete Chunks Batch",
-        "description": "Delete multiple chunks and their associated Graphiti episodes.\n\nArgs:\n    request: List of chunk IDs to delete\n    db: Database session\n    file_graphiti_service: Service for Graphiti operations\n    current_user: Current authenticated user with permissions\n\nReturns:\n    Success message with count",
+        "description": "Delete multiple chunks and their associated Graphiti episodes.\n\nArgs:\n    request: List of chunk IDs to delete\n    db: Database session\n    file_graphiti_service: Service for Graphiti operations\n    datasource_service: Service for datasource and chunk operations\n    current_user: Current authenticated user with permissions\n\nReturns:\n    Success message with count",
         "operationId": "delete_chunks_batch_file_chunks_delete_batch_post",
         "parameters": [
           {
@@ -2987,6 +2971,205 @@
         }
       }
     },
+    "/realtime_chat": {
+      "get": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Root",
+        "operationId": "root_realtime_chat_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/realtime_chat/twilio-assistant/{tenant_id}": {
+      "get": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Twilio Assistant",
+        "description": "Handle incoming Twilio phone calls via WebSocket media stream.",
+        "operationId": "twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Twilio Assistant",
+        "description": "Handle incoming Twilio phone calls via WebSocket media stream.",
+        "operationId": "twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/realtime_chat/transfer-status-callback": {
+      "get": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Transfer Status Callback",
+        "description": "Handle Twilio status callbacks for transferred calls.",
+        "operationId": "transfer_status_callback_realtime_chat_transfer_status_callback_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Transfer Status Callback",
+        "description": "Handle Twilio status callbacks for transferred calls.",
+        "operationId": "transfer_status_callback_realtime_chat_transfer_status_callback_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/realtime_chat/sms-webhook": {
+      "post": {
+        "tags": [
+          "Realtime Chat"
+        ],
+        "summary": "Sms Webhook",
+        "description": "Handle incoming SMS messages from Twilio.",
+        "operationId": "sms_webhook_realtime_chat_sms_webhook_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/user/sync": {
       "post": {
         "tags": [
@@ -3091,7 +3274,7 @@
           "User"
         ],
         "summary": "Create Tenant With Instructor Permission",
-        "description": "Create a new tenant and grant the user instructor permissions\n\nCreates a new tenant and automatically adds the authenticated user as an instructor\nwith instructor:tenant:write permissions, allowing them to manage the tenant.\n\nx-tenant-id: Tenant ID is not required for this endpoint\n\nArgs:\n    request: TenantCreateRequest containing tenant name and description\n    \nReturns:\n    GenericResponse[TenantResponse]: The created tenant details",
+        "description": "Create a new tenant and grant the user instructor permissions\n\nCreates a new tenant and automatically adds the authenticated user as an instructor\nwith instructor:tenant:write permissions, allowing them to manage the tenant.\n\nx-tenant-id: Tenant ID is not required for this endpoint\n\nArgs:\n    request: TenantCreateRequest containing tenant name and description\n\nReturns:\n    GenericResponse[TenantResponse]: The created tenant details",
         "operationId": "create_tenant_with_instructor_permission_user_tenants_post",
         "parameters": [
           {
@@ -3151,7 +3334,7 @@
           "User"
         ],
         "summary": "Accept Invitation",
-        "description": "Accept an invitation using the provided token\n\nAccepts an invitation using the token provided in the email link.\nThis will add the authenticated user to the specified tenant and grant any permissions\nthat were included in the invitation.\n\nThe user ID is automatically obtained from the authenticated user's token,\nensuring security by preventing token hijacking.\n\nx-tenant-id: Tenant ID is not required for this endpoint\n\nArgs:\n    request: AcceptInvitationRequest containing only the invitation token\n    \nReturns:\n    GenericResponse[InvitationResponse]: The accepted invitation details",
+        "description": "Accept an invitation using the provided token\n\nAccepts an invitation using the token provided in the email link.\nThis will add the authenticated user to the specified tenant and grant any permissions\nthat were included in the invitation.\n\nThe user ID is automatically obtained from the authenticated user's token,\nensuring security by preventing token hijacking.\n\nx-tenant-id: Tenant ID is not required for this endpoint\n\nArgs:\n    request: AcceptInvitationRequest containing only the invitation token\n\nReturns:\n    GenericResponse[InvitationResponse]: The accepted invitation details",
         "operationId": "accept_invitation_user_accept_invitation_post",
         "parameters": [
           {
@@ -4664,281 +4847,6 @@
         }
       }
     },
-    "/realtime_chat": {
-      "get": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Root",
-        "operationId": "root_realtime_chat_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/realtime_chat/twilio-assistant/{tenant_id}": {
-      "get": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Twilio Assistant",
-        "description": "Handle incoming Twilio phone calls",
-        "operationId": "twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get",
-        "parameters": [
-          {
-            "name": "tenant_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Tenant Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Twilio Assistant",
-        "description": "Handle incoming Twilio phone calls",
-        "operationId": "twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post",
-        "parameters": [
-          {
-            "name": "tenant_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Tenant Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/realtime_chat/incoming-call": {
-      "get": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Incoming Call",
-        "description": "Handle incoming Twilio phone calls",
-        "operationId": "incoming_call_realtime_chat_incoming_call_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Incoming Call",
-        "description": "Handle incoming Twilio phone calls",
-        "operationId": "incoming_call_realtime_chat_incoming_call_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/realtime_chat/incoming-call/gather": {
-      "get": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Incoming Call Gather",
-        "description": "Handle gathered digits from incoming Twilio phone calls",
-        "operationId": "incoming_call_gather_realtime_chat_incoming_call_gather_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Incoming Call Gather",
-        "description": "Handle gathered digits from incoming Twilio phone calls",
-        "operationId": "incoming_call_gather_realtime_chat_incoming_call_gather_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/realtime_chat/transfer-status-callback": {
-      "get": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Transfer Status Callback",
-        "description": "Handle Twilio status callbacks for transferred calls.\nThis endpoint is called when a transferred call completes.",
-        "operationId": "transfer_status_callback_realtime_chat_transfer_status_callback_get",
-        "parameters": [
-          {
-            "name": "session_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Session Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Transfer Status Callback",
-        "description": "Handle Twilio status callbacks for transferred calls.\nThis endpoint is called when a transferred call completes.",
-        "operationId": "transfer_status_callback_realtime_chat_transfer_status_callback_post",
-        "parameters": [
-          {
-            "name": "session_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Session Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/realtime_chat/sms-webhook": {
-      "post": {
-        "tags": [
-          "Realtime Chat"
-        ],
-        "summary": "Sms Webhook",
-        "description": "Handle incoming SMS messages from Twilio.\n\nResponds with a message indicating SMS support is coming soon\nand provides the phone number to call instead.",
-        "operationId": "sms_webhook_realtime_chat_sms_webhook_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/debug/trigger-error": {
       "get": {
         "tags": [
@@ -4987,6 +4895,22 @@
         "summary": "Trigger Exception",
         "description": "Trigger an unhandled exception for testing purposes.\n\nThis raises a raw exception (not HTTPException) to test\nhow unhandled exceptions are logged and handled.",
         "operationId": "trigger_exception_debug_trigger_exception_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sentry-debug": {
+      "get": {
+        "summary": "Trigger Error",
+        "operationId": "trigger_error_sentry_debug_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5107,6 +5031,10 @@
             "type": "string",
             "title": "Audio S3 Key"
           },
+          "audio_s3_bucket": {
+            "type": "string",
+            "title": "Audio S3 Bucket"
+          },
           "recording_metadata": {
             "additionalProperties": true,
             "type": "object",
@@ -5133,6 +5061,7 @@
           "session_id",
           "user_id",
           "audio_s3_key",
+          "audio_s3_bucket",
           "recording_metadata",
           "created_at",
           "updated_at"
@@ -5190,138 +5119,10 @@
       },
       "ChatConversationParameterTemplateCreateRequest": {
         "properties": {
-          "template_type": {
-            "type": "string",
-            "enum": [
-              "PARAMETERIZED",
-              "FULL_CONTROLLED"
-            ],
-            "title": "Template Type",
-            "description": "Type of template (parameterized or full_controlled)",
-            "default": "FULL_CONTROLLED"
-          },
-          "runner_instructions": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Runner Instructions",
-            "description": "Instructions for the runner (used in full_controlled mode)"
-          },
           "agent_instructions": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Agent Instructions",
-            "description": "Instructions for the agent (used in full_controlled mode)"
-          },
-          "user_role": {
-            "type": "string",
-            "title": "User Role",
-            "description": "Role of the user (e.g., sales, tech_support, student)"
-          },
-          "conversation_type": {
-            "type": "string",
-            "title": "Conversation Type",
-            "description": "Type of conversation (e.g., sales, tech_support, teaching)"
-          },
-          "ai_role": {
-            "type": "string",
-            "title": "Ai Role",
-            "description": "Role of the AI (e.g., customer, device_user, course_learner)"
-          },
-          "ai_role_characteristics": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Characteristics",
-            "description": "Characteristics of the AI role"
-          },
-          "ai_role_emotional_tone": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Emotional Tone",
-            "description": "Emotional tone of the AI role"
-          },
-          "ai_role_dialogue_strategy": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Dialogue Strategy",
-            "description": "AI role's dialogue strategy"
-          },
-          "ai_role_constraints": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Constraints",
-            "description": "Rules or constraints the AI must follow"
-          },
-          "context_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Content",
-            "description": "Context content"
-          },
-          "context_course_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Course Id",
-            "description": "Context course ID"
-          },
-          "context_file_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context File Id",
-            "description": "Context file ID"
-          },
-          "goals": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Goals",
-            "description": "Goals of the conversation"
-          },
-          "evaluation_criteria": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Evaluation Criteria",
-            "description": "Evaluation criteria"
+            "description": "Instructions for the agent"
           },
           "is_default": {
             "type": "boolean",
@@ -5332,48 +5133,12 @@
         },
         "type": "object",
         "required": [
-          "user_role",
-          "conversation_type",
-          "ai_role",
-          "ai_role_characteristics",
-          "ai_role_emotional_tone",
-          "ai_role_dialogue_strategy",
-          "ai_role_constraints",
-          "goals",
-          "evaluation_criteria"
+          "agent_instructions"
         ],
         "title": "ChatConversationParameterTemplateCreateRequest"
       },
       "ChatConversationParameterTemplatePatchRequest": {
         "properties": {
-          "template_type": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "PARAMETERIZED",
-                  "FULL_CONTROLLED"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Template Type",
-            "description": "Type of template"
-          },
-          "runner_instructions": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Runner Instructions",
-            "description": "Instructions for the runner"
-          },
           "agent_instructions": {
             "anyOf": [
               {
@@ -5385,168 +5150,6 @@
             ],
             "title": "Agent Instructions",
             "description": "Instructions for the agent"
-          },
-          "user_role": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "User Role",
-            "description": "Role of the user"
-          },
-          "conversation_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Conversation Type",
-            "description": "Type of conversation"
-          },
-          "ai_role": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Role",
-            "description": "Role of the AI"
-          },
-          "ai_role_characteristics": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Role Characteristics",
-            "description": "Characteristics of the AI role"
-          },
-          "ai_role_emotional_tone": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Role Emotional Tone",
-            "description": "Emotional tone of the AI role"
-          },
-          "ai_role_dialogue_strategy": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Role Dialogue Strategy",
-            "description": "AI role's dialogue strategy"
-          },
-          "ai_role_constraints": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Role Constraints",
-            "description": "Rules or constraints the AI must follow"
-          },
-          "context_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Content",
-            "description": "Context content"
-          },
-          "context_course_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Course Id",
-            "description": "Context course ID"
-          },
-          "context_file_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context File Id",
-            "description": "Context file ID"
-          },
-          "goals": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Goals",
-            "description": "Goals of the conversation"
-          },
-          "evaluation_criteria": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Evaluation Criteria",
-            "description": "Evaluation criteria"
           },
           "is_default": {
             "anyOf": [
@@ -5571,133 +5174,10 @@
             "title": "Id",
             "description": "Template ID"
           },
-          "template_type": {
-            "type": "string",
-            "title": "Template Type",
-            "description": "Type of template (PARAMETERIZED or FULL_CONTROLLED)"
-          },
-          "runner_instructions": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Runner Instructions",
-            "description": "Instructions for the runner"
-          },
           "agent_instructions": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Agent Instructions",
             "description": "Instructions for the agent"
-          },
-          "user_role": {
-            "type": "string",
-            "title": "User Role",
-            "description": "Role of the user"
-          },
-          "conversation_type": {
-            "type": "string",
-            "title": "Conversation Type",
-            "description": "Type of conversation"
-          },
-          "ai_role": {
-            "type": "string",
-            "title": "Ai Role",
-            "description": "Role of the AI"
-          },
-          "ai_role_characteristics": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Characteristics",
-            "description": "Characteristics of the AI role"
-          },
-          "ai_role_emotional_tone": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Emotional Tone",
-            "description": "Emotional tone of the AI role"
-          },
-          "ai_role_dialogue_strategy": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Dialogue Strategy",
-            "description": "AI role's dialogue strategy"
-          },
-          "ai_role_constraints": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ai Role Constraints",
-            "description": "Rules or constraints the AI must follow"
-          },
-          "context_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Content",
-            "description": "Context content"
-          },
-          "context_course_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Course Id",
-            "description": "Context course ID"
-          },
-          "context_file_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context File Id",
-            "description": "Context file ID"
-          },
-          "goals": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Goals",
-            "description": "Goals of the conversation"
-          },
-          "evaluation_criteria": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Evaluation Criteria",
-            "description": "Evaluation criteria"
           },
           "is_default": {
             "type": "boolean",
@@ -5730,16 +5210,7 @@
         "type": "object",
         "required": [
           "id",
-          "template_type",
-          "user_role",
-          "conversation_type",
-          "ai_role",
-          "ai_role_characteristics",
-          "ai_role_emotional_tone",
-          "ai_role_dialogue_strategy",
-          "ai_role_constraints",
-          "goals",
-          "evaluation_criteria",
+          "agent_instructions",
           "is_default",
           "tenant_id",
           "creator_id",
@@ -6002,7 +5473,10 @@
         "type": "string",
         "enum": [
           "TEXT",
-          "IMAGE_PAGE"
+          "PAGES_CHUNK",
+          "IMAGE_PAGE",
+          "FIGURE",
+          "TABLE"
         ],
         "title": "ElementType"
       },

@@ -1,5 +1,6 @@
 import React from 'react'
 import { AlertCircle } from 'lucide-react'
+import { Button } from '../../../components/ui'
 
 export default function InvitationErrorCard({
     error,
@@ -22,18 +23,18 @@ export default function InvitationErrorCard({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
                     {isEmailMismatch ? (
-                        <button
+                        <Button
                             type="button"
-                            className="am-btn-primary"
+                            variant="primary"
                             onClick={onSignOutAndRetry}
                             disabled={isSigningOut}
                         >
                             {isSigningOut ? 'Signing Out...' : 'Sign Out & Continue'}
-                        </button>
+                        </Button>
                     ) : (
-                        <button type="button" className="am-btn-primary" onClick={onGoToLogin}>
+                        <Button type="button" variant="primary" onClick={onGoToLogin}>
                             Go To Login
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>

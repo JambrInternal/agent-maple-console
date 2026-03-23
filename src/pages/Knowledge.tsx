@@ -30,6 +30,7 @@ import {
     uploadKnowledgeSource,
 } from '../services/knowledge'
 import { withStatus } from '../utils/errors'
+import { Button } from '../components/ui'
 
 const OAUTH_STATE_STORAGE_PREFIX = 'am_knowledge_oauth_state'
 const CLOUD_PROVIDER_META = {
@@ -623,15 +624,15 @@ const Knowledge = () => {
                             Manage your uploaded files and data sources for this project.
                         </p>
                     </div>
-                    <button
-                        className="am-btn-primary"
+                    <Button
                         type="button"
+                        variant="primary"
                         disabled={isUploading || isHandlingOAuthCallback || !scope}
                         onClick={handleUploadButtonClick}
                     >
                         <UploadCloud size={16} />
                         <span>{isUploading ? 'Uploading...' : 'Upload Files'}</span>
-                    </button>
+                    </Button>
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -643,15 +644,16 @@ const Knowledge = () => {
 
                 <div className="am-tabs" role="tablist" aria-label="Knowledge source filters">
                     {KNOWLEDGE_SOURCE_TABS.map((tab) => (
-                        <button
+                        <Button
                             key={tab.key}
                             type="button"
+                            variant="ghost"
                             className={`am-tab ${selectedSourceTab === tab.key ? 'active' : ''}`}
                             aria-pressed={selectedSourceTab === tab.key}
                             onClick={() => handleSourceTabChange(tab.key)}
                         >
                             {tab.label}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
@@ -683,31 +685,31 @@ const Knowledge = () => {
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                        <button
+                                        <Button
                                             type="button"
-                                            className="am-btn-secondary"
+                                            variant="secondary"
                                             disabled={disabled}
                                             onClick={() => startCloudConnect(provider)}
                                         >
                                             {isConnecting ? 'Connecting...' : isConnected ? 'Reconnect' : 'Connect'}
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             type="button"
-                                            className="am-btn-secondary"
+                                            variant="secondary"
                                             disabled={disabled || !isConnected}
                                             onClick={() => openCloudSyncDialog(provider)}
                                         >
                                             Sync
-                                        </button>
+                                        </Button>
                                         {isConnected && (
-                                            <button
+                                            <Button
                                                 type="button"
-                                                className="am-btn-secondary"
+                                                variant="secondary"
                                                 disabled={disabled || isDisconnecting}
                                                 onClick={() => handleCloudDisconnect(provider)}
                                             >
                                                 {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
@@ -731,22 +733,22 @@ const Knowledge = () => {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                             <div className="am-text-2">{selectedCount} source(s) selected</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <button
+                                <Button
                                     type="button"
-                                    className="am-btn-secondary"
+                                    variant="secondary"
                                     onClick={handleClearSelected}
                                     disabled={isBulkDeleting}
                                 >
                                     Clear Selection
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="button"
-                                    className="am-btn-secondary"
+                                    variant="secondary"
                                     onClick={handleBulkDelete}
                                     disabled={isBulkDeleting}
                                 >
                                     {isBulkDeleting ? 'Deleting...' : 'Delete Selected'}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>

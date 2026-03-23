@@ -1,5 +1,6 @@
 import React from 'react'
 import { X } from 'lucide-react'
+import { Button, Textarea } from '../../../components/ui'
 
 export default function KnowledgeCloudSyncDialog({
     isOpen,
@@ -34,15 +35,16 @@ export default function KnowledgeCloudSyncDialog({
                     <h2 className="am-modal-title" id="knowledge-sync-title">
                         Sync {providerLabel}
                     </h2>
-                    <button
+                    <Button
                         type="button"
-                        className="am-icon-button"
+                        variant="icon"
+                        size="icon"
                         onClick={onClose}
                         disabled={isSubmitting}
                         aria-label="Close"
                     >
                         <X size={16} />
-                    </button>
+                    </Button>
                 </div>
 
                 <form className="am-form" onSubmit={onSubmit}>
@@ -50,9 +52,8 @@ export default function KnowledgeCloudSyncDialog({
                         <label className="am-label" htmlFor="knowledge-folder-ids">
                             Folder IDs (Optional)
                         </label>
-                        <textarea
+                        <Textarea
                             id="knowledge-folder-ids"
-                            className="am-input"
                             rows={5}
                             value={folderInput}
                             onChange={(event) => onFolderInputChange(event.target.value)}
@@ -98,16 +99,15 @@ export default function KnowledgeCloudSyncDialog({
                     </div>
 
                     <div className="am-modal-footer">
-                        <button type="button" className="am-btn-secondary" onClick={onClose} disabled={isSubmitting}>
+                        <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
                             Cancel
-                        </button>
-                        <button type="submit" className="am-btn-primary" disabled={isSubmitting}>
+                        </Button>
+                        <Button type="submit" variant="primary" disabled={isSubmitting}>
                             {isSubmitting ? 'Starting Sync...' : `Start ${providerLabel} Sync`}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>
         </div>
     )
 }
-

@@ -1,3 +1,6 @@
+@import './theme/tokens.css';
+@import './components/ui/ui.css';
+
 :root {
     /* Colors - Industrial Navy Theme */
     --am-bg-0: #020617;

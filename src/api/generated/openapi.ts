@@ -4,23 +4,6 @@
  */
 
 export interface paths {
-    "/test-static": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Test Static */
-        get: operations["test_static_test_static_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/datasources/upload": {
         parameters: {
             query?: never;
@@ -484,6 +467,7 @@ export interface paths {
          *         request: List of chunk IDs to delete
          *         db: Database session
          *         file_graphiti_service: Service for Graphiti operations
+         *         datasource_service: Service for datasource and chunk operations
          *         current_user: Current authenticated user with permissions
          *
          *     Returns:
@@ -1019,6 +1003,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/realtime_chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Root */
+        get: operations["root_realtime_chat_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/realtime_chat/twilio-assistant/{tenant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Twilio Assistant
+         * @description Handle incoming Twilio phone calls via WebSocket media stream.
+         */
+        get: operations["twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get"];
+        put?: never;
+        /**
+         * Twilio Assistant
+         * @description Handle incoming Twilio phone calls via WebSocket media stream.
+         */
+        post: operations["twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/realtime_chat/transfer-status-callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Transfer Status Callback
+         * @description Handle Twilio status callbacks for transferred calls.
+         */
+        get: operations["transfer_status_callback_realtime_chat_transfer_status_callback_get"];
+        put?: never;
+        /**
+         * Transfer Status Callback
+         * @description Handle Twilio status callbacks for transferred calls.
+         */
+        post: operations["transfer_status_callback_realtime_chat_transfer_status_callback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/realtime_chat/sms-webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sms Webhook
+         * @description Handle incoming SMS messages from Twilio.
+         */
+        post: operations["sms_webhook_realtime_chat_sms_webhook_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/user/sync": {
         parameters: {
             query?: never;
@@ -1389,144 +1458,6 @@ export interface paths {
         patch: operations["update_issue_issues__issue_id__patch"];
         trace?: never;
     };
-    "/realtime_chat": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Root */
-        get: operations["root_realtime_chat_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/realtime_chat/twilio-assistant/{tenant_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Twilio Assistant
-         * @description Handle incoming Twilio phone calls
-         */
-        get: operations["twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get"];
-        put?: never;
-        /**
-         * Twilio Assistant
-         * @description Handle incoming Twilio phone calls
-         */
-        post: operations["twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/realtime_chat/incoming-call": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Incoming Call
-         * @description Handle incoming Twilio phone calls
-         */
-        get: operations["incoming_call_realtime_chat_incoming_call_get"];
-        put?: never;
-        /**
-         * Incoming Call
-         * @description Handle incoming Twilio phone calls
-         */
-        post: operations["incoming_call_realtime_chat_incoming_call_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/realtime_chat/incoming-call/gather": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Incoming Call Gather
-         * @description Handle gathered digits from incoming Twilio phone calls
-         */
-        get: operations["incoming_call_gather_realtime_chat_incoming_call_gather_get"];
-        put?: never;
-        /**
-         * Incoming Call Gather
-         * @description Handle gathered digits from incoming Twilio phone calls
-         */
-        post: operations["incoming_call_gather_realtime_chat_incoming_call_gather_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/realtime_chat/transfer-status-callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Transfer Status Callback
-         * @description Handle Twilio status callbacks for transferred calls.
-         *     This endpoint is called when a transferred call completes.
-         */
-        get: operations["transfer_status_callback_realtime_chat_transfer_status_callback_get"];
-        put?: never;
-        /**
-         * Transfer Status Callback
-         * @description Handle Twilio status callbacks for transferred calls.
-         *     This endpoint is called when a transferred call completes.
-         */
-        post: operations["transfer_status_callback_realtime_chat_transfer_status_callback_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/realtime_chat/sms-webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sms Webhook
-         * @description Handle incoming SMS messages from Twilio.
-         *
-         *     Responds with a message indicating SMS support is coming soon
-         *     and provides the phone number to call instead.
-         */
-        post: operations["sms_webhook_realtime_chat_sms_webhook_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/debug/trigger-error": {
         parameters: {
             query?: never;
@@ -1593,6 +1524,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sentry-debug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Error */
+        get: operations["trigger_error_sentry_debug_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1642,6 +1590,8 @@ export interface components {
             template_id?: number | null;
             /** Audio S3 Key */
             audio_s3_key: string;
+            /** Audio S3 Bucket */
+            audio_s3_bucket: string;
             /** Recording Metadata */
             recording_metadata: {
                 [key: string]: unknown;
@@ -1691,82 +1641,10 @@ export interface components {
         /** ChatConversationParameterTemplateCreateRequest */
         ChatConversationParameterTemplateCreateRequest: {
             /**
-             * Template Type
-             * @description Type of template (parameterized or full_controlled)
-             * @default FULL_CONTROLLED
-             * @enum {string}
-             */
-            template_type: "PARAMETERIZED" | "FULL_CONTROLLED";
-            /**
-             * Runner Instructions
-             * @description Instructions for the runner (used in full_controlled mode)
-             */
-            runner_instructions?: string | null;
-            /**
              * Agent Instructions
-             * @description Instructions for the agent (used in full_controlled mode)
+             * @description Instructions for the agent
              */
-            agent_instructions?: string | null;
-            /**
-             * User Role
-             * @description Role of the user (e.g., sales, tech_support, student)
-             */
-            user_role: string;
-            /**
-             * Conversation Type
-             * @description Type of conversation (e.g., sales, tech_support, teaching)
-             */
-            conversation_type: string;
-            /**
-             * Ai Role
-             * @description Role of the AI (e.g., customer, device_user, course_learner)
-             */
-            ai_role: string;
-            /**
-             * Ai Role Characteristics
-             * @description Characteristics of the AI role
-             */
-            ai_role_characteristics: string[];
-            /**
-             * Ai Role Emotional Tone
-             * @description Emotional tone of the AI role
-             */
-            ai_role_emotional_tone: string[];
-            /**
-             * Ai Role Dialogue Strategy
-             * @description AI role's dialogue strategy
-             */
-            ai_role_dialogue_strategy: string[];
-            /**
-             * Ai Role Constraints
-             * @description Rules or constraints the AI must follow
-             */
-            ai_role_constraints: string[];
-            /**
-             * Context Content
-             * @description Context content
-             */
-            context_content?: string | null;
-            /**
-             * Context Course Id
-             * @description Context course ID
-             */
-            context_course_id?: number | null;
-            /**
-             * Context File Id
-             * @description Context file ID
-             */
-            context_file_id?: string | null;
-            /**
-             * Goals
-             * @description Goals of the conversation
-             */
-            goals: string[];
-            /**
-             * Evaluation Criteria
-             * @description Evaluation criteria
-             */
-            evaluation_criteria: string[];
+            agent_instructions: string;
             /**
              * Is Default
              * @description Whether this template is the default for the tenant
@@ -1777,80 +1655,10 @@ export interface components {
         /** ChatConversationParameterTemplatePatchRequest */
         ChatConversationParameterTemplatePatchRequest: {
             /**
-             * Template Type
-             * @description Type of template
-             */
-            template_type?: ("PARAMETERIZED" | "FULL_CONTROLLED") | null;
-            /**
-             * Runner Instructions
-             * @description Instructions for the runner
-             */
-            runner_instructions?: string | null;
-            /**
              * Agent Instructions
              * @description Instructions for the agent
              */
             agent_instructions?: string | null;
-            /**
-             * User Role
-             * @description Role of the user
-             */
-            user_role?: string | null;
-            /**
-             * Conversation Type
-             * @description Type of conversation
-             */
-            conversation_type?: string | null;
-            /**
-             * Ai Role
-             * @description Role of the AI
-             */
-            ai_role?: string | null;
-            /**
-             * Ai Role Characteristics
-             * @description Characteristics of the AI role
-             */
-            ai_role_characteristics?: string[] | null;
-            /**
-             * Ai Role Emotional Tone
-             * @description Emotional tone of the AI role
-             */
-            ai_role_emotional_tone?: string[] | null;
-            /**
-             * Ai Role Dialogue Strategy
-             * @description AI role's dialogue strategy
-             */
-            ai_role_dialogue_strategy?: string[] | null;
-            /**
-             * Ai Role Constraints
-             * @description Rules or constraints the AI must follow
-             */
-            ai_role_constraints?: string[] | null;
-            /**
-             * Context Content
-             * @description Context content
-             */
-            context_content?: string | null;
-            /**
-             * Context Course Id
-             * @description Context course ID
-             */
-            context_course_id?: number | null;
-            /**
-             * Context File Id
-             * @description Context file ID
-             */
-            context_file_id?: string | null;
-            /**
-             * Goals
-             * @description Goals of the conversation
-             */
-            goals?: string[] | null;
-            /**
-             * Evaluation Criteria
-             * @description Evaluation criteria
-             */
-            evaluation_criteria?: string[] | null;
             /**
              * Is Default
              * @description Whether this template is the default for the tenant
@@ -1865,80 +1673,10 @@ export interface components {
              */
             id: number;
             /**
-             * Template Type
-             * @description Type of template (PARAMETERIZED or FULL_CONTROLLED)
-             */
-            template_type: string;
-            /**
-             * Runner Instructions
-             * @description Instructions for the runner
-             */
-            runner_instructions?: string | null;
-            /**
              * Agent Instructions
              * @description Instructions for the agent
              */
-            agent_instructions?: string | null;
-            /**
-             * User Role
-             * @description Role of the user
-             */
-            user_role: string;
-            /**
-             * Conversation Type
-             * @description Type of conversation
-             */
-            conversation_type: string;
-            /**
-             * Ai Role
-             * @description Role of the AI
-             */
-            ai_role: string;
-            /**
-             * Ai Role Characteristics
-             * @description Characteristics of the AI role
-             */
-            ai_role_characteristics: string[];
-            /**
-             * Ai Role Emotional Tone
-             * @description Emotional tone of the AI role
-             */
-            ai_role_emotional_tone: string[];
-            /**
-             * Ai Role Dialogue Strategy
-             * @description AI role's dialogue strategy
-             */
-            ai_role_dialogue_strategy: string[];
-            /**
-             * Ai Role Constraints
-             * @description Rules or constraints the AI must follow
-             */
-            ai_role_constraints: string[];
-            /**
-             * Context Content
-             * @description Context content
-             */
-            context_content?: string | null;
-            /**
-             * Context Course Id
-             * @description Context course ID
-             */
-            context_course_id?: number | null;
-            /**
-             * Context File Id
-             * @description Context file ID
-             */
-            context_file_id?: string | null;
-            /**
-             * Goals
-             * @description Goals of the conversation
-             */
-            goals: string[];
-            /**
-             * Evaluation Criteria
-             * @description Evaluation criteria
-             */
-            evaluation_criteria: string[];
+            agent_instructions: string;
             /**
              * Is Default
              * @description Whether this template is the default for the tenant
@@ -2105,7 +1843,7 @@ export interface components {
          * ElementType
          * @enum {string}
          */
-        ElementType: "TEXT" | "IMAGE_PAGE";
+        ElementType: "TEXT" | "PAGES_CHUNK" | "IMAGE_PAGE" | "FIGURE" | "TABLE";
         /**
          * EvaluationReportResponse
          * @description Evaluation report response model.
@@ -3450,26 +3188,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    test_static_test_static_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
     upload_file_datasources_upload_post: {
         parameters: {
             query?: never;
@@ -5216,6 +4934,170 @@ export interface operations {
             };
         };
     };
+    root_realtime_chat_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transfer_status_callback_realtime_chat_transfer_status_callback_get: {
+        parameters: {
+            query: {
+                session_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transfer_status_callback_realtime_chat_transfer_status_callback_post: {
+        parameters: {
+            query: {
+                session_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sms_webhook_realtime_chat_sms_webhook_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     sync_user_user_sync_post: {
         parameters: {
             query?: never;
@@ -6354,250 +6236,6 @@ export interface operations {
             };
         };
     };
-    root_realtime_chat_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    twilio_assistant_realtime_chat_twilio_assistant__tenant_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                tenant_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    twilio_assistant_realtime_chat_twilio_assistant__tenant_id__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                tenant_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    incoming_call_realtime_chat_incoming_call_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    incoming_call_realtime_chat_incoming_call_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    incoming_call_gather_realtime_chat_incoming_call_gather_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    incoming_call_gather_realtime_chat_incoming_call_gather_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    transfer_status_callback_realtime_chat_transfer_status_callback_get: {
-        parameters: {
-            query: {
-                session_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    transfer_status_callback_realtime_chat_transfer_status_callback_post: {
-        parameters: {
-            query: {
-                session_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sms_webhook_realtime_chat_sms_webhook_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
     trigger_error_debug_trigger_error_get: {
         parameters: {
             query?: never;
@@ -6639,6 +6277,26 @@ export interface operations {
         };
     };
     trigger_exception_debug_trigger_exception_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    trigger_error_sentry_debug_get: {
         parameters: {
             query?: never;
             header?: never;

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button, Input } from '../../../components/ui'
 
 export default function CreateProjectModal({
     isOpen,
@@ -24,9 +25,9 @@ export default function CreateProjectModal({
                     <h2 className="am-modal-title" id="create-project-title">
                         Create Project
                     </h2>
-                    <button type="button" className="am-icon-button" onClick={onClose} aria-label="Close">
+                    <Button type="button" variant="icon" size="icon" onClick={onClose} aria-label="Close">
                         ×
-                    </button>
+                    </Button>
                 </div>
                 <form onSubmit={onSubmit}>
                     <div className="am-text-2" style={{ marginBottom: '1rem' }}>
@@ -42,9 +43,8 @@ export default function CreateProjectModal({
                             <label className="am-label" htmlFor="project-name">
                                 Project Name
                             </label>
-                            <input
+                            <Input
                                 id="project-name"
-                                className="am-input"
                                 type="text"
                                 placeholder="Enter project name"
                                 value={createName}
@@ -55,12 +55,12 @@ export default function CreateProjectModal({
                         </div>
                     </div>
                     <div className="am-modal-footer">
-                        <button type="button" className="am-btn-secondary" onClick={onClose} disabled={isCreating}>
+                        <Button type="button" variant="secondary" onClick={onClose} disabled={isCreating}>
                             Cancel
-                        </button>
-                        <button type="submit" className="am-btn-primary" disabled={isCreating}>
+                        </Button>
+                        <Button type="submit" variant="primary" disabled={isCreating}>
                             {isCreating ? 'Creating...' : 'Create Project'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

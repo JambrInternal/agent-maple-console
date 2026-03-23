@@ -4,6 +4,7 @@ import { Phone, Copy, Check } from 'lucide-react'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { getProjectAgentContact } from '../services/agentFacade'
 import QueryError from '../components/QueryError'
+import { Button } from '../components/ui'
 
 const Voice = () => {
     const { orgId, projId } = useParams()
@@ -72,8 +73,9 @@ const Voice = () => {
                                         Project phone number
                                     </div>
                                 </div>
-                                <button
+                                <Button
                                     type="button"
+                                    variant="ghost"
                                     onClick={handleCopy}
                                     style={{
                                         background: 'none',
@@ -92,7 +94,7 @@ const Voice = () => {
                                     ) : (
                                         <Copy size={20} />
                                     )}
-                                </button>
+                                </Button>
                             </div>
 
                             <section className="am-card am-voice-callout">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { withStatus } from '../utils/errors';
+import { Button } from './ui';
 
 export default function QueryError({
   message,
@@ -15,14 +16,14 @@ export default function QueryError({
       <div>{withStatus(message, error)}</div>
 
       {onRetry && (
-        <button
-          className="am-btn-secondary"
+        <Button
           type="button"
+          variant="secondary"
           onClick={onRetry}
           style={{ marginTop: '0.75rem' }}
         >
           Retry
-        </button>
+        </Button>
       )}
     </div>
   );

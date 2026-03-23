@@ -1,9 +1,11 @@
 import React from 'react'
+import { Button } from '../../../components/ui'
 
 export default function AuthDebugToggle({ debugEnabled, onToggle }) {
     return (
-        <button
+        <Button
             type="button"
+            variant="ghost"
             onClick={onToggle}
             className="am-text-2"
             style={{
@@ -20,6 +22,6 @@ export default function AuthDebugToggle({ debugEnabled, onToggle }) {
             }}
         >
             {debugEnabled ? 'Disable Debug' : 'Enable Debug'}
-        </button>
+        </Button>
     )
 }

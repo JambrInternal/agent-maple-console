@@ -1,10 +1,12 @@
 import React from 'react'
 import { ArrowRight, Plus } from 'lucide-react'
+import { Button } from '../../../components/ui'
 
 export default function CreateOrganizationTile({ onClick }) {
     return (
-        <button
+        <Button
             type="button"
+            variant="ghost"
             className="am-card"
             aria-label="Create a New Organization"
             style={{
@@ -45,6 +47,6 @@ export default function CreateOrganizationTile({ onClick }) {
                 </div>
                 <ArrowRight size={20} className="am-text-2" />
             </div>
-        </button>
+        </Button>
     )
 }

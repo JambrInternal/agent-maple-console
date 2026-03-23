@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button, Input, Textarea } from '../../../components/ui'
 
 const TEXTAREA_ROWS = 3
 const LIST_ROWS = 3
@@ -6,9 +7,8 @@ const LIST_ROWS = 3
 const ListField = ({ id, label, value, onChange, disabled }) => (
     <div className="am-form-field">
         <label className="am-label" htmlFor={id}>{label}</label>
-        <textarea
+        <Textarea
             id={id}
-            className="am-input"
             rows={LIST_ROWS}
             value={value}
             onChange={(event) => onChange(event.target.value)}
@@ -71,49 +71,45 @@ export default function PersonalityTemplateForm({
                         <div className="am-form-grid">
                             <div className="am-form-field">
                                 <label className="am-label" htmlFor="personality-user-role">User Role</label>
-                                <input
-                                    id="personality-user-role"
-                                    className="am-input"
-                                    type="text"
-                                    value={value.userRole}
-                                    onChange={(event) => setField('userRole', event.target.value)}
-                                    disabled={disabled}
-                                    required
-                                />
+                            <Input
+                                id="personality-user-role"
+                                type="text"
+                                value={value.userRole}
+                                onChange={(event) => setField('userRole', event.target.value)}
+                                disabled={disabled}
+                                required
+                            />
                             </div>
 
                             <div className="am-form-field">
                                 <label className="am-label" htmlFor="personality-conversation-type">Conversation Type</label>
-                                <input
-                                    id="personality-conversation-type"
-                                    className="am-input"
-                                    type="text"
-                                    value={value.conversationType}
-                                    onChange={(event) => setField('conversationType', event.target.value)}
-                                    disabled={disabled}
-                                    required
-                                />
+                            <Input
+                                id="personality-conversation-type"
+                                type="text"
+                                value={value.conversationType}
+                                onChange={(event) => setField('conversationType', event.target.value)}
+                                disabled={disabled}
+                                required
+                            />
                             </div>
 
                             <div className="am-form-field">
                                 <label className="am-label" htmlFor="personality-ai-role">AI Role</label>
-                                <input
-                                    id="personality-ai-role"
-                                    className="am-input"
-                                    type="text"
-                                    value={value.aiRole}
-                                    onChange={(event) => setField('aiRole', event.target.value)}
-                                    disabled={disabled}
-                                    required
-                                />
+                            <Input
+                                id="personality-ai-role"
+                                type="text"
+                                value={value.aiRole}
+                                onChange={(event) => setField('aiRole', event.target.value)}
+                                disabled={disabled}
+                                required
+                            />
                             </div>
                         </div>
 
                         <div className="am-form-field">
                             <label className="am-label" htmlFor="personality-context-content">Context</label>
-                            <textarea
+                            <Textarea
                                 id="personality-context-content"
-                                className="am-input"
                                 rows={4}
                                 value={value.contextContent}
                                 onChange={(event) => setField('contextContent', event.target.value)}
@@ -173,9 +169,8 @@ export default function PersonalityTemplateForm({
                     <>
                         <div className="am-form-field">
                             <label className="am-label" htmlFor="personality-agent-instructions">Agent Instructions</label>
-                            <textarea
+                            <Textarea
                                 id="personality-agent-instructions"
-                                className="am-input"
                                 rows={TEXTAREA_ROWS}
                                 value={value.agentInstructions}
                                 onChange={(event) => setField('agentInstructions', event.target.value)}
@@ -186,9 +181,8 @@ export default function PersonalityTemplateForm({
 
                         <div className="am-form-field">
                             <label className="am-label" htmlFor="personality-runner-instructions">Runner Instructions</label>
-                            <textarea
+                            <Textarea
                                 id="personality-runner-instructions"
-                                className="am-input"
                                 rows={TEXTAREA_ROWS}
                                 value={value.runnerInstructions}
                                 onChange={(event) => setField('runnerInstructions', event.target.value)}
@@ -202,9 +196,9 @@ export default function PersonalityTemplateForm({
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" className="am-btn-primary" disabled={disabled}>
+                <Button type="submit" variant="primary" disabled={disabled}>
                     {disabled ? 'Saving...' : 'Save Personality'}
-                </button>
+                </Button>
             </div>
         </form>
     )

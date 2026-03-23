@@ -10,6 +10,7 @@ import { withStatus } from '../utils/errors'
 import CreateProjectModal from '../features/projects/components/CreateProjectModal'
 import ProjectCard from '../features/projects/components/ProjectCard'
 import { filterProjects, PROJECT_STATUS_OPTIONS } from '../features/projects/projectsUtils'
+import { Button, Input } from '../components/ui'
 
 const Projects = () => {
     const { orgId } = useParams()
@@ -116,9 +117,9 @@ const Projects = () => {
                     <h1 className="am-page-title">Projects</h1>
                     <p className="am-page-subtitle">Monitor agent status and site activity</p>
                 </div>
-                <button
-                    className="am-btn-primary"
+                <Button
                     type="button"
+                    variant="primary"
                     onClick={openCreateModal}
                     disabled={hasProjectLimitReached}
                     aria-disabled={hasProjectLimitReached}
@@ -127,14 +128,13 @@ const Projects = () => {
                 >
                     <Plus size={16} />
                     <span>Launch Project</span>
-                </button>
+                </Button>
             </div>
 
             <div className="am-projects-toolbar">
                 <div className="am-projects-search">
                     <Search size={16} className="am-text-2" />
-                    <input
-                        className="am-input"
+                    <Input
                         placeholder="Search projects..."
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
@@ -142,14 +142,15 @@ const Projects = () => {
                 </div>
                 <div className="am-filter-row">
                     {PROJECT_STATUS_OPTIONS.map((option) => (
-                        <button
+                        <Button
                             key={option.key}
                             type="button"
+                            variant="ghost"
                             className={`am-filter-pill ${statusFilter === option.key ? 'active' : ''}`}
                             onClick={() => setStatusFilter(option.key)}
                         >
                             {option.label}
-                        </button>
+                        </Button>
                     ))}
                 </div>
             </div>

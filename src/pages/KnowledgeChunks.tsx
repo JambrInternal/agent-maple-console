@@ -10,6 +10,7 @@ import {
     reprocessKnowledgeChunksBatch,
 } from '../services/knowledge'
 import { withStatus } from '../utils/errors'
+import { Button } from '../components/ui'
 
 const formatChunkDate = (value) => {
     if (!value) return '—'
@@ -190,13 +191,13 @@ const KnowledgeChunks = () => {
                             Inspect and manage chunk processing for datasource {datasourceId}.
                         </p>
                     </div>
-                    <button
+                    <Button
                         type="button"
-                        className="am-btn-secondary"
+                        variant="secondary"
                         onClick={() => navigate(`/${orgId}/${projId}/knowledge`)}
                     >
                         Back to Knowledge
-                    </button>
+                    </Button>
                 </div>
 
                 {selectedCount > 0 && (
@@ -204,22 +205,22 @@ const KnowledgeChunks = () => {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                             <div className="am-text-2">{selectedCount} chunk(s) selected</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <button
+                                <Button
                                     type="button"
-                                    className="am-btn-secondary"
+                                    variant="secondary"
                                     disabled={isBusy}
                                     onClick={handleBatchReprocess}
                                 >
                                     {isBatchReprocessing ? 'Reprocessing...' : 'Reprocess Selected'}
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="button"
-                                    className="am-btn-secondary"
+                                    variant="secondary"
                                     disabled={isBusy}
                                     onClick={handleBatchDelete}
                                 >
                                     {isBatchDeleting ? 'Deleting...' : 'Delete Selected'}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -296,22 +297,22 @@ const KnowledgeChunks = () => {
                                         <td className="am-text-2">{formatChunkDate(chunk.updatedAt)}</td>
                                         <td className="am-table-action">
                                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <button
+                                                <Button
                                                     type="button"
-                                                    className="am-btn-secondary"
+                                                    variant="secondary"
                                                     onClick={() => handleReprocessOne(chunk)}
                                                     disabled={isBusy}
                                                 >
                                                     Reprocess
-                                                </button>
-                                                <button
+                                                </Button>
+                                                <Button
                                                     type="button"
-                                                    className="am-btn-secondary"
+                                                    variant="secondary"
                                                     onClick={() => handleDeleteOne(chunk)}
                                                     disabled={isBusy}
                                                 >
                                                     Delete
-                                                </button>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -332,4 +333,3 @@ const KnowledgeChunks = () => {
 }
 
 export default KnowledgeChunks
-

@@ -3,12 +3,6 @@ import type { paths, components } from "./openapi";
 
 // This file is auto-generated. Do not edit manually.
 
-/** Test Static */
-export async function testStaticTestStaticGet() {
-  const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>('/test-static', fetchOptions);
-}
-
 /** Upload File */
 export async function uploadFileDatasourcesUploadPost(options?: any) {
   const fetchOptions: any = { method: 'POST' };
@@ -369,6 +363,60 @@ export async function oauth2UnauthorizeOauth2Unauthorize_Provider_Delete(provide
   return apiFetch<any>(`/oauth2/unauthorize/${provider}`, fetchOptions);
 }
 
+/** Root */
+export async function rootRealtimeChatGet() {
+  const fetchOptions: any = { method: 'GET' };
+  return apiFetch<any>('/realtime_chat', fetchOptions);
+}
+
+/** Twilio Assistant */
+export async function twilioAssistantRealtimeChatTwilioAssistant_TenantId_Get(tenant_id: string | number) {
+  const fetchOptions: any = { method: 'GET' };
+  return apiFetch<any>(`/realtime_chat/twilio-assistant/${tenant_id}`, fetchOptions);
+}
+
+/** Twilio Assistant */
+export async function twilioAssistantRealtimeChatTwilioAssistant_TenantId_Post(tenant_id: string | number) {
+  const fetchOptions: any = { method: 'POST' };
+  return apiFetch<any>(`/realtime_chat/twilio-assistant/${tenant_id}`, fetchOptions);
+}
+
+/** Transfer Status Callback */
+export async function transferStatusCallbackRealtimeChatTransferStatusCallbackGet(options?: any) {
+  const fetchOptions: any = { method: 'GET' };
+  let url = '/realtime_chat/transfer-status-callback';
+  if (options?.query) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query)) {
+      if (value !== undefined && value !== null) searchParams.append(key, String(value));
+    }
+    const queryString = searchParams.toString();
+    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
+  }
+  return apiFetch<any>(url, fetchOptions);
+}
+
+/** Transfer Status Callback */
+export async function transferStatusCallbackRealtimeChatTransferStatusCallbackPost(options?: any) {
+  const fetchOptions: any = { method: 'POST' };
+  let url = '/realtime_chat/transfer-status-callback';
+  if (options?.query) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query)) {
+      if (value !== undefined && value !== null) searchParams.append(key, String(value));
+    }
+    const queryString = searchParams.toString();
+    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
+  }
+  return apiFetch<any>(url, fetchOptions);
+}
+
+/** Sms Webhook */
+export async function smsWebhookRealtimeChatSmsWebhookPost() {
+  const fetchOptions: any = { method: 'POST' };
+  return apiFetch<any>('/realtime_chat/sms-webhook', fetchOptions);
+}
+
 /** Sync User */
 export async function syncUserUserSyncPost() {
   const fetchOptions: any = { method: 'POST' };
@@ -556,84 +604,6 @@ export async function updateIssueIssues_IssueId_Patch(issue_id: string | number,
   return apiFetch<any>(`/issues/${issue_id}`, fetchOptions);
 }
 
-/** Root */
-export async function rootRealtimeChatGet() {
-  const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>('/realtime_chat', fetchOptions);
-}
-
-/** Twilio Assistant */
-export async function twilioAssistantRealtimeChatTwilioAssistant_TenantId_Get(tenant_id: string | number) {
-  const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>(`/realtime_chat/twilio-assistant/${tenant_id}`, fetchOptions);
-}
-
-/** Twilio Assistant */
-export async function twilioAssistantRealtimeChatTwilioAssistant_TenantId_Post(tenant_id: string | number) {
-  const fetchOptions: any = { method: 'POST' };
-  return apiFetch<any>(`/realtime_chat/twilio-assistant/${tenant_id}`, fetchOptions);
-}
-
-/** Incoming Call */
-export async function incomingCallRealtimeChatIncomingCallGet() {
-  const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>('/realtime_chat/incoming-call', fetchOptions);
-}
-
-/** Incoming Call */
-export async function incomingCallRealtimeChatIncomingCallPost() {
-  const fetchOptions: any = { method: 'POST' };
-  return apiFetch<any>('/realtime_chat/incoming-call', fetchOptions);
-}
-
-/** Incoming Call Gather */
-export async function incomingCallGatherRealtimeChatIncomingCallGatherGet() {
-  const fetchOptions: any = { method: 'GET' };
-  return apiFetch<any>('/realtime_chat/incoming-call/gather', fetchOptions);
-}
-
-/** Incoming Call Gather */
-export async function incomingCallGatherRealtimeChatIncomingCallGatherPost() {
-  const fetchOptions: any = { method: 'POST' };
-  return apiFetch<any>('/realtime_chat/incoming-call/gather', fetchOptions);
-}
-
-/** Transfer Status Callback */
-export async function transferStatusCallbackRealtimeChatTransferStatusCallbackGet(options?: any) {
-  const fetchOptions: any = { method: 'GET' };
-  let url = '/realtime_chat/transfer-status-callback';
-  if (options?.query) {
-    const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(options.query)) {
-      if (value !== undefined && value !== null) searchParams.append(key, String(value));
-    }
-    const queryString = searchParams.toString();
-    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
-  }
-  return apiFetch<any>(url, fetchOptions);
-}
-
-/** Transfer Status Callback */
-export async function transferStatusCallbackRealtimeChatTransferStatusCallbackPost(options?: any) {
-  const fetchOptions: any = { method: 'POST' };
-  let url = '/realtime_chat/transfer-status-callback';
-  if (options?.query) {
-    const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(options.query)) {
-      if (value !== undefined && value !== null) searchParams.append(key, String(value));
-    }
-    const queryString = searchParams.toString();
-    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
-  }
-  return apiFetch<any>(url, fetchOptions);
-}
-
-/** Sms Webhook */
-export async function smsWebhookRealtimeChatSmsWebhookPost() {
-  const fetchOptions: any = { method: 'POST' };
-  return apiFetch<any>('/realtime_chat/sms-webhook', fetchOptions);
-}
-
 /** Trigger Error */
 export async function triggerErrorDebugTriggerErrorGet() {
   const fetchOptions: any = { method: 'GET' };
@@ -650,4 +620,10 @@ export async function triggerWarningDebugTriggerWarningGet() {
 export async function triggerExceptionDebugTriggerExceptionGet() {
   const fetchOptions: any = { method: 'GET' };
   return apiFetch<any>('/debug/trigger-exception', fetchOptions);
+}
+
+/** Trigger Error */
+export async function triggerErrorSentryDebugGet() {
+  const fetchOptions: any = { method: 'GET' };
+  return apiFetch<any>('/sentry-debug', fetchOptions);
 }
