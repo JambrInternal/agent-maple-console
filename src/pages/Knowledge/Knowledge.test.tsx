@@ -263,12 +263,18 @@ describe('Knowledge page', () => {
 
     renderKnowledge()
     const user = userEvent.setup()
-    const syncButtons = await screen.findAllByRole('button', { name: 'Sync' })
-    await user.click(syncButtons[0])
+    await screen.findByRole('button', { name: 'Disconnect' })
+    const syncButtons = screen.getAllByRole('button', { name: 'Sync' })
+    const enabledSyncButton = syncButtons.find((button) => !button.hasAttribute('disabled'))
+    expect(enabledSyncButton).toBeDefined()
+    if (!enabledSyncButton) {
+      throw new Error('Expected an enabled Sync button for a connected provider')
+    }
+    await user.click(enabledSyncButton)
 
-    await user.type(screen.getByLabelText('Folder IDs (Optional)'), ' root, team-folder\nroot ')
-    await user.click(screen.getByRole('checkbox', { name: 'Sync subfolders recursively' }))
-    await user.click(screen.getByRole('button', { name: 'Start Google Drive Sync' }))
+    await user.type(await screen.findByLabelText('Folder IDs (Optional)'), ' root, team-folder\nroot ')
+    await user.click(await screen.findByRole('checkbox', { name: 'Sync subfolders recursively' }))
+    await user.click(await screen.findByRole('button', { name: 'Start Google Drive Sync' }))
 
     await waitFor(() =>
       expect(syncKnowledgeGoogleDrive).toHaveBeenCalledWith(

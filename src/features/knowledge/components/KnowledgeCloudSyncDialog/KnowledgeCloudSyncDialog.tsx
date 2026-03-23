@@ -20,7 +20,17 @@ export default function KnowledgeCloudSyncDialog({
   const canDismiss = !isSubmitting
 
   const handleBackdropKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      onClose()
+      return
+    }
+
+    if (event.target !== event.currentTarget) {
+      return
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       onClose()
     }

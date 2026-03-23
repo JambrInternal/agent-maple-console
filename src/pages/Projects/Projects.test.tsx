@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
@@ -118,10 +118,13 @@ describe('Projects page', () => {
     await screen.findByText('No projects match your filters.')
 
     await user.click(screen.getByRole('button', { name: 'Launch Project' }))
-    await user.type(screen.getByLabelText('Project Name'), 'New Project')
-    await user.click(screen.getByRole('button', { name: 'Create Project' }))
+    const createDialog = await screen.findByRole('dialog', { name: 'Create Project' })
+    await user.type(within(createDialog).getByLabelText('Project Name'), 'New Project')
+    await user.click(within(createDialog).getByRole('button', { name: 'Create Project' }))
 
-    expect(createProject).toHaveBeenCalledWith('org_1', 'New Project')
+    await waitFor(() => {
+      expect(createProject).toHaveBeenCalledWith('org_1', 'New Project')
+    })
   })
 
   it('auto-creates a default personality template after project creation', async () => {
@@ -141,14 +144,17 @@ describe('Projects page', () => {
     await screen.findByText('No projects match your filters.')
 
     await user.click(screen.getByRole('button', { name: 'Launch Project' }))
-    await user.type(screen.getByLabelText('Project Name'), 'Fresh Project')
-    await user.click(screen.getByRole('button', { name: 'Create Project' }))
+    const createDialog = await screen.findByRole('dialog', { name: 'Create Project' })
+    await user.type(within(createDialog).getByLabelText('Project Name'), 'Fresh Project')
+    await user.click(within(createDialog).getByRole('button', { name: 'Create Project' }))
 
-    expect(createProject).toHaveBeenCalledWith('org_1', 'Fresh Project')
-    expect(saveProjectPersonalityTemplate).toHaveBeenCalledWith(
-      { organizationId: 'org_1', projectId: 'proj_new' },
-      DEFAULT_PROJECT_PERSONALITY_TEMPLATE
-    )
+    await waitFor(() => {
+      expect(createProject).toHaveBeenCalledWith('org_1', 'Fresh Project')
+      expect(saveProjectPersonalityTemplate).toHaveBeenCalledWith(
+        { organizationId: 'org_1', projectId: 'proj_new' },
+        DEFAULT_PROJECT_PERSONALITY_TEMPLATE
+      )
+    })
   })
 
   it('still completes project creation if personality template creation fails', async () => {
@@ -169,10 +175,13 @@ describe('Projects page', () => {
     await screen.findByText('No projects match your filters.')
 
     await user.click(screen.getByRole('button', { name: 'Launch Project' }))
-    await user.type(screen.getByLabelText('Project Name'), 'Resilient Project')
-    await user.click(screen.getByRole('button', { name: 'Create Project' }))
+    const createDialog = await screen.findByRole('dialog', { name: 'Create Project' })
+    await user.type(within(createDialog).getByLabelText('Project Name'), 'Resilient Project')
+    await user.click(within(createDialog).getByRole('button', { name: 'Create Project' }))
 
-    expect(createProject).toHaveBeenCalledWith('org_1', 'Resilient Project')
-    expect(saveProjectPersonalityTemplate).toHaveBeenCalled()
+    await waitFor(() => {
+      expect(createProject).toHaveBeenCalledWith('org_1', 'Resilient Project')
+      expect(saveProjectPersonalityTemplate).toHaveBeenCalled()
+    })
   })
 })

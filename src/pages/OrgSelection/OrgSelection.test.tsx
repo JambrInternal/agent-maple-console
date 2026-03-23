@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -44,9 +44,12 @@ describe('OrgSelection', () => {
     expect(await screen.findByText('Create a New Organization')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Create a New Organization' }))
-    await user.type(screen.getByLabelText('Organization Name'), 'New Org')
-    await user.click(screen.getByRole('button', { name: 'Create Organization' }))
+    const createDialog = await screen.findByRole('dialog', { name: 'Create Organization' })
+    await user.type(within(createDialog).getByLabelText('Organization Name'), 'New Org')
+    await user.click(within(createDialog).getByRole('button', { name: 'Create Organization' }))
 
-    expect(createOrganization).toHaveBeenCalledWith(expect.objectContaining({ name: 'New Org' }))
+    await waitFor(() => {
+      expect(createOrganization).toHaveBeenCalledWith(expect.objectContaining({ name: 'New Org' }))
+    })
   })
 })
