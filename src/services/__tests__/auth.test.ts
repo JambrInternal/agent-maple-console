@@ -50,7 +50,6 @@ describe('auth service', () => {
         expect(result.organizationId).toBeNull();
         expect(localStorage.getItem('am_auth_token')).toBe('token-123');
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
-        expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
     it('hydrates user on session restore (no sync)', async () => {
@@ -74,7 +73,6 @@ describe('auth service', () => {
         expect(result).not.toBeNull();
         expect(result!.organizationId).toBeNull();
         expect(localStorage.getItem('am_user')).toBe(JSON.stringify(result));
-        expect(apiFetch).not.toHaveBeenCalledWith('/user/sync', { method: 'POST' });
     });
 
     it('registers a new invited user account', async () => {

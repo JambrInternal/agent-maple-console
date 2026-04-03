@@ -23,7 +23,7 @@ To check freshness: `npm run check:api`
 
 - All API calls go through `apiFetch()` from `client.ts` — never use raw `fetch()`
 - Auth token from `localStorage.getItem('am_auth_token')` with fresh-token fallback via `services/token.ts`
-- Tenant ID attached via `x-tenant-id` header (except exempt paths: `/user/sync`, `/user/tenants`, `/user/accept-invitation`)
+- Tenant ID attached via `x-tenant-id` header (except exempt paths: `/user/tenants`, `/user/accept-invitation`)
 - When the backend API changes, run `npm run generate:api` and update tests in `__tests__/`
 
 See `/AGENTS.md` for project-wide rules.

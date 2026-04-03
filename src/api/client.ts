@@ -50,7 +50,6 @@ const getAuthToken = () => localStorage.getItem('am_auth_token');
 const getTenantId = () => localStorage.getItem('am_tenant_id');
 
 const TENANT_HEADER_EXEMPT_PATHS = new Set([
-    '/user/sync',
     '/user/tenants',
     '/user/accept-invitation',
 ]);

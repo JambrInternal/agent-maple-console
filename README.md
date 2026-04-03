@@ -166,7 +166,7 @@ The console currently runs in a compatibility mode to bridge project-scoped UX w
   - Single `/accept-invitation` auth flow (sign in/register/confirm) with inline errors.
   - Accept-invitation retries token aliases only when backend validation explicitly requires alias fields.
 - **Cognito to backend sync**:
-  - Frontend calls `POST /user/sync` after sign-in/session restore to ensure backend user records exist before tenant-scoped reads.
+
 - **Admin fallback**:
   - If admin project endpoint access fails (`401/403`), admin mode is disabled and project loading falls back to tenant-header endpoints.
 

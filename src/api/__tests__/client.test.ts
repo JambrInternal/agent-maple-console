@@ -14,16 +14,16 @@ import { getFreshToken } from '../../services/token';
 describe('API client URL normalization', () => {
   it('joins baseUrl and endpoint without double slashes', () => {
     const baseUrl = 'https://api.dev.agentmaple.ca/';
-    const endpoint = '/user/sync';
+    const endpoint = '/user/tenants';
     const url = new URL(endpoint, baseUrl).toString();
-    expect(url).toBe('https://api.dev.agentmaple.ca/user/sync');
+    expect(url).toBe('https://api.dev.agentmaple.ca/user/tenants');
   });
 
   it('joins baseUrl and endpoint with no leading slash', () => {
     const baseUrl = 'https://api.dev.agentmaple.ca';
-    const endpoint = 'user/sync';
+    const endpoint = 'user/tenants';
     const url = new URL(endpoint, baseUrl).toString();
-    expect(url).toBe('https://api.dev.agentmaple.ca/user/sync');
+    expect(url).toBe('https://api.dev.agentmaple.ca/user/tenants');
   });
 });
 
@@ -122,7 +122,7 @@ describe('API client 401 redirect', () => {
       statusText: 'Unauthorized',
       json: async () => ({ message: 'Unauthorized' }),
     })) as any;
-    await expect(client.apiFetch('/user/sync')).rejects.toMatchObject({ status: 401 });
+    await expect(client.apiFetch('/user/tenants')).rejects.toMatchObject({ status: 401 });
     expect(client.navigation.toLogin).toHaveBeenCalledTimes(1);
   });
 });
